@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema Integral de Circuitos Turísticos 🗺️
 
-## Getting Started
+Guía para levantar el proyecto localmente (frontend + backend).
 
-First, run the development server:
+## Requisitos previos
+
+- Git y Visual Studio Code
+- Node.js ≥ 18
+- Python 3.10+
+- PostgreSQL + pgAdmin (asegurarse de agregar al Path durante la instalación)
+
+## Inicio rápido (desarrollo)
+
+1. Clonar el repositorio
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/joelmattieu/sistema-circuitos-turisticos.git
+cd sistema-circuitos-turisticos
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Backend
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+cd backend
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- macOS
 
-## Learn More
+```bash
+# Creación de entorno virtual y activación
+python -m venv .venv
+source .venv/bin/activate
 
-To learn more about Next.js, take a look at the following resources:
+# Instalación de dependencias en el entorno
+pip install -r requirements.txt
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Asegurarse de que PostgreSQL esté corriendo y que exista la base de datos (ver nota abajo)
+uvicorn main:app --reload --port 8000
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Windows (CMD)
 
-## Deploy on Vercel
+```bash
+# Creación de entorno virtual y activación
+python -m venv .venv
+.venv\Scripts\activate
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Instalación de dependencias en el entorno
+pip install -r requirements.txt
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Asegurarse de que PostgreSQL esté corriendo y que exista la base de datos (ver nota abajo)
+uvicorn main:app --reload --port 8000
+```
+
+## Nota sobre PostgreSQL
+
+Asegurarse de que PostgreSQL esté en ejecución y crear la base de datos con el nombre que se vaya a usar (se puede crear desde pgAdmin). Definir la URL de conexión con las credenciales propias en `backend/.env` usando la variable DATABASE_URL (reemplazar usuario:contraseña y nombre_de_la_bd):
+
+```env
+DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/nombre_de_la_bd
+```
+
+Nota: `backend/db.py` lee `DATABASE_URL` al iniciar. No subir `backend/.env` al repositorio.
+
+Levantar el backend con Uvicorn; las tablas se crearán automáticamente si la base de datos existe.
+
+3. Frontend
+
+```bash
+cd ../frontend
+```
+
+- Con npm
+
+```bash
+npm install
+npm run dev   # abre: http://localhost:3000
+```
+
+- Con yarn
+
+```bash
+yarn install
+yarn dev      # abre: http://localhost:3000
+```
+
+## Variables de entorno
+
+- Copiar y completar con las credenciales:
+  - `backend/.env.example` → `backend/.env`
+  - `frontend/.env.local.example` → `frontend/.env.local`
+- Asegurarse de no subir archivos con credenciales al repositorio público.
+
+## URLs locales
+
+- Frontend: http://localhost:3000
+- Documentación FastAPI: http://127.0.0.1:8000/docs
+
+## Autor y repo
+
+- Autor: Joel Mattieu
+- Repo: https://github.com/joelmattieu/sistema-circuitos-turisticos
+
+## Demo
+
+- Video de demostración: https://youtu.be/
