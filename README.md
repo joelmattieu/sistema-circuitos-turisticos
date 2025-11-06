@@ -60,11 +60,9 @@ Asegurarse de que PostgreSQL esté en ejecución y crear la base de datos con el
 DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/nombre_de_la_bd
 ```
 
-Nota: `backend/db.py` lee `DATABASE_URL` al iniciar. No subir `backend/.env` al repositorio.
-
 Levantar el backend con Uvicorn; las tablas se crearán automáticamente si la base de datos existe.
 
-3. Frontend
+1. Frontend
 
 ```bash
 cd ../frontend
@@ -89,7 +87,7 @@ yarn dev      # abre: http://localhost:3000
 - Copiar y completar con las credenciales:
   - `backend/.env.example` → `backend/.env`
   - `frontend/.env.local.example` → `frontend/.env.local`
-- Asegurarse de no subir archivos con credenciales al repositorio público.
+- IMPORTANTE: No subir archivos con credenciales al repositorio público.
 
 ## URLs locales
 
