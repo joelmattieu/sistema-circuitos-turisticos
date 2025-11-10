@@ -1,6 +1,6 @@
-# Sistema Integral de Circuitos Turísticos 🗺️
+# Sistema Integral de Circuitos Turísticos Interactivos
 
-Guía para levantar el proyecto localmente (frontend + backend).
+Sistema para recorrer circuitos turísticos interactivos en la ciudad de Córdoba, incluyendo funcionalidades como visualización de mapas, información de puntos de interés y modo de realidad aumentada.
 
 ## Requisitos previos
 
@@ -9,7 +9,7 @@ Guía para levantar el proyecto localmente (frontend + backend).
 - Python 3.10+
 - PostgreSQL + pgAdmin (asegurarse de agregar al Path durante la instalación)
 
-## Inicio rápido (desarrollo)
+## Guía para levantar el proyecto localmente (desarrollo)
 
 1. Clonar el repositorio
 
