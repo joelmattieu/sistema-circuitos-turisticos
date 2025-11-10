@@ -101,4 +101,4 @@ yarn dev      # abre: http://localhost:3000
 
 ## Demo
 
-- [Ver prototipo interactivo en Figma](https://www.figma.com/proto/EavpxAYgOYFviEqzJpPl9A/DISE%C3%91O-PROTOTIPOS-PANTALLAS?node-id=25-2259&p=f&t=RR8qoAfF202GKbvc-0&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=28%3A134)
+🔗 [Ver prototipo interactivo en Figma](https://www.figma.com/proto/EavpxAYgOYFviEqzJpPl9A/DISE%C3%91O-PROTOTIPOS-PANTALLAS?node-id=25-2259&p=f&t=RR8qoAfF202GKbvc-0&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=28%3A134)
