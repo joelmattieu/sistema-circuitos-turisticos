@@ -24,6 +24,7 @@ cd sistema-circuitos-turisticos
 cd backend
 ```
 
+
 - macOS
 
 ```bash
@@ -62,7 +63,9 @@ DATABASE_URL=postgresql://usuario:contraseña@localhost:5432/nombre_de_la_bd
 
 Levantar el backend con Uvicorn; las tablas se crearán automáticamente si la base de datos existe.
 
-1. Frontend
+3. Frontend
+
+Correr el frontend en una nueva terminal.
 
 ```bash
 cd ../frontend
