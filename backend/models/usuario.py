@@ -1,0 +1,15 @@
+from db import Base
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+
+class UsuarioModel(Base):
+  __tablename__ = 'usuarios'
+  
+  usuario_id = Column(Integer, primary_key=True, index=True)
+  nombre = Column(String, index=True)
+  apellido = Column(String, index=True)
+  email = Column(String, unique=True, index=True)
+  contrasenia = Column(String)
+  ciudad = Column(String)
+  provincia_id = Column(Integer)
+
