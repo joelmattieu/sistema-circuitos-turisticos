@@ -9,7 +9,7 @@ class UsuarioModel(Base):
   nombre = Column(String, index=True)
   apellido = Column(String, index=True)
   email = Column(String, unique=True, index=True)
-  contrasenia = Column(String)
+  contrasena = Column(String)
   ciudad = Column(String)
   provincia_id = Column(Integer)
 
