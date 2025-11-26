@@ -43,7 +43,7 @@ const StyledTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
     height: "30px",
-    fontSize: "16px",
+    fontSize: "13px",
     border: "1px solid #e0e0e0",
     "& fieldset": {
       border: "none",
@@ -149,10 +149,7 @@ const Login = () => {
               sx={{
                 color: "#FF9800",
                 textDecoration: "none",
-                fontWeight: 600,
-                "&:hover": {
-                  textDecoration: "underline",
-                },
+                fontWeight: 600
               }}
             >
               Regístrate
