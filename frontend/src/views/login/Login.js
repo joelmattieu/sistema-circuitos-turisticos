@@ -1,7 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { Box, Card, TextField, Button, Typography, Link } from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
+import { useForm, Controller } from "react-hook-form";
 
 const GradientBackground = styled(Box)(({ theme }) => ({
   background: `linear-gradient(180deg, ${theme.palette.primary.main} 0%, ${theme.palette.tertiary.main} 100%)`,
@@ -54,6 +55,9 @@ const StyledTextField = styled(TextField)({
     "&.Mui-focused fieldset": {
       border: "2px solid #FF9800",
     },
+    "&.Mui-error fieldset": {
+      border: "2px solid #f44336",
+    },
   },
   "& .MuiOutlinedInput-input": {
     padding: "14px 16px",
@@ -62,22 +66,20 @@ const StyledTextField = styled(TextField)({
 
 const Login = () => {
   const theme = useTheme();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Login:", formData);
+  const onSubmit = (data) => {
+    console.log("Login:", data);
   };
 
   return (
@@ -96,23 +98,37 @@ const Login = () => {
           Inicia Sesión
         </Typography>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <Box sx={{ marginBottom: "20px", textAlign: "left" }}>
             <Typography
               variant="body1"
               sx={{
                 fontWeight: 600,
                 fontSize: "14px",
+                marginBottom: "5px",
               }}
             >
               Email
             </Typography>
-            <StyledTextField
-              fullWidth
+            <Controller
               name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
+              control={control}
+              rules={{
+                required: "El email es obligatorio",
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Formato de email inválido",
+                },
+              }}
+              render={({ field }) => (
+                <StyledTextField
+                  {...field}
+                  fullWidth
+                  type="email"
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                />
+              )}
             />
           </Box>
 
@@ -122,16 +138,30 @@ const Login = () => {
               sx={{
                 fontWeight: 600,
                 fontSize: "14px",
+                marginBottom: "5px",
               }}
             >
               Contraseña
             </Typography>
-            <StyledTextField
-              fullWidth
+            <Controller
               name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleInputChange}
+              control={control}
+              rules={{
+                required: "La contraseña es obligatoria",
+                minLength: {
+                  value: 6,
+                  message: "La contraseña debe tener al menos 6 caracteres",
+                },
+              }}
+              render={({ field }) => (
+                <StyledTextField
+                  {...field}
+                  fullWidth
+                  type="password"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                />
+              )}
             />
           </Box>
 
@@ -149,7 +179,7 @@ const Login = () => {
               sx={{
                 color: "#FF9800",
                 textDecoration: "none",
-                fontWeight: 600
+                fontWeight: 600,
               }}
             >
               Regístrate
