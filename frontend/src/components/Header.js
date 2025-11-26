@@ -1,72 +1,40 @@
-"use client";
-import { useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  IconButton,
-  Typography,
-  Menu,
-  MenuItem,
-  Avatar,
-  Badge,
-} from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
+import Avatar from "@mui/material/Avatar";
 
 const Header = () => {
-  const { user, logout } = useAuth();
-  const router = useRouter();
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.push("/login");
-  };
-
   return (
-    <AppBar
-      position="fixed"
-      sx={{
-        zIndex: (theme) => theme.zIndex.drawer + 1,
-      }}
-    >
-      <Toolbar>
-        <Typography variant="h4" sx={{ flexGrow: 1 }}>
-          Prueba
-        </Typography>
-
-        <IconButton color="inherit">
-          <Badge badgeContent={0} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-
-        <IconButton color="inherit" onClick={handleMenu}>
-          <Avatar alt={user ? user.nombre : "Usuario"} />
-        </IconButton>
-
-        <Menu
-          anchorEl={anchorEl}
-          keepMounted
-          open={Boolean(anchorEl)}
-          onClose={handleClose}
+    <Box sx={{ flexGrow: 1 }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          top: 0,
+          left: 0,
+          right: 0,
+          width: "100%",
+          backgroundColor: "primary.main",
+        }}
+      >
+        <Toolbar
+          sx={{ display: "flex", justifyContent: "space-between", px: 4 }}
         >
-          {user && (
-            <MenuItem disabled>{`${user.nombre} ${user.apellido}`}</MenuItem>
-          )}
-          <MenuItem onClick={handleLogout}>Cerrar sesión</MenuItem>
-        </Menu>
-      </Toolbar>
-    </AppBar>
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="menu"
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+
+          <Avatar alt="Usuario" sx={{ width: 32, height: 32 }} />
+        </Toolbar>
+      </AppBar>
+    </Box>
   );
 };
 
