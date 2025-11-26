@@ -1,14 +1,8 @@
 import { createTheme } from "@mui/material/styles";
-import { Montserrat } from "next/font/google";
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
-});
 
 const theme = createTheme({
   typography: {
-    fontFamily: `${montserrat.style.fontFamily}, "Roboto", "Helvetica", "Arial", sans-serif`,
+    fontFamily: "var(--font-montserrat), Roboto, Helvetica, Arial, sans-serif",
   },
   palette: {
     primary: {
@@ -18,7 +12,7 @@ const theme = createTheme({
       main: "#FF9800",
     },
     tertiary: {
-      main: "#26C6DA"
+      main: "#26C6DA",
     },
     background: {
       main: "#FAFAFA",
