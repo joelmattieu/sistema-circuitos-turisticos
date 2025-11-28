@@ -1,5 +1,5 @@
 from db import Base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 class UsuarioModel(Base):
@@ -11,5 +11,7 @@ class UsuarioModel(Base):
   email = Column(String, unique=True, index=True)
   contrasena = Column(String)
   ciudad = Column(String)
-  provincia_id = Column(Integer)
+  provincia_id = Column(Integer, ForeignKey('provincias.provincia_id')) 
+  
+  provincia = relationship("ProvinciaModel", back_populates="usuarios")
 

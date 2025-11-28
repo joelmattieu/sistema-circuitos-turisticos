@@ -2,10 +2,10 @@ from db import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-class PaisModel(Base):
-  __tablename__ = 'paises'
+class IdiomaModel(Base):  # ← Cambiar de PaisModel a IdiomaModel
+  __tablename__ = 'idiomas'
   
-  pais_id = Column(Integer, primary_key=True, index=True)
-  nombre_pais = Column(String, index=True)
-  
-  
+  idioma_id = Column(Integer, primary_key=True, index=True)
+  nombre_idioma = Column(String, index=True)
+  codigo_iso = Column(String(2), index=True)
+

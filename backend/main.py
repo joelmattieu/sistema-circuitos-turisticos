@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
-from db import create_tables, get_db
+from db import create_tables, get_db, Base
 from routes.auth import route_auth
+from services.load_data import load_data
 
 app = FastAPI()
 
@@ -21,9 +22,10 @@ app.add_middleware(
 
 create_tables()
 
-app.include_router(route_auth)
-
 # Cargar datos en las tablas 
 @app.on_event("startup")
 def startup_event():
   db: Session = next(get_db())
+  load_data(db)
+  
+app.include_router(route_auth)
