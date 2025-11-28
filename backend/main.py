@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from db import create_tables, get_db, Base
-from routes.auth import route_auth
+from routes.auth_route import route_auth
+from routes.provincias_route import router as route_provincias
 from services.load_data import load_data
 
 app = FastAPI()
@@ -29,3 +30,4 @@ def startup_event():
   load_data(db)
   
 app.include_router(route_auth)
+app.include_router(route_provincias)
