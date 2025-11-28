@@ -104,8 +104,7 @@ const Login = () => {
               variant="body1"
               sx={{
                 fontWeight: 600,
-                fontSize: "14px",
-                marginBottom: "5px",
+                fontSize: "14px"
               }}
             >
               Email
@@ -138,7 +137,6 @@ const Login = () => {
               sx={{
                 fontWeight: 600,
                 fontSize: "14px",
-                marginBottom: "5px",
               }}
             >
               Contraseña
