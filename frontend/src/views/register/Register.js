@@ -127,7 +127,6 @@ const Register = () => {
     watch,
     formState: { errors },
     setValue,
-    reset,
   } = useForm({
     defaultValues: {
       nombre: "",
@@ -136,6 +135,7 @@ const Register = () => {
       pais_id: "",
       provincia_id: "",
       ciudad: "",
+      fecha_nacimiento: "",
       contrasena: "",
       confirmPassword: "",
     },
@@ -248,6 +248,44 @@ const Register = () => {
             />
           </Box>
 
+          {/* Fecha de Nacimiento */}
+          <Box sx={fieldStyle}>
+            <Typography variant="body1" sx={labelStyle}>
+              Fecha de Nacimiento
+            </Typography>
+            <Controller
+              name="fecha_nacimiento"
+              control={control}
+              rules={{
+                required: "La fecha de nacimiento es obligatoria",
+                validate: (value) => {
+                  const today = new Date();
+                  const birthDate = new Date(value);
+                  const age =
+                    today.getFullYear() -
+                    birthDate.getFullYear() -
+                    (today.getMonth() < birthDate.getMonth() ||
+                      (today.getMonth() === birthDate.getMonth() &&
+                        today.getDate() < birthDate.getDate()));
+
+                  if (age < 13) return "Debes tener al menos 13 años";
+                  if (age > 120) return "Fecha de nacimiento inválida";
+                  return true;
+                },
+              }}
+              render={({ field }) => (
+                <StyledTextField
+                  {...field}
+                  fullWidth
+                  type="date"
+                  InputLabelProps={{ shrink: true }}
+                  error={!!errors.fecha_nacimiento}
+                  helperText={errors.fecha_nacimiento?.message}
+                />
+              )}
+            />
+          </Box>
+
           {/* Email */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
@@ -335,8 +373,7 @@ const Register = () => {
                     disabled={!selectedPaisId || provinciasLoading}
                     renderValue={(value) => {
                       if (!value) {
-                        if (!selectedPaisId)
-                          return "";
+                        if (!selectedPaisId) return "";
                         if (provinciasLoading) return "Cargando provincias...";
                         return "";
                       }
