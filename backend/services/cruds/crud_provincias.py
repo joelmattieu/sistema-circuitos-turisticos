@@ -12,7 +12,10 @@ def get_provincia_by_id(db: Session, provincia_id: int) -> ProvinciaModel:
     if not provincia:
         raise HTTPException(status_code=404, detail="Provincia no encontrada")
     return provincia
-
+  
+def get_provincias_by_contry_id(db: Session, pais_id: int) -> List[ProvinciaModel]:
+    return db.query(ProvinciaModel).filter(ProvinciaModel.pais_id == pais_id).all()
+  
 def create_provincia(db: Session, provincia_data: ProvinciaCreate) -> ProvinciaModel:
     nueva_provincia = ProvinciaModel(**provincia_data.dict())
     db.add(nueva_provincia)
