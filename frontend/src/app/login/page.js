@@ -1,3 +1,4 @@
+"use client"
 import Login from '@/views/login/Login'
 import React from 'react'
 

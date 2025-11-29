@@ -1,0 +1,269 @@
+[00:00:01.429] Server  LOG      ✓ Ready in 1202ms
+[00:00:05.572] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/register/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.js">
+                      <SegmentTrieNode>
+                      <link>
+                      <ClientSegmentRoot Component={function RootLayout} slots={{...}} ...>
+                        <RootLayout params={Promise}>
+                          <html lang="es" className="__variable...">
+                            <body
+-                             data-new-gr-c-s-check-loaded="14.1264.0"
+-                             data-gr-ext-installed=""
+                            >
+                  ...
+
+[00:00:08.128] Server  WARN     ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[00:01:00.734] Server  ERROR    ⨯ ./src/context/AuthProvider.js
+Error:   × You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:1:1]
+ 1 │ import React, { useState, useEffect } from "react";
+   ·                 ────────
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+   ╰────
+  × You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:1:1]
+ 1 │ import React, { useState, useEffect } from "react";
+   ·                           ─────────
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+   ╰────
+  × You're importing a component that needs `useRouter`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:5:1]
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+ 5 │ import { useRouter } from "next/navigation";
+   ·          ─────────
+ 6 │ import { useDispatch } from "react-redux";
+ 7 │ import { usePathname } from "next/navigation";
+   ╰────
+  × You're importing a component that needs `usePathname`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+    ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:7:1]
+  4 │ import { postRegister } from "../services/register";
+  5 │ import { useRouter } from "next/navigation";
+  6 │ import { useDispatch } from "react-redux";
+  7 │ import { usePathname } from "next/navigation";
+    ·          ───────────
+  8 │ 
+  9 │ export const AuthProvider = ({ children }) => {
+ 10 │   const [isLoggedIn, setIsLoggedIn] = useState(false);
+    ╰────
+
+Import trace for requested module:
+./src/context/AuthProvider.js
+./src/app/layout.js
+[00:01:00.765] Browser ERROR   ./src/context/AuthProvider.js
+Error:   × You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:1:1]
+ 1 │ import React, { useState, useEffect } from "react";
+   ·                 ────────
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+   ╰────
+  × You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:1:1]
+ 1 │ import React, { useState, useEffect } from "react";
+   ·                           ─────────
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+   ╰────
+  × You're importing a component that needs `useRouter`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:5:1]
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+ 5 │ import { useRouter } from "next/navigation";
+   ·          ─────────
+ 6 │ import { useDispatch } from "react-redux";
+ 7 │ import { usePathname } from "next/navigation";
+   ╰────
+  × You're importing a component that needs `usePathname`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+    ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:7:1]
+  4 │ import { postRegister } from "../services/register";
+  5 │ import { useRouter } from "next/navigation";
+  6 │ import { useDispatch } from "react-redux";
+  7 │ import { usePathname } from "next/navigation";
+    ·          ───────────
+  8 │ 
+  9 │ export const AuthProvider = ({ children }) => {
+ 10 │   const [isLoggedIn, setIsLoggedIn] = useState(false);
+    ╰────
+
+Import trace for requested module:
+./src/context/AuthProvider.js
+./src/app/layout.js
+[00:01:02.614] Server  ERROR    ⨯ ./src/context/AuthProvider.js
+Error:   × You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:1:1]
+ 1 │ import React, { useState, useEffect } from "react";
+   ·                 ────────
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+   ╰────
+  × You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:1:1]
+ 1 │ import React, { useState, useEffect } from "react";
+   ·                           ─────────
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+   ╰────
+  × You're importing a component that needs `useRouter`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:5:1]
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+ 5 │ import { useRouter } from "next/navigation";
+   ·          ─────────
+ 6 │ import { useDispatch } from "react-redux";
+ 7 │ import { usePathname } from "next/navigation";
+   ╰────
+  × You're importing a component that needs `usePathname`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+    ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:7:1]
+  4 │ import { postRegister } from "../services/register";
+  5 │ import { useRouter } from "next/navigation";
+  6 │ import { useDispatch } from "react-redux";
+  7 │ import { usePathname } from "next/navigation";
+    ·          ───────────
+  8 │ 
+  9 │ export const AuthProvider = ({ children }) => {
+ 10 │   const [isLoggedIn, setIsLoggedIn] = useState(false);
+    ╰────
+
+Import trace for requested module:
+./src/context/AuthProvider.js
+./src/app/layout.js
+[00:01:02.673] Browser ERROR   ./src/context/AuthProvider.js
+Error:   × You're importing a component that needs `useState`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:1:1]
+ 1 │ import React, { useState, useEffect } from "react";
+   ·                 ────────
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+   ╰────
+  × You're importing a component that needs `useEffect`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:1:1]
+ 1 │ import React, { useState, useEffect } from "react";
+   ·                           ─────────
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+   ╰────
+  × You're importing a component that needs `useRouter`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+   ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:5:1]
+ 2 │ import AuthContext from "./AuthContext";
+ 3 │ import { postLogin } from "../services/login";
+ 4 │ import { postRegister } from "../services/register";
+ 5 │ import { useRouter } from "next/navigation";
+   ·          ─────────
+ 6 │ import { useDispatch } from "react-redux";
+ 7 │ import { usePathname } from "next/navigation";
+   ╰────
+  × You're importing a component that needs `usePathname`. This React Hook only works in a Client Component. To fix, mark the file (or its parent) with the `"use client"` directive.
+  │
+  │  Learn more: https://nextjs.org/docs/app/api-reference/directives/use-client
+  │
+
+    ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/context/AuthProvider.js:7:1]
+  4 │ import { postRegister } from "../services/register";
+  5 │ import { useRouter } from "next/navigation";
+  6 │ import { useDispatch } from "react-redux";
+  7 │ import { usePathname } from "next/navigation";
+    ·          ───────────
+  8 │ 
+  9 │ export const AuthProvider = ({ children }) => {
+ 10 │   const [isLoggedIn, setIsLoggedIn] = useState(false);
+    ╰────
+
+Import trace for requested module:
+./src/context/AuthProvider.js
+./src/app/layout.js

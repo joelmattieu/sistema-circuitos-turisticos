@@ -1,3 +1,4 @@
+"use client"
 import Register from '@/views/register/Register'
 import React from 'react'
 
