@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
   Card,
@@ -14,6 +14,14 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useForm, Controller } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import AuthContext from "../../context/AuthContext";
+import { fetchPaises } from "../../store/paises/paisesSlice";
+import {
+  fetchProvincias,
+  fetchProvinciasByPais,
+} from "../../store/provincias/provinciasSlice";
+import { toast } from "react-toastify";
 
 const GradientBackground = styled(Box)(({ theme }) => ({
   background: `linear-gradient(180deg, ${theme.palette.primary.main} 0%, ${theme.palette.tertiary.main} 100%)`,
@@ -97,21 +105,21 @@ const StyledSelect = styled(Select)({
   },
 });
 
-const paises = [
-  { id: 1, nombre: "Argentina" },
-  { id: 2, nombre: "Chile" },
-  { id: 3, nombre: "Brasil" },
-];
-
-const provincias = [
-  { id: 1, nombre: "Córdoba", paisId: 1 },
-  { id: 2, nombre: "Buenos Aires", paisId: 1 },
-  { id: 3, nombre: "Santa Fe", paisId: 1 },
-];
-
 const Register = () => {
-  const [paisSeleccionado, setPaisSeleccionado] = useState("");
-  const [provinciasFiltradas, setProvinciasFiltradas] = useState([]);
+  const { register } = useContext(AuthContext);
+  const dispatch = useDispatch();
+
+  const { paises, loading: paisesLoading } = useSelector(
+    (state) => state.paises
+  );
+  const {
+    provincias,
+    provinciasFiltradas,
+    loading: provinciasLoading,
+  } = useSelector((state) => state.provincias);
+
+  const [loading, setLoading] = useState(false);
+  const [selectedPaisId, setSelectedPaisId] = useState(null);
 
   const {
     control,
@@ -119,36 +127,47 @@ const Register = () => {
     watch,
     formState: { errors },
     setValue,
+    reset,
   } = useForm({
     defaultValues: {
       nombre: "",
       apellido: "",
       email: "",
-      paisId: "",
-      provinciaId: "",
+      pais_id: "",
+      provincia_id: "",
       ciudad: "",
-      password: "",
+      contrasena: "",
       confirmPassword: "",
     },
   });
 
-  const paisWatched = watch("paisId");
-  const passwordWatched = watch("password");
+  const paisWatched = watch("pais_id");
+  const provinciaWatched = watch("provincia_id");
+  const passwordWatched = watch("contrasena");
+
+  useEffect(() => {
+    dispatch(fetchPaises());
+  }, [dispatch]);
 
   useEffect(() => {
     if (paisWatched) {
-      const provinciasPorPais = provincias.filter(
-        (provincia) => provincia.paisId === parseInt(paisWatched)
-      );
-      setProvinciasFiltradas(provinciasPorPais);
-      setValue("provinciaId", ""); 
-    } else {
-      setProvinciasFiltradas([]);
+      setSelectedPaisId(parseInt(paisWatched));
+      setValue("provincia_id", "");
+      dispatch(fetchProvinciasByPais(parseInt(paisWatched)));
     }
-  }, [paisWatched, setValue]);
+  }, [paisWatched, dispatch, setValue]);
 
-  const onSubmit = (data) => {
-    console.log("Datos de registro:", data);
+  const onSubmit = async (data) => {
+    setLoading(true);
+    try {
+      const { confirmPassword, pais_id, ...registerData } = data;
+      await register(registerData);
+      toast.success("¡Usuario registrado exitosamente!");
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Error al registrar usuario");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fieldStyle = {
@@ -158,7 +177,7 @@ const Register = () => {
 
   const labelStyle = {
     fontWeight: 500,
-    fontSize: "13px"
+    fontSize: "13px",
   };
 
   return (
@@ -262,31 +281,37 @@ const Register = () => {
               País
             </Typography>
             <Controller
-              name="paisId"
+              name="pais_id"
               control={control}
               rules={{ required: "Selecciona un país" }}
               render={({ field }) => (
-                <FormControl fullWidth error={!!errors.paisId}>
+                <FormControl fullWidth error={!!errors.pais_id}>
                   <StyledSelect
                     {...field}
                     displayEmpty
+                    disabled={paisesLoading}
                     renderValue={(value) =>
                       value
-                        ? paises.find((p) => p.id === parseInt(value))?.nombre
+                        ? paises.find((p) => p.pais_id === parseInt(value))
+                            ?.nombre_pais
+                        : paisesLoading
+                        ? "Cargando países..."
                         : ""
                     }
                   >
                     <MenuItem value="" disabled>
-                      Selecciona un país
+                      {paisesLoading
+                        ? "Cargando países..."
+                        : "Selecciona un país"}
                     </MenuItem>
                     {paises.map((pais) => (
-                      <MenuItem key={pais.id} value={pais.id}>
-                        {pais.nombre}
+                      <MenuItem key={pais.pais_id} value={pais.pais_id}>
+                        {pais.nombre_pais}
                       </MenuItem>
                     ))}
                   </StyledSelect>
-                  {errors.paisId && (
-                    <FormHelperText>{errors.paisId.message}</FormHelperText>
+                  {errors.pais_id && (
+                    <FormHelperText>{errors.pais_id.message}</FormHelperText>
                   )}
                 </FormControl>
               )}
@@ -299,35 +324,46 @@ const Register = () => {
               Provincia
             </Typography>
             <Controller
-              name="provinciaId"
+              name="provincia_id"
               control={control}
               rules={{ required: "Selecciona una provincia" }}
               render={({ field }) => (
-                <FormControl fullWidth error={!!errors.provinciaId}>
+                <FormControl fullWidth error={!!errors.provincia_id}>
                   <StyledSelect
                     {...field}
                     displayEmpty
-                    disabled={!paisWatched}
-                    renderValue={(value) =>
-                      value
-                        ? provinciasFiltradas.find(
-                            (p) => p.id === parseInt(value)
-                          )?.nombre
-                        : ""
-                    }
+                    disabled={!selectedPaisId || provinciasLoading}
+                    renderValue={(value) => {
+                      if (!value) {
+                        if (!selectedPaisId)
+                          return "";
+                        if (provinciasLoading) return "Cargando provincias...";
+                        return "";
+                      }
+                      return provinciasFiltradas.find(
+                        (p) => p.provincia_id === parseInt(value)
+                      )?.nombre_provincia;
+                    }}
                   >
                     <MenuItem value="" disabled>
-                      Selecciona una provincia
+                      {!selectedPaisId
+                        ? "Primero selecciona un país"
+                        : provinciasLoading
+                        ? "Cargando provincias..."
+                        : "Selecciona una provincia"}
                     </MenuItem>
                     {provinciasFiltradas.map((provincia) => (
-                      <MenuItem key={provincia.id} value={provincia.id}>
-                        {provincia.nombre}
+                      <MenuItem
+                        key={provincia.provincia_id}
+                        value={provincia.provincia_id}
+                      >
+                        {provincia.nombre_provincia}
                       </MenuItem>
                     ))}
                   </StyledSelect>
-                  {errors.provinciaId && (
+                  {errors.provincia_id && (
                     <FormHelperText>
-                      {errors.provinciaId.message}
+                      {errors.provincia_id.message}
                     </FormHelperText>
                   )}
                 </FormControl>
@@ -367,7 +403,7 @@ const Register = () => {
               Contraseña
             </Typography>
             <Controller
-              name="password"
+              name="contrasena"
               control={control}
               rules={{
                 required: "La contraseña es obligatoria",
@@ -381,8 +417,8 @@ const Register = () => {
                   {...field}
                   fullWidth
                   type="password"
-                  error={!!errors.password}
-                  helperText={errors.password?.message}
+                  error={!!errors.contrasena}
+                  helperText={errors.contrasena?.message}
                 />
               )}
             />
@@ -434,8 +470,12 @@ const Register = () => {
             </Link>
           </Typography>
 
-          <StyledButton type="submit" size="large">
-            Registrarme
+          <StyledButton
+            type="submit"
+            size="large"
+            disabled={loading || paisesLoading || provinciasLoading}
+          >
+            {loading ? "Registrando..." : "Registrarme"}
           </StyledButton>
         </form>
       </RegisterCard>

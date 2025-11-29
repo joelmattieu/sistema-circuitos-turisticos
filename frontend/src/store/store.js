@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
-
-const placeholderReducer = (state = {}, action) => state;
+import paisesReducer from "./paises/paisesSlice";
+import provinciasReducer from "./provincias/provinciasSlice";
 
 export const store = configureStore({
   reducer: {
-    placeholder: placeholderReducer,
+    paises: paisesReducer,
+    provincias: provinciasReducer,
   },
 });
 
