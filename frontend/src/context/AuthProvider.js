@@ -5,6 +5,7 @@ import { postRegister } from "../services/register";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { usePathname } from "next/navigation";
+import { toast } from "react-toastify";
 
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,17 +25,16 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (userData) => {
+  const login = async (credentials) => {
     try {
-      const response = await postLogin(userData);
-      if (response) {
-        setUser(response);
-        localStorage.setItem("user", JSON.stringify(response));
-        setIsLoggedIn(true);
-        localStorage.setItem("isLoggedIn", "true");
-        router.push("/");
-      }
-      return response;
+      const userData = await postLogin(credentials);
+      setUser(userData);
+      setIsLoggedIn(true);
+      localStorage.setItem("user", JSON.stringify(userData));
+      localStorage.setItem("isLoggedIn", "true");
+      toast.success("¡Bienvenido!");
+      router.push("/");
+      return userData;
     } catch (error) {
       throw error;
     }
@@ -43,7 +43,9 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     setIsLoggedIn(false);
+    localStorage.removeItem("user");
     localStorage.removeItem("isLoggedIn");
+    router.push("/login");
   };
 
   const register = async (userData) => {

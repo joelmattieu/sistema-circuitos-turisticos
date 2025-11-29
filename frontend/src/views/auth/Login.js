@@ -1,6 +1,14 @@
 "use client";
-import React, { useContext } from "react";
-import { Box, Card, TextField, Button, Typography, Link } from "@mui/material";
+import React, { useContext, useState } from "react";
+import {
+  Box,
+  Card,
+  TextField,
+  Button,
+  Typography,
+  Link,
+  Alert,
+} from "@mui/material";
 import { styled, useTheme } from "@mui/material/styles";
 import { useForm, Controller } from "react-hook-form";
 import AuthContext from "../../context/AuthContext";
@@ -67,6 +75,8 @@ const StyledTextField = styled(TextField)({
 
 const Login = () => {
   const { login } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   const {
     control,
@@ -79,8 +89,16 @@ const Login = () => {
     },
   });
 
-  const onSubmit = (data) => {
-    login(data);
+  const onSubmit = async (data) => {
+    setLoading(true);
+    setLoginError("");
+    try {
+      await login(data);
+    } catch (error) {
+      setLoginError(error.response?.data?.detail || "Error al iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -100,12 +118,25 @@ const Login = () => {
         </Typography>
 
         <form onSubmit={handleSubmit(onSubmit)}>
+          {loginError && (
+            <Alert
+              severity="error"
+              sx={{
+                marginBottom: "20px",
+                borderRadius: "8px",
+                fontSize: "13px",
+              }}
+            >
+              {loginError}
+            </Alert>
+          )}
+
           <Box sx={{ marginBottom: "20px", textAlign: "left" }}>
             <Typography
               variant="body1"
               sx={{
                 fontWeight: 600,
-                fontSize: "14px"
+                fontSize: "14px",
               }}
             >
               Email
@@ -185,8 +216,8 @@ const Login = () => {
             </Link>
           </Typography>
 
-          <StyledButton type="submit" fullWidth size="large">
-            Ingresar
+          <StyledButton type="submit" fullWidth size="large" disabled={loading}>
+            {loading ? "Iniciando..." : "Ingresar"}
           </StyledButton>
         </form>
       </LoginCard>

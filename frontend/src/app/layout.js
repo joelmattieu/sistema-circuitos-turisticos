@@ -3,6 +3,9 @@ import { Provider } from "react-redux";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { Montserrat } from "next/font/google";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import { store } from "../store/store";
 import { AuthProvider } from "../context/AuthProvider";
 import theme from "../theme/theme";
@@ -20,7 +23,21 @@ export default function RootLayout({ children }) {
         <Provider store={store}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <AuthProvider>{children}</AuthProvider>
+            <AuthProvider>
+              {children}
+              <ToastContainer
+                position="top-right"
+                autoClose={4000}
+                hideProgressBar={true}
+                newestOnTop={true}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+            </AuthProvider>
           </ThemeProvider>
         </Provider>
       </body>

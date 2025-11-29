@@ -11,6 +11,7 @@ import {
   Select,
   FormControl,
   FormHelperText,
+  Alert,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useForm, Controller } from "react-hook-form";
@@ -109,14 +110,13 @@ const Register = () => {
   const { paises, loading: paisesLoading } = useSelector(
     (state) => state.paises
   );
-  const {
-    provincias,
-    provinciasFiltradas,
-    loading: provinciasLoading,
-  } = useSelector((state) => state.provincias);
+  const { provinciasFiltradas, loading: provinciasLoading } = useSelector(
+    (state) => state.provincias
+  );
 
   const [loading, setLoading] = useState(false);
   const [selectedPaisId, setSelectedPaisId] = useState(null);
+  const [registerError, setRegisterError] = useState("");
 
   const {
     control,
@@ -156,12 +156,14 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     setLoading(true);
+    setRegisterError("");
     try {
       const { confirmPassword, pais_id, ...registerData } = data;
       await register(registerData);
-      toast.success("¡Usuario registrado exitosamente!");
     } catch (error) {
-      toast.error(error.response?.data?.detail || "Error al registrar usuario");
+      setRegisterError(
+        error.response?.data?.detail || "Error al registrar usuario"
+      );
     } finally {
       setLoading(false);
     }
@@ -193,6 +195,19 @@ const Register = () => {
         </Typography>
 
         <form onSubmit={handleSubmit(onSubmit)}>
+          {registerError && (
+            <Alert
+              severity="error"
+              sx={{
+                marginBottom: "20px",
+                borderRadius: "8px",
+                fontSize: "13px",
+              }}
+            >
+              {registerError}
+            </Alert>
+          )}
+
           {/* Nombre */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
