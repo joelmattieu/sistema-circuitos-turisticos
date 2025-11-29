@@ -26,16 +26,28 @@ export default function RootLayout({ children }) {
             <AuthProvider>
               {children}
               <ToastContainer
-                position="top-right"
-                autoClose={4000}
-                hideProgressBar={true}
+                position="top-center"
+                autoClose={3000}
+                hideProgressBar={false}
                 newestOnTop={true}
                 closeOnClick
                 rtl={false}
-                pauseOnFocusLoss
                 draggable
                 pauseOnHover
                 theme="light"
+                style={{
+                  fontSize: "14px",
+                  top: "20px",
+                  left: "20px",
+                  right: "20px",
+                  width: "auto",
+                }}
+                toastStyle={{
+                  borderRadius: "12px",
+                  padding: "16px",
+                  fontSize: "14px",
+                  fontWeight: "500",
+                }}
               />
             </AuthProvider>
           </ThemeProvider>

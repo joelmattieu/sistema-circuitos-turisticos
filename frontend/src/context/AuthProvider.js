@@ -32,7 +32,6 @@ export const AuthProvider = ({ children }) => {
       setIsLoggedIn(true);
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("isLoggedIn", "true");
-      toast.success("¡Bienvenido!");
       router.push("/");
       return userData;
     } catch (error) {

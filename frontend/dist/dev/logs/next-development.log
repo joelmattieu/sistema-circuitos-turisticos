@@ -784,3 +784,99 @@ It can also happen if the client has a browser extension installed which messes 
                             >
                   ...
 
+[05:10:17.827] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/register/" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.js">
+                      <SegmentTrieNode>
+                      <link>
+                      <ClientSegmentRoot Component={function RootLayout} slots={{...}} ...>
+                        <RootLayout params={Promise}>
+                          <html lang="es" className="__variable...">
+                            <body
+-                             data-new-gr-c-s-check-loaded="14.1264.0"
+-                             data-gr-ext-installed=""
+                            >
+                  ...
+
+[05:12:42.327] Server  ERROR    ⨯ ./src/app/layout.js
+Error:   × Unterminated string constant
+    ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/app/layout.js:37:1]
+ 34 │                 rtl={false}
+ 35 │                 draggable
+ 36 │                 pauseOnHover
+ 37 │                 theme="light"
+    ·                             ─
+ 38 │                 style={{
+ 39 │                   // Estilos específicos para mobile
+ 40 │                   fontSize: "14px",
+    ╰────
+  × Expected '</', got 'string literal (, ")'
+    ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/app/layout.js:37:1]
+ 34 │                 rtl={false}
+ 35 │                 draggable
+ 36 │                 pauseOnHover
+ 37 │                 theme="light"
+    ·                             ─
+ 38 │                 style={{
+ 39 │                   // Estilos específicos para mobile
+ 40 │                   fontSize: "14px",
+    ╰────
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/layout.js
+[05:12:42.390] Browser ERROR   ./src/app/layout.js
+Error:   × Unterminated string constant
+    ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/app/layout.js:37:1]
+ 34 │                 rtl={false}
+ 35 │                 draggable
+ 36 │                 pauseOnHover
+ 37 │                 theme="light"
+    ·                             ─
+ 38 │                 style={{
+ 39 │                   // Estilos específicos para mobile
+ 40 │                   fontSize: "14px",
+    ╰────
+  × Expected '</', got 'string literal (, ")'
+    ╭─[/Users/joelmattieu/sistema-circuitos-turisticos/frontend/src/app/layout.js:37:1]
+ 34 │                 rtl={false}
+ 35 │                 draggable
+ 36 │                 pauseOnHover
+ 37 │                 theme="light"
+    ·                             ─
+ 38 │                 style={{
+ 39 │                   // Estilos específicos para mobile
+ 40 │                   fontSize: "14px",
+    ╰────
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/layout.js
+[05:12:45.078] Server  WARN     ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[05:12:45.078] Browser WARN    You are loading @emotion/react when it is already loaded. Running multiple instances may cause problems. This can happen if multiple versions are used, or if multiple builds of the same version are used.
+[05:12:45.078] Browser ERROR   uncaughtError: TypeError: Cannot read properties of undefined (reading 'main')
