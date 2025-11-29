@@ -117,6 +117,7 @@ const Register = () => {
 
   const [loading, setLoading] = useState(false);
   const [selectedPaisId, setSelectedPaisId] = useState(null);
+  const [mounted, setMounted] = useState(false);
 
   const {
     control,
@@ -143,16 +144,22 @@ const Register = () => {
   const passwordWatched = watch("contrasena");
 
   useEffect(() => {
-    dispatch(fetchPaises());
-  }, [dispatch]);
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
-    if (paisWatched) {
+    if (mounted) {
+      dispatch(fetchPaises());
+    }
+  }, [dispatch, mounted]);
+
+  useEffect(() => {
+    if (paisWatched && mounted) {
       setSelectedPaisId(parseInt(paisWatched));
       setValue("provincia_id", "");
       dispatch(fetchProvinciasByPais(parseInt(paisWatched)));
     }
-  }, [paisWatched, dispatch, setValue]);
+  }, [paisWatched, dispatch, setValue, mounted]);
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -176,6 +183,11 @@ const Register = () => {
     fontWeight: 500,
     fontSize: "13px",
   };
+
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <GradientBackground>
