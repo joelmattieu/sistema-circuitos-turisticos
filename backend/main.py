@@ -1,14 +1,20 @@
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
-from db import create_tables, get_db, Base
-from routes.auth_route import route_auth
-from routes.provincias_route import router as route_provincias
+from db import create_tables, get_db
 from services.load_data import load_data
+
+# importación de rutas
+from routes.auth_route import route_auth
+from routes.paises_route import route_paises
+from routes.provincias_route import route_provincias
+from routes.idioma_route import route_idiomas
+from routes.modo_transporte_route import route_modos_transporte
+from routes.unidad_medicion_route import route_unidades_medicion
 
 app = FastAPI()
 
-##      CORS         
+## CORS         
 origins = [
     "http://localhost:3000",
 ]
@@ -23,11 +29,15 @@ app.add_middleware(
 
 create_tables()
 
-# Cargar datos en las tablas 
+# cargar datos en las tablas 
 @app.on_event("startup")
 def startup_event():
   db: Session = next(get_db())
   load_data(db)
   
 app.include_router(route_auth)
+app.include_router(route_paises)
 app.include_router(route_provincias)
+app.include_router(route_idiomas)
+app.include_router(route_modos_transporte)
+app.include_router(route_unidades_medicion)
