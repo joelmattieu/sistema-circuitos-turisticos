@@ -17,10 +17,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import AuthContext from "../../context/AuthContext";
 import { fetchPaises } from "../../store/paises/paisesSlice";
-import {
-  fetchProvincias,
-  fetchProvinciasByPais,
-} from "../../store/provincias/provinciasSlice";
+import { fetchProvinciasByPais } from "../../store/provincias/provinciasSlice";
 import { toast } from "react-toastify";
 
 const GradientBackground = styled(Box)(({ theme }) => ({
