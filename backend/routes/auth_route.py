@@ -4,7 +4,7 @@ from schemas.usuario_schema import UsuarioLogin, UsuarioRegister
 from services.auth.auth_usuario import create_user, authenticate_user
 from fastapi import HTTPException
 
-route_auth = APIRouter(tags=["Autenticacion"], prefix="/auth") 
+route_auth = APIRouter(tags=["Autenticación"], prefix="/auth") 
 
 @route_auth.post("/login", status_code=200)
 async def login(user: UsuarioLogin, db: db_dependency):
