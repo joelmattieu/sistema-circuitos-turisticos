@@ -19,10 +19,10 @@ def get_password_hash(password: str) -> str:
     hashed = bcrypt.hashpw(password_bytes, salt)
     return hashed.decode('utf-8')
 
-async def create_user(db, user):
+def create_user(db, user):
     usr_login = db.query(UsuarioModel).filter(UsuarioModel.email == user.email).first()
     if usr_login:
-        raise HTTPException(status_code=400, detail="El usuario ya está registrado")
+        raise HTTPException(status_code=400, detail="El email ya está registrado")
     
     user.contrasena = get_password_hash(user.contrasena)
     db_user = UsuarioModel(**user.dict())
@@ -31,7 +31,7 @@ async def create_user(db, user):
     db.refresh(db_user)
     return db_user
     
-async def authenticate_user(db, email: str, password: str):
+def authenticate_user(db, email: str, password: str):
     user = db.query(UsuarioModel).filter(UsuarioModel.email == email).first()
     if not user:
         return False
