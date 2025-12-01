@@ -4,6 +4,8 @@ from models.provincia import ProvinciaModel
 from models.idioma import IdiomaModel
 from models.unidad_medicion import UnidadMedicionModel
 from models.modo_transporte import ModoTransporteModel
+from models.categoria_circuito import CategoriaCircuitoModel  # ← AGREGAR
+from models.circuito import CircuitoModel  # ← IMPORTAR CircuitoModel
 
 def load_idiomas(db: Session):
     idiomas_existentes = db.query(IdiomaModel).all()
@@ -106,9 +108,59 @@ def load_modos_transporte(db: Session):
             db.add(modo)
         db.commit()
 
+def load_categorias_circuitos(db: Session):
+    categorias_existentes = db.query(CategoriaCircuitoModel).all()
+    
+    if len(categorias_existentes) == 0:
+        categorias = [
+            CategoriaCircuitoModel(categoria_id=1, nombre_categoria="Histórico"),
+            CategoriaCircuitoModel(categoria_id=2, nombre_categoria="Cultural"),
+            CategoriaCircuitoModel(categoria_id=3, nombre_categoria="Religioso"),
+            CategoriaCircuitoModel(categoria_id=4, nombre_categoria="Gastronómico"),
+            CategoriaCircuitoModel(categoria_id=5, nombre_categoria="Arquitectónico"),
+            CategoriaCircuitoModel(categoria_id=6, nombre_categoria="Naturaleza"),
+            CategoriaCircuitoModel(categoria_id=7, nombre_categoria="Aventura"),
+            CategoriaCircuitoModel(categoria_id=8, nombre_categoria="Familiar"),
+        ]
+        
+        for categoria in categorias:
+            db.add(categoria)
+        db.commit()
+
+def load_circuitos_ejemplo(db: Session):
+    circuitos_existentes = db.query(CircuitoModel).all()
+    
+    if len(circuitos_existentes) == 0:
+        circuitos = [
+            CircuitoModel(
+                nombre="Plaza San Martín",
+                descripcion="Recorrido por los principales sitios históricos del centro",
+                categoria_id=1,  # Histórico
+                distancia_total_metros=2500,
+                duracion_estimada_minutos=90,
+                url_imagen_portada="https://example.com/cordoba.jpg",
+                activo=True
+            ),
+            CircuitoModel(
+                nombre="Manzana Jesuítica",
+                descripcion="Tour por los principales museos culturales",
+                categoria_id=2,
+                distancia_total_metros=1800,
+                duracion_estimada_minutos=120,
+                url_imagen_portada="https://example.com/museos.jpg",
+                activo=True
+            )
+        ]
+        
+        for circuito in circuitos:
+            db.add(circuito)
+        db.commit()
+
 def load_data(db: Session):    
     load_idiomas(db)
     load_paises(db)
     load_provincias(db)
     load_unidades_medicion(db)
     load_modos_transporte(db)
+    load_categorias_circuitos(db)  # ← AGREGAR AQUÍ
+    load_circuitos_ejemplo(db)  # ← CARGAR CIRCUITOS DE EJEMPLO

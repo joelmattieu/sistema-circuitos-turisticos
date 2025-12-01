@@ -8,9 +8,10 @@ from services.load_data import load_data
 from routes.auth_route import route_auth
 from routes.paises_route import route_paises
 from routes.provincias_route import route_provincias
-from routes.idioma_route import route_idiomas
-from routes.modo_transporte_route import route_modos_transporte
+from routes.idiomas_route import route_idiomas
+from routes.modos_transporte_route import route_modos_transporte
 from routes.unidad_medicion_route import route_unidades_medicion
+from routes.circuitos_route import route_circuitos
 
 app = FastAPI()
 
@@ -41,3 +42,4 @@ app.include_router(route_provincias)
 app.include_router(route_idiomas)
 app.include_router(route_modos_transporte)
 app.include_router(route_unidades_medicion)
+app.include_router(route_circuitos)
