@@ -4,8 +4,8 @@ from models.provincia import ProvinciaModel
 from models.idioma import IdiomaModel
 from models.unidad_medicion import UnidadMedicionModel
 from models.modo_transporte import ModoTransporteModel
-from models.categoria_circuito import CategoriaCircuitoModel  # ← AGREGAR
-from models.circuito import CircuitoModel  # ← IMPORTAR CircuitoModel
+from models.categoria_circuito import CategoriaCircuitoModel
+from models.circuito import CircuitoModel
 
 def load_idiomas(db: Session):
     idiomas_existentes = db.query(IdiomaModel).all()
@@ -162,5 +162,5 @@ def load_data(db: Session):
     load_provincias(db)
     load_unidades_medicion(db)
     load_modos_transporte(db)
-    load_categorias_circuitos(db)  # ← AGREGAR AQUÍ
-    load_circuitos_ejemplo(db)  # ← CARGAR CIRCUITOS DE EJEMPLO
+    load_categorias_circuitos(db)
+    load_circuitos_ejemplo(db)
