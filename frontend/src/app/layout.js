@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { store } from "../store/store";
 import { AuthProvider } from "../context/AuthProvider";
+import Layout from "../layout/Layout";
 import theme from "../theme/theme";
 
 const montserrat = Montserrat({
@@ -24,7 +25,7 @@ export default function RootLayout({ children }) {
           <ThemeProvider theme={theme}>
             <CssBaseline />
             <AuthProvider>
-              {children}
+              <Layout>{children}</Layout>
               <ToastContainer
                 position="top-center"
                 autoClose={3000}

@@ -1,11 +1,22 @@
 "use client";
-import React from "react";
+import React, { useContext } from "react";
+import { Box, Typography } from "@mui/material";
+import ProtectedRoutes from "@/security/ProtectedRoutes";
+import AuthContext from "@/context/AuthContext";
+import CircuitosView from "@/views/CircuitosView";
 
 export default function HomePage() {
+  const authContext = useContext(AuthContext);
+  const { user } = authContext || {};
+
   return (
-    <main>
-      <h1>Sistema de Circuitos Turísticos</h1>
-      <p>Página principal</p>
-    </main>
+    <ProtectedRoutes>
+      <Box>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          {user ? `Hola, ${user.nombre}` : "Buenos días"}
+        </Typography>
+        <CircuitosView />
+      </Box>
+    </ProtectedRoutes>
   );
 }
