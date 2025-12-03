@@ -73,3 +73,8 @@ next-env.d.ts
 /backend/__pycache__/
 /backend/*.sqlite3
 /backend/.pytest_cache/
+
+# Next.js build files
+frontend/dist/
+frontend/.next/
+frontend/out/

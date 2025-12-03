@@ -63,4 +63,4 @@ const CircuitosView = () => {
   );
 };
 
-export default CircuitosView; // ← Importante: default export
+export default CircuitosView;
