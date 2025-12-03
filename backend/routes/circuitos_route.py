@@ -5,7 +5,7 @@ from db import get_db
 from schemas.circuito_schema import CircuitoCreate, CircuitoUpdate, CircuitoResponse
 from services.cruds.crud_circuitos import (
     create_circuito, get_circuitos, get_circuito, 
-    update_circuito, delete_circuito
+    update_circuito, delete_circuito, incrementar_veces_finalizado
 )
 
 route_circuitos = APIRouter(prefix="/circuitos", tags=["Circuitos"])
@@ -29,3 +29,10 @@ def actualizar_circuito(circuito_id: int, circuito_update: CircuitoUpdate, db: S
 @route_circuitos.delete("/{circuito_id}")
 def eliminar_circuito(circuito_id: int, db: Session = Depends(get_db)):
     return delete_circuito(db, circuito_id)
+  
+def eliminar_circuito(circuito_id: int, db: Session = Depends(get_db)):
+    return delete_circuito(db, circuito_id)
+
+@route_circuitos.post("/{circuito_id}/finalizar", response_model=CircuitoResponse)
+def finalizar_circuito(circuito_id: int, db: Session = Depends(get_db)):
+    return incrementar_veces_finalizado(db, circuito_id)

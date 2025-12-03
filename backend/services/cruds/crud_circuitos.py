@@ -49,3 +49,10 @@ def delete_circuito(db: Session, circuito_id: int):
     db.delete(db_circuito)
     db.commit()
     return {"message": "Circuito eliminado definitivamente"}
+  
+def incrementar_veces_finalizado(db: Session, circuito_id: int):
+    db_circuito = get_circuito(db, circuito_id)
+    db_circuito.veces_finalizado += 1
+    db.commit()
+    db.refresh(db_circuito)
+    return db_circuito
