@@ -36,18 +36,25 @@ const CircuitosView = () => {
   }
 
   return (
-    <Box>
+    <Box sx={{ width: "100%" }}>
+      {" "}
       <Typography variant="h6" sx={{ mb: 3 }}>
         RECOMENDADOS
       </Typography>
-
-      <Grid container spacing={2}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          width: "100%",
+        }}
+      >
         {circuitos.map((circuito) => (
-          <Grid item xs={12} md={6} key={circuito.circuito_id}>
+          <Box key={circuito.circuito_id} sx={{ width: "100%" }}>
             <CardCircuitos circuito={circuito} onClick={handleCircuitoClick} />
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 };
