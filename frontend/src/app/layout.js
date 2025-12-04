@@ -17,7 +17,7 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
 });
 
-export default function RootLayout({ children }) {
+const RootLayout = ({ children }) => {
   return (
     <html lang="es" className={montserrat.variable}>
       <body>
@@ -57,3 +57,5 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+export default RootLayout;

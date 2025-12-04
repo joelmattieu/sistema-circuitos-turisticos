@@ -5,7 +5,7 @@ import ProtectedRoutes from "@/security/ProtectedRoutes";
 import AuthContext from "@/context/AuthContext";
 import CircuitosView from "@/views/CircuitosView";
 
-export default function HomePage() {
+const HomePage = () => {
   const authContext = useContext(AuthContext);
   const { user } = authContext || {};
 
@@ -20,3 +20,5 @@ export default function HomePage() {
     </ProtectedRoutes>
   );
 }
+
+export default HomePage;

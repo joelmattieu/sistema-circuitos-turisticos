@@ -5,7 +5,7 @@ const nextConfig = {
     styledComponents: true,
   },
   trailingSlash: true,
-  output: "export",
+  // output: "export",
   distDir: "dist",
   images: {
     unoptimized: true,

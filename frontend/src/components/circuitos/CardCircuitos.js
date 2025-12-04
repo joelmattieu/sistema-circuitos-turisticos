@@ -105,7 +105,7 @@ const CircularProgressIndicator = ({ percentage = 0 }) => {
       }}
     >
       <svg width="40" height="40" style={{ transform: "rotate(-90deg)" }}>
-        {/* Círculo de fondo */}
+
         <circle
           cx="20"
           cy="20"
@@ -114,7 +114,6 @@ const CircularProgressIndicator = ({ percentage = 0 }) => {
           strokeWidth={strokeWidth}
           fill="none"
         />
-        {/* Círculo de progreso */}
         <circle
           cx="20"
           cy="20"
