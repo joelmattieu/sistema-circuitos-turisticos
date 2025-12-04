@@ -1,7 +1,7 @@
 "use client";
 import { usePathname } from "next/navigation";
 import { Box, Toolbar } from "@mui/material";
-import Header from "@/components/Header";
+import Header from "@/components/navigation/Header";
 
 const Layout = ({ children }) => {
   const pathname = usePathname();

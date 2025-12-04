@@ -52,16 +52,15 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false);
     localStorage.removeItem("user");
     localStorage.removeItem("isLoggedIn");
-    router.push("/login");
-    toast.info("Sesión cerrada");
+    router.push("/login/");
   };
 
   const register = async (userData) => {
     try {
       const response = await postRegister(userData);
-      router.push("/login");
+      router.push("/login/");
       toast.success(
-        "¡Usuario creado exitosamente! Ahora puedes iniciar sesión."
+        "¡Usuario creado exitosamente!"
       );
       return response;
     } catch (error) {
