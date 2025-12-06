@@ -503,7 +503,7 @@ const Register = () => {
             size="large"
             disabled={loading || paisesLoading || provinciasLoading}
           >
-            {loading ? "Registrando..." : "Registrarme"}
+            Registrarme
           </StyledButton>
 
           <Typography

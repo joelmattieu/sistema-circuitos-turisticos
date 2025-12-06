@@ -195,7 +195,7 @@ const Login = () => {
           </Box>
 
           <StyledButton type="submit" fullWidth size="large" disabled={loading}>
-            {loading ? "Iniciando..." : "Ingresar"}
+            Ingresar
           </StyledButton>
 
           <Typography
