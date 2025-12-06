@@ -14,6 +14,7 @@ from routes.unidad_medicion_route import route_unidades_medicion
 from routes.circuitos_route import route_circuitos
 from routes.preferencias_route import route_preferencias
 from routes.puntos_interes_route import route_puntos_interes
+from routes.circuito_punto_interes_route import route_circuito_puntos
 
 app = FastAPI()
 
@@ -49,3 +50,4 @@ app.include_router(route_unidades_medicion)
 app.include_router(route_circuitos)
 app.include_router(route_preferencias)
 app.include_router(route_puntos_interes)
+app.include_router(route_circuito_puntos)
