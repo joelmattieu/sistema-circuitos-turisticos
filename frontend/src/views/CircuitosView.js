@@ -38,7 +38,7 @@ const CircuitosView = () => {
   return (
     <Box sx={{ width: "100%" }}>
       {" "}
-      <Typography variant="h6" sx={{ mb: 3 }}>
+      <Typography variant="h6" sx={{ mb: 1, fontWeight: "600", fontSize: 14 }}>
         RECOMENDADOS
       </Typography>
       <Box

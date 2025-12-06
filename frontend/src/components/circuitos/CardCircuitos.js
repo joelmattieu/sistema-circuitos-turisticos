@@ -14,10 +14,10 @@ const CardCircuitos = ({ circuito, onClick }) => {
       sx={{
         cursor: "pointer",
         borderRadius: 3,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+        boxShadow: "0 4px 4px 0px rgba(0,0,0,0.25)",
         "&:hover": {
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-          transform: "translateY(-1px)",
+          boxShadow: "0 8px 12px 0px rgba(0,0,0,0.2)",
+          transform: "translateY(-2px)",
           transition: "all 0.2s ease-in-out",
         },
         mb: 2,
@@ -26,20 +26,19 @@ const CardCircuitos = ({ circuito, onClick }) => {
       onClick={handleClick}
     >
       <CardContent sx={{ p: 3, width: "100%" }}>
-        {" "}
         <Box
           display="flex"
           alignItems="center"
           justifyContent="space-between"
           width="100%"
-          gap={3}
+          gap={2}
         >
           <Box display="flex" alignItems="center" gap={2} flex={1} minWidth={0}>
             <Avatar
               src={circuito.url_imagen_portada}
               sx={{
-                width: 48,
-                height: 48,
+                width: 38,
+                height: 38,
                 bgcolor: "primary.main",
                 flexShrink: 0,
               }}
@@ -48,18 +47,18 @@ const CardCircuitos = ({ circuito, onClick }) => {
             </Avatar>
 
             <Box flex={1} minWidth={0}>
-              {" "}
               <Typography
                 variant="body1"
                 component="h3"
                 sx={{
                   fontWeight: 600,
                   fontSize: "13.5px",
-                  lineHeight: 1.3,
+                  lineHeight: 1.2,
                   mb: 0.5,
                   color: "#000",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {circuito.nombre}
@@ -70,7 +69,7 @@ const CardCircuitos = ({ circuito, onClick }) => {
                 sx={{
                   fontSize: "11px",
                   fontWeight: 400,
-                  color: "#666",
+                  color: "#000",
                 }}
               >
                 {(circuito.distancia_total_metros / 1000).toFixed(1)} km •{" "}
@@ -79,8 +78,7 @@ const CardCircuitos = ({ circuito, onClick }) => {
             </Box>
           </Box>
 
-          <Box flexShrink={0} ml={2}>
-            {" "}
+          <Box flexShrink={0}>
             <CircularProgressIndicator percentage={0} />
           </Box>
         </Box>
@@ -90,8 +88,8 @@ const CardCircuitos = ({ circuito, onClick }) => {
 };
 
 const CircularProgressIndicator = ({ percentage = 0 }) => {
-  const radius = 18;
-  const strokeWidth = 3;
+  const radius = 16;
+  const strokeWidth = 2.5;
   const circumference = 2 * Math.PI * radius;
   const strokeDasharray = circumference;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
@@ -99,24 +97,26 @@ const CircularProgressIndicator = ({ percentage = 0 }) => {
   return (
     <Box
       sx={{
-        width: 40,
-        height: 40,
+        width: 36,
+        height: 36,
         position: "relative",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      <svg width="40" height="40" style={{ transform: "rotate(-90deg)" }}>
-
+      <svg width="36" height="36" style={{ transform: "rotate(-90deg)" }}>
         <circle
-          cx="20"
-          cy="20"
+          cx="18"
+          cy="18"
           r={radius}
           stroke="#E5E7EB"
           strokeWidth={strokeWidth}
           fill="none"
         />
         <circle
-          cx="20"
-          cy="20"
+          cx="18"
+          cy="18"
           r={radius}
           stroke="#FB8C00"
           strokeWidth={strokeWidth}
