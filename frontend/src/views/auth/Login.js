@@ -37,13 +37,12 @@ const LoginCard = styled(Card)({
 const StyledButton = styled(Button)({
   backgroundColor: "#FF9800",
   color: "white",
-  borderRadius: "12px",
+  borderRadius: "8px",
   fontSize: "13px",
   fontWeight: 500,
   textTransform: "none",
-  marginTop: "20px",
-  width: "98px",
-  height: "38px",
+  marginTop: "10px",
+  height: "35px",
   "&:hover": {
     backgroundColor: "#F57C00",
   },
@@ -195,11 +194,16 @@ const Login = () => {
             />
           </Box>
 
+          <StyledButton type="submit" fullWidth size="large" disabled={loading}>
+            {loading ? "Iniciando..." : "Ingresar"}
+          </StyledButton>
+
           <Typography
-            variant="h4"
+            variant="body2"
             sx={{
               color: "#000",
-              marginBottom: "30px",
+              marginTop: "20px",
+              marginBottom: "18px",
               fontSize: "13px",
             }}
           >
@@ -215,10 +219,6 @@ const Login = () => {
               Regístrate
             </Link>
           </Typography>
-
-          <StyledButton type="submit" fullWidth size="large" disabled={loading}>
-            {loading ? "Iniciando..." : "Ingresar"}
-          </StyledButton>
         </form>
       </LoginCard>
     </GradientBackground>

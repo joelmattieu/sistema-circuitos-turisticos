@@ -45,13 +45,12 @@ const RegisterCard = styled(Card)({
 const StyledButton = styled(Button)({
   backgroundColor: "#FF9800",
   color: "white",
-  borderRadius: "12px",
+  borderRadius: "8px",
   fontSize: "13px",
   fontWeight: 500,
   textTransform: "none",
   marginTop: "20px",
-  width: "120px",
-  height: "38px",
+  height: "35px",
   "&:hover": {
     backgroundColor: "#F57C00",
   },
@@ -498,11 +497,21 @@ const Register = () => {
             />
           </Box>
 
+          <StyledButton
+            type="submit"
+            fullWidth
+            size="large"
+            disabled={loading || paisesLoading || provinciasLoading}
+          >
+            {loading ? "Registrando..." : "Registrarme"}
+          </StyledButton>
+
           <Typography
-            variant="h4"
+            variant="body2"
             sx={{
               color: "#000",
-              marginBottom: "20px",
+              marginTop: "20px",
+              marginBottom: "18px",
               fontSize: "13px",
             }}
           >
@@ -518,14 +527,6 @@ const Register = () => {
               Inicia sesión
             </Link>
           </Typography>
-
-          <StyledButton
-            type="submit"
-            size="large"
-            disabled={loading || paisesLoading || provinciasLoading}
-          >
-            {loading ? "Registrando..." : "Registrarme"}
-          </StyledButton>
         </form>
       </RegisterCard>
     </GradientBackground>

@@ -54,7 +54,7 @@ const CardCircuitos = ({ circuito, onClick }) => {
                   fontWeight: 600,
                   fontSize: "13.5px",
                   lineHeight: 1.2,
-                  mb: 0.5,
+                  mb: 0.7,
                   color: "#000",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
