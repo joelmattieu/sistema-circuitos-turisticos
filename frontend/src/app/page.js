@@ -12,8 +12,11 @@ const HomePage = () => {
   return (
     <ProtectedRoutes>
       <Box>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          {user ? `Hola, ${user.nombre}` : "Buenos días"}
+        <Typography variant="h5" sx={{ fontWeight: "500", fontSize: 20, mb: "7px", mt: 1 }}>
+          {user ? `Hola, ${user.nombre}` : "Bienvenido!"}
+        </Typography>
+        <Typography variant="body1" sx={{ mb: 4, fontSize: 16 }}>
+          Elige tu próximo circuito
         </Typography>
         <CircuitosView />
       </Box>
