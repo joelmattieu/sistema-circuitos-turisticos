@@ -14,14 +14,36 @@ import {
 } from "@mui/material";
 import {
   Church as ChurchIcon,
-  AccountBalance as MuseumIcon,
+  AccountBalance as AccountBalanceIcon,
+  Museum as MuseumIcon,
   Landscape as LandscapeIcon,
   LocationOn as LocationIcon,
+  Park as ParkIcon,
+  Monument as MonumentIcon,
 } from "@mui/icons-material";
 import {
   fetchCircuitoById,
   finalizarCircuito,
 } from "../store/circuitos/circuitosSlice";
+
+const getIconByTipo = (tipo) => {
+  switch (tipo?.toLowerCase()) {
+    case "religioso":
+      return <ChurchIcon />;
+    case "museo":
+      return <MuseumIcon />;
+    case "historico":
+      return <AccountBalanceIcon />;
+    case "natural":
+      return <ParkIcon />;
+    case "arquitectonico":
+      return <LandscapeIcon />;
+    case "monumento":
+      return <MonumentIcon />;
+    default:
+      return <LocationIcon />;
+  }
+};
 
 const CircuitoDetalle = ({ circuitoId }) => {
   const dispatch = useDispatch();
@@ -71,15 +93,14 @@ const CircuitoDetalle = ({ circuitoId }) => {
           }}
         >
           <Typography
-            variant="h4"
+            variant="h5"
             sx={{
               color: "white",
               fontWeight: "bold",
               textAlign: "center",
-              textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
             }}
           >
-            {currentCircuito.nombre.toUpperCase()}
+            CIRCUITO {currentCircuito.nombre.toUpperCase()}
           </Typography>
         </Box>
       </Card>
@@ -88,9 +109,10 @@ const CircuitoDetalle = ({ circuitoId }) => {
         variant="body1"
         sx={{
           mb: 3,
-          color: "text.secondary",
-          lineHeight: 1.6,
-          textAlign: "center",
+          fontSize: "14px",
+          color: "#212121",
+          lineHeight: 1.8,
+          textAlign: "left",
         }}
       >
         {currentCircuito.descripcion}
@@ -100,17 +122,19 @@ const CircuitoDetalle = ({ circuitoId }) => {
         variant="h6"
         sx={{
           textAlign: "center",
-          mb: 3,
+          mb: 5,
+          fontSize: "16px",
           fontWeight: "bold",
-          color: "text.primary",
+          lineHeight: 1.8,
+          color: "#212121",
         }}
       >
         {(currentCircuito.distancia_total_metros / 1000).toFixed(1)} km •{" "}
         {currentCircuito.duracion_estimada_minutos} min •{" "}
-        {currentCircuito.puntos_interes?.length || 3} POIs
+        {currentCircuito.puntos_interes?.length || 0} POIs
       </Typography>
 
-      <Box sx={{ mb: 4, textAlign: "center" }}>
+      <Box sx={{ mb: 8, mt: 3, textAlign: "center" }}>
         <Button
           variant="contained"
           size="large"
@@ -122,7 +146,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
             borderRadius: 3,
             px: 4,
             py: 1.5,
-            fontSize: "1.1rem",
+            fontSize: "16px",
             textTransform: "uppercase",
             "&:hover": {
               backgroundColor: "#F57C00",
@@ -133,64 +157,31 @@ const CircuitoDetalle = ({ circuitoId }) => {
         </Button>
       </Box>
 
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
+      <Typography
+        variant="h6"
+        sx={{ fontWeight: "400", fontSize: "16px", mb: 2 }}
+      >
         PUNTOS DE INTERÉS
       </Typography>
 
       <List sx={{ mb: 3 }}>
-        <ListItem sx={{ pl: 0 }}>
-          <ListItemIcon>
-            <ChurchIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary="Catedral de Córdoba"
-            secondary="Principal iglesia de la ciudad."
-            primaryTypographyProps={{
-              fontWeight: "bold",
-              fontSize: "1rem",
-            }}
-            secondaryTypographyProps={{
-              fontSize: "0.875rem",
-              color: "text.secondary",
-            }}
-          />
-        </ListItem>
-
-        <ListItem sx={{ pl: 0 }}>
-          <ListItemIcon>
-            <MuseumIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary="Cabildo Histórico"
-            secondary="Antiguo edificio colonial, hoy museo."
-            primaryTypographyProps={{
-              fontWeight: "bold",
-              fontSize: "1rem",
-            }}
-            secondaryTypographyProps={{
-              fontSize: "0.875rem",
-              color: "text.secondary",
-            }}
-          />
-        </ListItem>
-
-        <ListItem sx={{ pl: 0 }}>
-          <ListItemIcon>
-            <LandscapeIcon />
-          </ListItemIcon>
-          <ListItemText
-            primary="Pasaje Santa Catalina"
-            secondary="Conexión con la Plazoleta del Fundador."
-            primaryTypographyProps={{
-              fontWeight: "bold",
-              fontSize: "1rem",
-            }}
-            secondaryTypographyProps={{
-              fontSize: "0.875rem",
-              color: "text.secondary",
-            }}
-          />
-        </ListItem>
+        {currentCircuito.puntos_interes?.map((punto) => (
+          <ListItem key={punto.poi_id} sx={{ pl: 0 }}>
+            <ListItemIcon>{getIconByTipo(punto.tipo)}</ListItemIcon>
+            <ListItemText
+              primary={punto.nombre}
+              secondary={punto.descripcion}
+              primaryTypographyProps={{
+                fontWeight: "bold",
+                fontSize: "1rem",
+              }}
+              secondaryTypographyProps={{
+                fontSize: "0.875rem",
+                color: "text.secondary",
+              }}
+            />
+          </ListItem>
+        ))}
       </List>
     </Box>
   );
