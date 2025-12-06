@@ -12,6 +12,7 @@ from routes.idiomas_route import route_idiomas
 from routes.modos_transporte_route import route_modos_transporte
 from routes.unidad_medicion_route import route_unidades_medicion
 from routes.circuitos_route import route_circuitos
+from routes.preferencias_route import route_preferencias
 
 app = FastAPI()
 
@@ -19,7 +20,7 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",
     "http://192.168.1.135:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
 ]
 
 app.add_middleware(
@@ -45,3 +46,4 @@ app.include_router(route_idiomas)
 app.include_router(route_modos_transporte)
 app.include_router(route_unidades_medicion)
 app.include_router(route_circuitos)
+app.include_router(route_preferencias)
