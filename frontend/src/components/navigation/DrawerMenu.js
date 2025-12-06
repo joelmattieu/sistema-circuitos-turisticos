@@ -1,5 +1,6 @@
 "use client";
 import React, { useContext } from "react";
+import { useRouter } from "next/navigation";
 import {
   Drawer,
   List,
@@ -7,9 +8,7 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Typography,
-  Box,
-  Divider,
+  Toolbar,
 } from "@mui/material";
 import {
   Home as HomeIcon,
@@ -20,6 +19,17 @@ import AuthContext from "@/context/AuthContext";
 
 const DrawerMenu = ({ open, onClose }) => {
   const { logout } = useContext(AuthContext);
+  const router = useRouter();
+
+  const handleInicioClick = () => {
+    router.push("/");
+    onClose();
+  };
+
+  const handlePreferenciasClick = () => {
+    router.push("/preferencias/");
+    onClose();
+  };
 
   const handleLogout = () => {
     logout();
@@ -30,16 +40,12 @@ const DrawerMenu = ({ open, onClose }) => {
     {
       text: "Inicio",
       icon: <HomeIcon />,
-      action: () => {
-        onClose();
-      },
+      action: handleInicioClick,
     },
     {
       text: "Preferencias",
       icon: <SettingsIcon />,
-      action: () => {
-        onClose();
-      },
+      action: handlePreferenciasClick,
     },
     {
       text: "Cerrar sesión",
@@ -61,8 +67,7 @@ const DrawerMenu = ({ open, onClose }) => {
         },
       }}
     >
-      <Divider sx={{ backgroundColor: "#444" }} />
-
+      <Toolbar />
       <List>
         {menuItems.map((item, index) => (
           <ListItem key={index} disablePadding>
