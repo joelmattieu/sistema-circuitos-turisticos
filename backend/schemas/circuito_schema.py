@@ -1,5 +1,17 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+
+class PuntoInteresSimple(BaseModel):
+    poi_id: int
+    nombre: str
+    descripcion: str
+    tipo: str
+    latitud: float
+    longitud: float
+    tiene_audioguia: bool
+    
+    class Config:
+        from_attributes = True
 
 class CircuitoCreate(BaseModel):
     nombre: str
@@ -23,6 +35,7 @@ class CircuitoResponse(CircuitoCreate):
     circuito_id: int 
     veces_finalizado: int
     categoria_nombre: Optional[str] = None
+    puntos_interes: List[PuntoInteresSimple] = []
     
     class Config:
         from_attributes = True

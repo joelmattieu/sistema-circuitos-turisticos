@@ -16,4 +16,13 @@ class CircuitoModel(Base):
     activo = Column(Boolean, default=False)
     
     categoria = relationship("CategoriaCircuitoModel", back_populates="circuitos")
+    
+    puntos_interes = relationship(
+        "PuntoInteresModel",
+        secondary="circuitos_puntos_interes",
+        order_by="CircuitoPuntoInteresModel.orden_en_circuito",
+        backref="circuitos"
+    )
+    
+    circuito_puntos = relationship("CircuitoPuntoInteresModel", back_populates="circuito")
 

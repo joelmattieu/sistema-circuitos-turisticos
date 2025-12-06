@@ -6,6 +6,9 @@ from models.unidad_medicion import UnidadMedicionModel
 from models.modo_transporte import ModoTransporteModel
 from models.categoria_circuito import CategoriaCircuitoModel
 from models.circuito import CircuitoModel
+from models.punto_interes import PuntoInteresModel
+from models.circuito_punto_interes import CircuitoPuntoInteresModel
+from utils.enums import TipoPuntoInteresEnum
 
 def load_idiomas(db: Session):
     idiomas_existentes = db.query(IdiomaModel).all()
@@ -127,33 +130,128 @@ def load_categorias_circuitos(db: Session):
             db.add(categoria)
         db.commit()
 
+def load_puntos_interes(db: Session):
+    puntos_existentes = db.query(PuntoInteresModel).all()
+    
+    if len(puntos_existentes) == 0:
+        puntos = [
+            PuntoInteresModel(
+                poi_id=1,
+                nombre="Catedral de Córdoba",
+                descripcion="Principal iglesia de la ciudad.",
+                tipo=TipoPuntoInteresEnum.RELIGIOSO,
+                latitud=-31.4173,
+                longitud=-64.1887,
+                tiene_audioguia=True,
+                activo=True
+            ),
+            PuntoInteresModel(
+                poi_id=2,
+                nombre="Cabildo Histórico",
+                descripcion="Antiguo edificio colonial, hoy museo.",
+                tipo=TipoPuntoInteresEnum.HISTORICO,
+                latitud=-31.4203,
+                longitud=-64.1888,
+                tiene_audioguia=True,
+                activo=True
+            ),
+            PuntoInteresModel(
+                poi_id=3,
+                nombre="Pasaje Santa Catalina",
+                descripcion="Conexión arquitectónica con la Plazoleta del Fundador.",
+                tipo=TipoPuntoInteresEnum.ARQUITECTONICO,
+                latitud=-31.4195,
+                longitud=-64.1875,
+                tiene_audioguia=False,
+                activo=True
+            ),
+            PuntoInteresModel(
+                poi_id=4,
+                nombre="Manzana Jesuítica",
+                descripcion="Conjunto arquitectónico declarado Patrimonio de la Humanidad por la UNESCO.",
+                tipo=TipoPuntoInteresEnum.HISTORICO,
+                latitud=-31.4205,
+                longitud=-64.1892,
+                tiene_audioguia=True,
+                activo=True
+            )
+        ]
+        
+        for punto in puntos:
+            db.add(punto)
+        db.commit()
+
 def load_circuitos_ejemplo(db: Session):
     circuitos_existentes = db.query(CircuitoModel).all()
     
     if len(circuitos_existentes) == 0:
         circuitos = [
             CircuitoModel(
-                nombre="Plaza San Martín",
-                descripcion="Recorrido por los principales sitios históricos del centro",
-                categoria_id=1,  # Histórico
+                nombre="Centro Histórico",
+                descripcion="Recorrido patrimonial por el corazón de la ciudad, que incluye la Catedral, el Cabildo y el Pasaje Santa Catalina, entre otros.",
+                categoria_id=1,
                 distancia_total_metros=2500,
                 duracion_estimada_minutos=90,
-                url_imagen_portada="https://example.com/cordoba.jpg",
+                url_imagen_portada="https://drive.google.com/file/d/1LpeXWme0SVZMxVNxOu1pI3mg-iHAbKyp/view?usp=drive_link",
                 activo=True
             ),
             CircuitoModel(
-                nombre="Manzana Jesuítica",
+                nombre="Nueva Córdoba Patrimonial",
                 descripcion="Tour por los principales museos culturales",
                 categoria_id=2,
                 distancia_total_metros=1800,
                 duracion_estimada_minutos=120,
-                url_imagen_portada="https://example.com/museos.jpg",
+                url_imagen_portada="https://drive.google.com/file/d/1vMxBECTMyAqkaDZ_UX2keQ6qN7g1LSWy/view?usp=drive_link",
                 activo=True
             )
         ]
         
         for circuito in circuitos:
             db.add(circuito)
+        db.commit()
+
+def load_circuitos_puntos_interes(db: Session):
+    vinculos_existentes = db.query(CircuitoPuntoInteresModel).all()
+    
+    if len(vinculos_existentes) == 0:
+        # vincula puntos de interés al circuito "Centro Histórico" (circuito_id=1)
+        vinculos = [
+            CircuitoPuntoInteresModel(
+                circuito_poi_id=1,
+                circuito_id=1,  # Centro Histórico
+                poi_id=1,  # Catedral de Córdoba
+                orden_en_circuito=1,
+                distancia_tramo_metros=0,  # Punto de inicio
+                duracion_tramo_minutos=0
+            ),
+            CircuitoPuntoInteresModel(
+                circuito_poi_id=2,
+                circuito_id=1,
+                poi_id=2,  # Cabildo Histórico
+                orden_en_circuito=2,
+                distancia_tramo_metros=150,
+                duracion_tramo_minutos=5
+            ),
+            CircuitoPuntoInteresModel(
+                circuito_poi_id=3,
+                circuito_id=1,
+                poi_id=3,  # Pasaje Santa Catalina
+                orden_en_circuito=3,
+                distancia_tramo_metros=200,
+                duracion_tramo_minutos=7
+            ),
+            CircuitoPuntoInteresModel(
+                circuito_poi_id=4,
+                circuito_id=1,
+                poi_id=4,  # Manzana Jesuítica
+                orden_en_circuito=4,
+                distancia_tramo_metros=180,
+                duracion_tramo_minutos=6
+            ),
+        ]
+        
+        for vinculo in vinculos:
+            db.add(vinculo)
         db.commit()
 
 def load_data(db: Session):    
@@ -163,4 +261,6 @@ def load_data(db: Session):
     load_unidades_medicion(db)
     load_modos_transporte(db)
     load_categorias_circuitos(db)
+    load_puntos_interes(db)
     load_circuitos_ejemplo(db)
+    load_circuitos_puntos_interes(db)

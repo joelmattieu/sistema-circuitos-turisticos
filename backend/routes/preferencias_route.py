@@ -12,7 +12,7 @@ from schemas.preferencia_schema import (
     PreferenciaUsuarioCreate,
 )
 
-route_preferencias = APIRouter(prefix="/preferencias", tags=["preferencias"])
+route_preferencias = APIRouter(prefix="/preferencias", tags=["Preferencias"])
 
 @route_preferencias.get("/{usuario_id}", response_model=PreferenciaUsuario)
 def get_preferencia(usuario_id: int, db: Session = Depends(get_db)):
