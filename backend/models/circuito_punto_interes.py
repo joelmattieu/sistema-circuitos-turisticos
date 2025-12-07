@@ -1,5 +1,5 @@
 from db import Base
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 class CircuitoPuntoInteresModel(Base):
@@ -12,6 +12,14 @@ class CircuitoPuntoInteresModel(Base):
     distancia_tramo_metros = Column(Integer)
     duracion_tramo_minutos = Column(Integer)
     
-    circuito = relationship("CircuitoModel", back_populates="circuito_puntos")
-    punto_interes = relationship("PuntoInteresModel", back_populates="circuito_puntos")
+    circuito = relationship(
+        "CircuitoModel", 
+        back_populates="circuito_puntos",
+        overlaps="puntos_interes,circuitos"
+    )
+    punto_interes = relationship(
+        "PuntoInteresModel", 
+        back_populates="circuito_puntos",
+        overlaps="circuitos,puntos_interes"
+    )
 

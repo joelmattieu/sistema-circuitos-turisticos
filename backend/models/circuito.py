@@ -24,5 +24,9 @@ class CircuitoModel(Base):
         backref="circuitos"
     )
     
-    circuito_puntos = relationship("CircuitoPuntoInteresModel", back_populates="circuito")
+    circuito_puntos = relationship(
+        "CircuitoPuntoInteresModel", 
+        back_populates="circuito",
+        overlaps="puntos_interes,circuitos"
+    )
 

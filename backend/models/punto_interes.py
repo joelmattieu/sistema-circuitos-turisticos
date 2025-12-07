@@ -16,5 +16,9 @@ class PuntoInteresModel(Base):
     tiene_audioguia = Column(Boolean)
     activo = Column(Boolean, default=False)
     
-    circuito_puntos = relationship("CircuitoPuntoInteresModel", back_populates="punto_interes")
+    circuito_puntos = relationship(
+        "CircuitoPuntoInteresModel", 
+        back_populates="punto_interes",
+        overlaps="circuitos,puntos_interes"
+    )
 
