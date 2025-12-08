@@ -16,9 +16,11 @@ import {
   ExitToApp as ExitToAppIcon,
 } from "@mui/icons-material";
 import AuthContext from "@/context/AuthContext";
+import { LanguageContext } from "@/context/LanguageContext";
 
 const DrawerMenu = ({ open, onClose }) => {
   const { logout } = useContext(AuthContext);
+  const { t } = useContext(LanguageContext);
   const router = useRouter();
 
   const handleInicioClick = () => {
@@ -38,17 +40,17 @@ const DrawerMenu = ({ open, onClose }) => {
 
   const menuItems = [
     {
-      text: "Inicio",
+      text: t("menu.home"),
       icon: <HomeIcon />,
       action: handleInicioClick,
     },
     {
-      text: "Preferencias",
+      text: t("menu.preferences"),
       icon: <SettingsIcon />,
       action: handlePreferenciasClick,
     },
     {
-      text: "Cerrar sesión",
+      text: t("menu.logout"),
       icon: <ExitToAppIcon />,
       action: handleLogout,
     },

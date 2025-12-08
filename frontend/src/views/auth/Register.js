@@ -12,14 +12,17 @@ import {
   FormControl,
   FormHelperText,
   Alert,
+  IconButton,
+  Menu,
 } from "@mui/material";
+import { Language as LanguageIcon } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import AuthContext from "../../context/AuthContext";
+import { LanguageContext } from "../../context/LanguageContext";
 import { fetchPaises } from "../../store/paises/paisesSlice";
 import { fetchProvinciasByPais } from "../../store/provincias/provinciasSlice";
-import { toast } from "react-toastify";
 
 const GradientBackground = styled(Box)(({ theme }) => ({
   background: `linear-gradient(180deg, ${theme.palette.primary.main} 0%, ${theme.palette.tertiary.main} 100%)`,
@@ -29,6 +32,7 @@ const GradientBackground = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   padding: "20px",
   boxSizing: "border-box",
+  position: "relative",
 }));
 
 const RegisterCard = styled(Card)({
@@ -104,6 +108,7 @@ const StyledSelect = styled(Select)({
 
 const Register = () => {
   const { register } = useContext(AuthContext);
+  const { t, changeLanguage } = useContext(LanguageContext);
   const dispatch = useDispatch();
 
   const { paises, loading: paisesLoading } = useSelector(
@@ -116,6 +121,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [selectedPaisId, setSelectedPaisId] = useState(null);
   const [registerError, setRegisterError] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const {
     control,
@@ -138,7 +144,6 @@ const Register = () => {
   });
 
   const paisWatched = watch("pais_id");
-  const provinciaWatched = watch("provincia_id");
   const passwordWatched = watch("contrasena");
 
   useEffect(() => {
@@ -153,6 +158,17 @@ const Register = () => {
     }
   }, [paisWatched, dispatch, setValue]);
 
+  const handleLanguageClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleLanguageClose = (idioma) => {
+    if (idioma) {
+      changeLanguage(idioma);
+    }
+    setAnchorEl(null);
+  };
+
   const onSubmit = async (data) => {
     setLoading(true);
     setRegisterError("");
@@ -160,9 +176,7 @@ const Register = () => {
       const { confirmPassword, pais_id, ...registerData } = data;
       await register(registerData);
     } catch (error) {
-      setRegisterError(
-        error.response?.data?.detail || "Error al registrar usuario"
-      );
+      setRegisterError(error.response?.data?.detail || t("register.error"));
     } finally {
       setLoading(false);
     }
@@ -180,6 +194,36 @@ const Register = () => {
 
   return (
     <GradientBackground>
+      <Box sx={{ position: "absolute", top: 20, right: 20 }}>
+        <IconButton
+          onClick={handleLanguageClick}
+          sx={{
+            backgroundColor: "rgba(255, 255, 255, 0.2)",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.3)",
+            },
+          }}
+        >
+          <LanguageIcon />
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => handleLanguageClose(null)}
+        >
+          <MenuItem onClick={() => handleLanguageClose("es")}>
+            🇦🇷 Español
+          </MenuItem>
+          <MenuItem onClick={() => handleLanguageClose("en")}>
+            🇺🇸 English
+          </MenuItem>
+          <MenuItem onClick={() => handleLanguageClose("pt")}>
+            🇧🇷 Português
+          </MenuItem>
+        </Menu>
+      </Box>
+
       <RegisterCard>
         <Typography
           variant="h4"
@@ -190,7 +234,7 @@ const Register = () => {
             fontSize: { xs: "20px", sm: "28px" },
           }}
         >
-          Regístrate
+          {t("register.title")}
         </Typography>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -210,16 +254,16 @@ const Register = () => {
           {/* Nombre */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              Nombre
+              {t("register.name")}
             </Typography>
             <Controller
               name="nombre"
               control={control}
               rules={{
-                required: "El nombre es obligatorio",
+                required: t("validation.nameRequired"),
                 minLength: {
                   value: 2,
-                  message: "El nombre debe tener al menos 2 caracteres",
+                  message: t("validation.nameMin"),
                 },
               }}
               render={({ field }) => (
@@ -236,16 +280,16 @@ const Register = () => {
           {/* Apellido */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              Apellido
+              {t("register.lastName")}
             </Typography>
             <Controller
               name="apellido"
               control={control}
               rules={{
-                required: "El apellido es obligatorio",
+                required: t("validation.lastNameRequired"),
                 minLength: {
                   value: 2,
-                  message: "El apellido debe tener al menos 2 caracteres",
+                  message: t("validation.lastNameMin"),
                 },
               }}
               render={({ field }) => (
@@ -262,13 +306,13 @@ const Register = () => {
           {/* Fecha de Nacimiento */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              Fecha de Nacimiento
+              {t("register.birthdate")}
             </Typography>
             <Controller
               name="fecha_nacimiento"
               control={control}
               rules={{
-                required: "La fecha de nacimiento es obligatoria",
+                required: t("validation.birthdateRequired"),
                 validate: (value) => {
                   const today = new Date();
                   const birthDate = new Date(value);
@@ -279,8 +323,8 @@ const Register = () => {
                       (today.getMonth() === birthDate.getMonth() &&
                         today.getDate() < birthDate.getDate()));
 
-                  if (age < 13) return "Debes tener al menos 13 años";
-                  if (age > 120) return "Fecha de nacimiento inválida";
+                  if (age < 13) return t("validation.ageMin");
+                  if (age > 120) return t("validation.ageMax");
                   return true;
                 },
               }}
@@ -300,16 +344,16 @@ const Register = () => {
           {/* Email */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              Email
+              {t("register.email")}
             </Typography>
             <Controller
               name="email"
               control={control}
               rules={{
-                required: "El email es obligatorio",
+                required: t("validation.emailRequired"),
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Formato de email inválido",
+                  message: t("validation.emailInvalid"),
                 },
               }}
               render={({ field }) => (
@@ -327,12 +371,12 @@ const Register = () => {
           {/* País */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              País
+              {t("register.country")}
             </Typography>
             <Controller
               name="pais_id"
               control={control}
-              rules={{ required: "Selecciona un país" }}
+              rules={{ required: t("validation.countryRequired") }}
               render={({ field }) => (
                 <FormControl fullWidth error={!!errors.pais_id}>
                   <StyledSelect
@@ -344,14 +388,14 @@ const Register = () => {
                         ? paises.find((p) => p.pais_id === parseInt(value))
                             ?.nombre_pais
                         : paisesLoading
-                        ? "Cargando países..."
+                        ? t("register.loadingCountries")
                         : ""
                     }
                   >
                     <MenuItem value="" disabled>
                       {paisesLoading
-                        ? "Cargando países..."
-                        : "Selecciona un país"}
+                        ? t("register.loadingCountries")
+                        : t("register.selectCountry")}
                     </MenuItem>
                     {paises.map((pais) => (
                       <MenuItem key={pais.pais_id} value={pais.pais_id}>
@@ -370,12 +414,12 @@ const Register = () => {
           {/* Provincia */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              Provincia
+              {t("register.province")}
             </Typography>
             <Controller
               name="provincia_id"
               control={control}
-              rules={{ required: "Selecciona una provincia" }}
+              rules={{ required: t("validation.provinceRequired") }}
               render={({ field }) => (
                 <FormControl fullWidth error={!!errors.provincia_id}>
                   <StyledSelect
@@ -385,7 +429,8 @@ const Register = () => {
                     renderValue={(value) => {
                       if (!value) {
                         if (!selectedPaisId) return "";
-                        if (provinciasLoading) return "Cargando provincias...";
+                        if (provinciasLoading)
+                          return t("register.loadingProvinces");
                         return "";
                       }
                       return provinciasFiltradas.find(
@@ -395,10 +440,10 @@ const Register = () => {
                   >
                     <MenuItem value="" disabled>
                       {!selectedPaisId
-                        ? "Primero selecciona un país"
+                        ? t("register.selectProvinceFirst")
                         : provinciasLoading
-                        ? "Cargando provincias..."
-                        : "Selecciona una provincia"}
+                        ? t("register.loadingProvinces")
+                        : t("register.selectProvince")}
                     </MenuItem>
                     {provinciasFiltradas.map((provincia) => (
                       <MenuItem
@@ -422,16 +467,16 @@ const Register = () => {
           {/* Ciudad */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              Ciudad
+              {t("register.city")}
             </Typography>
             <Controller
               name="ciudad"
               control={control}
               rules={{
-                required: "La ciudad es obligatoria",
+                required: t("validation.cityRequired"),
                 minLength: {
                   value: 2,
-                  message: "La ciudad debe tener al menos 2 caracteres",
+                  message: t("validation.cityMin"),
                 },
               }}
               render={({ field }) => (
@@ -448,16 +493,16 @@ const Register = () => {
           {/* Contraseña */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              Contraseña
+              {t("register.password")}
             </Typography>
             <Controller
               name="contrasena"
               control={control}
               rules={{
-                required: "La contraseña es obligatoria",
+                required: t("validation.passwordRequired"),
                 minLength: {
                   value: 6,
-                  message: "La contraseña debe tener al menos 6 caracteres",
+                  message: t("validation.passwordMin"),
                 },
               }}
               render={({ field }) => (
@@ -475,15 +520,15 @@ const Register = () => {
           {/* Repetir contraseña */}
           <Box sx={fieldStyle}>
             <Typography variant="body1" sx={labelStyle}>
-              Repetir contraseña
+              {t("register.confirmPassword")}
             </Typography>
             <Controller
               name="confirmPassword"
               control={control}
               rules={{
-                required: "Confirma tu contraseña",
+                required: t("validation.confirmPasswordRequired"),
                 validate: (value) =>
-                  value === passwordWatched || "Las contraseñas no coinciden",
+                  value === passwordWatched || t("validation.passwordMatch"),
               }}
               render={({ field }) => (
                 <StyledTextField
@@ -503,7 +548,7 @@ const Register = () => {
             size="large"
             disabled={loading || paisesLoading || provinciasLoading}
           >
-            Registrarme
+            {t("register.button")}
           </StyledButton>
 
           <Typography
@@ -515,7 +560,7 @@ const Register = () => {
               fontSize: "13px",
             }}
           >
-            ¿Ya tienes una cuenta?{" "}
+            {t("register.hasAccount")}{" "}
             <Link
               href="/login"
               sx={{
@@ -524,7 +569,7 @@ const Register = () => {
                 fontWeight: 600,
               }}
             >
-              Inicia sesión
+              {t("register.login")}
             </Link>
           </Typography>
         </form>

@@ -8,10 +8,15 @@ import {
   Typography,
   Link,
   Alert,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
+import { Language as LanguageIcon } from "@mui/icons-material";
 import { styled, useTheme } from "@mui/material/styles";
 import { useForm, Controller } from "react-hook-form";
 import AuthContext from "../../context/AuthContext";
+import { LanguageContext } from "../../context/LanguageContext";
 
 const GradientBackground = styled(Box)(({ theme }) => ({
   background: `linear-gradient(180deg, ${theme.palette.primary.main} 0%, ${theme.palette.tertiary.main} 100%)`,
@@ -21,6 +26,7 @@ const GradientBackground = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   padding: "20px",
   boxSizing: "border-box",
+  position: "relative",
 }));
 
 const LoginCard = styled(Card)({
@@ -74,8 +80,10 @@ const StyledTextField = styled(TextField)({
 
 const Login = () => {
   const { login } = useContext(AuthContext);
+  const { t, changeLanguage } = useContext(LanguageContext);
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const {
     control,
@@ -88,13 +96,24 @@ const Login = () => {
     },
   });
 
+  const handleLanguageClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleLanguageClose = (idioma) => {
+    if (idioma) {
+      changeLanguage(idioma);
+    }
+    setAnchorEl(null);
+  };
+
   const onSubmit = async (data) => {
     setLoading(true);
     setLoginError("");
     try {
       await login(data);
     } catch (error) {
-      setLoginError(error.response?.data?.detail || "Error al iniciar sesión");
+      setLoginError(error.response?.data?.detail || t("login.error"));
     } finally {
       setLoading(false);
     }
@@ -102,6 +121,36 @@ const Login = () => {
 
   return (
     <GradientBackground>
+      <Box sx={{ position: "absolute", top: 20, right: 20 }}>
+        <IconButton
+          onClick={handleLanguageClick}
+          sx={{
+            backgroundColor: "rgba(255, 255, 255, 0.2)",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "rgba(255, 255, 255, 0.3)",
+            },
+          }}
+        >
+          <LanguageIcon />
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={() => handleLanguageClose(null)}
+        >
+          <MenuItem onClick={() => handleLanguageClose("es")}>
+            🇦🇷 Español
+          </MenuItem>
+          <MenuItem onClick={() => handleLanguageClose("en")}>
+            🇺🇸 English
+          </MenuItem>
+          <MenuItem onClick={() => handleLanguageClose("pt")}>
+            🇧🇷 Português
+          </MenuItem>
+        </Menu>
+      </Box>
+
       <LoginCard>
         <Typography
           variant="h4"
@@ -113,7 +162,7 @@ const Login = () => {
             fontSize: { xs: "20px", sm: "28px" },
           }}
         >
-          Inicia Sesión
+          {t("login.title")}
         </Typography>
 
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -138,16 +187,16 @@ const Login = () => {
                 fontSize: "14px",
               }}
             >
-              Email
+              {t("login.email")}
             </Typography>
             <Controller
               name="email"
               control={control}
               rules={{
-                required: "El email es obligatorio",
+                required: t("validation.emailRequired"),
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Formato de email inválido",
+                  message: t("validation.emailInvalid"),
                 },
               }}
               render={({ field }) => (
@@ -170,16 +219,16 @@ const Login = () => {
                 fontSize: "14px",
               }}
             >
-              Contraseña
+              {t("login.password")}
             </Typography>
             <Controller
               name="contrasena"
               control={control}
               rules={{
-                required: "La contraseña es obligatoria",
+                required: t("validation.passwordRequired"),
                 minLength: {
                   value: 6,
-                  message: "La contraseña debe tener al menos 6 caracteres",
+                  message: t("validation.passwordMin"),
                 },
               }}
               render={({ field }) => (
@@ -195,7 +244,7 @@ const Login = () => {
           </Box>
 
           <StyledButton type="submit" fullWidth size="large" disabled={loading}>
-            Ingresar
+            {t("login.button")}
           </StyledButton>
 
           <Typography
@@ -207,7 +256,7 @@ const Login = () => {
               fontSize: "13px",
             }}
           >
-            ¿Aún no tienes una cuenta?{" "}
+            {t("login.noAccount")}{" "}
             <Link
               href="/register"
               sx={{
@@ -216,7 +265,7 @@ const Login = () => {
                 fontWeight: 600,
               }}
             >
-              Regístrate
+              {t("login.register")}
             </Link>
           </Typography>
         </form>

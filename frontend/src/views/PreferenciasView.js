@@ -1,38 +1,39 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Box,
   Container,
   Paper,
   Typography,
+  FormControl,
   Select,
   MenuItem,
-  FormControl,
-  Button,
-  CircularProgress,
-  ToggleButton,
   ToggleButtonGroup,
+  ToggleButton,
+  RadioGroup,
   FormControlLabel,
   Radio,
-  RadioGroup,
+  Button,
+  Box,
+  CircularProgress,
 } from "@mui/material";
 import {
   DirectionsWalk,
   DirectionsCar,
   DirectionsBike,
 } from "@mui/icons-material";
+import { toast } from "react-toastify";
 import { useAuth } from "@/hooks/useAuth";
+import { LanguageContext } from "@/context/LanguageContext";
 import { fetchIdiomas } from "@/store/idiomas/idiomasSlice";
 import { fetchModosTransporte } from "@/store/modosTransporte/modosTransporteSlice";
 import { fetchUnidadesMedicion } from "@/store/unidadesMedicion/unidadesMedicionSlice";
-import { preferenciasService } from "@/services/preferencias";
-import { toast } from "react-toastify";
+import preferenciasService from "@/services/preferencias";
 
 export default function PreferenciasView() {
   const dispatch = useDispatch();
   const { user } = useAuth();
+  const { t, changeLanguage } = useContext(LanguageContext);
 
   const { idiomas, loading: idiomasLoading } = useSelector(
     (state) => state.idiomas
@@ -83,10 +84,17 @@ export default function PreferenciasView() {
   };
 
   const handleIdiomaChange = (e) => {
+    const idiomaId = e.target.value;
     setPreferencias({
       ...preferencias,
-      idioma_id: e.target.value,
+      idioma_id: idiomaId,
     });
+
+    // Cambiar idioma inmediatamente en la UI
+    const idioma = idiomas.find((i) => i.idioma_id === idiomaId);
+    if (idioma) {
+      changeLanguage(idioma.codigo_iso);
+    }
   };
 
   const handleModoTransporteChange = (e, newValue) => {
@@ -111,7 +119,7 @@ export default function PreferenciasView() {
       !preferencias.modo_transporte_id ||
       !preferencias.unidad_medicion_id
     ) {
-      toast.warning("Por favor completa todas las preferencias");
+      toast.warning(t("preferences.warning"));
       return;
     }
 
@@ -123,9 +131,9 @@ export default function PreferenciasView() {
         modo_transporte_id: preferencias.modo_transporte_id,
         unidad_medicion_id: preferencias.unidad_medicion_id,
       });
-      toast.success("Preferencias guardadas correctamente");
+      toast.success(t("preferences.success"));
     } catch (error) {
-      toast.error("Error al guardar preferencias");
+      toast.error(t("preferences.error"));
       console.error(error);
     } finally {
       setSaving(false);
@@ -161,7 +169,7 @@ export default function PreferenciasView() {
           fontSize: "28px",
         }}
       >
-        Preferencias
+        {t("preferences.title")}
       </Typography>
 
       <Paper
@@ -181,7 +189,7 @@ export default function PreferenciasView() {
             color: "#000",
           }}
         >
-          IDIOMA
+          {t("preferences.language")}
         </Typography>
         <FormControl fullWidth>
           <Select
@@ -198,7 +206,7 @@ export default function PreferenciasView() {
           >
             {idiomas.map((idioma) => (
               <MenuItem key={idioma.idioma_id} value={idioma.idioma_id}>
-                {idioma.nombre}
+                {idioma.nombre_idioma}
               </MenuItem>
             ))}
           </Select>
@@ -222,7 +230,7 @@ export default function PreferenciasView() {
             color: "#000",
           }}
         >
-          MODO DE TRANSPORTE
+          {t("preferences.transport")}
         </Typography>
         <ToggleButtonGroup
           value={preferencias.modo_transporte_id}
@@ -254,12 +262,19 @@ export default function PreferenciasView() {
         >
           {modos.map((modo) => {
             let icon = null;
-            if (modo.nombre?.toLowerCase().includes("pie"))
+            if (modo.nombre_modo_transporte?.toLowerCase().includes("pie"))
               icon = <DirectionsWalk sx={{ fontSize: "18px" }} />;
-            else if (modo.nombre?.toLowerCase().includes("auto"))
-              icon = <DirectionsCar sx={{ fontSize: "18px" }} />;
-            else if (modo.nombre?.toLowerCase().includes("bici"))
+            else if (
+              modo.nombre_modo_transporte?.toLowerCase().includes("bicicleta")
+            )
               icon = <DirectionsBike sx={{ fontSize: "18px" }} />;
+            else if (
+              modo.nombre_modo_transporte
+                ?.toLowerCase()
+                .includes("automóvil") ||
+              modo.nombre_modo_transporte?.toLowerCase().includes("auto")
+            )
+              icon = <DirectionsCar sx={{ fontSize: "18px" }} />;
 
             return (
               <ToggleButton
@@ -267,7 +282,7 @@ export default function PreferenciasView() {
                 value={modo.modo_transporte_id}
               >
                 {icon && icon}
-                {modo.nombre}
+                {modo.nombre_modo_transporte}
               </ToggleButton>
             );
           })}
@@ -291,7 +306,7 @@ export default function PreferenciasView() {
             color: "#000",
           }}
         >
-          UNIDAD DE MEDICIÓN
+          {t("preferences.unit")}
         </Typography>
         <RadioGroup
           value={preferencias.unidad_medicion_id || ""}
@@ -313,7 +328,7 @@ export default function PreferenciasView() {
               }
               label={
                 <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                  {unidad.nombre}
+                  {unidad.nombre_unidad_medicion}
                 </Typography>
               }
             />
@@ -342,7 +357,7 @@ export default function PreferenciasView() {
           },
         }}
       >
-        {saving ? <CircularProgress size={24} /> : "Guardar Preferencias"}
+        {saving ? <CircularProgress size={24} /> : t("preferences.save")}
       </Button>
     </Container>
   );

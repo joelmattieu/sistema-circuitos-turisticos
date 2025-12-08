@@ -1,14 +1,16 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { Box, Typography, Grid, CircularProgress } from "@mui/material";
+import { Box, Typography, CircularProgress } from "@mui/material";
 import { fetchCircuitos } from "../store/circuitos/circuitosSlice";
 import CardCircuitos from "../components/circuitos/CardCircuitos";
+import { LanguageContext } from "@/context/LanguageContext";
 
 const CircuitosView = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { t } = useContext(LanguageContext);
   const { circuitos, loading, error } = useSelector((state) => state.circuitos);
 
   useEffect(() => {
@@ -30,16 +32,17 @@ const CircuitosView = () => {
   if (error) {
     return (
       <Box mt={4}>
-        <Typography color="error">Error: {error}</Typography>
+        <Typography color="error">
+          {t("circuits.error")}: {error}
+        </Typography>
       </Box>
     );
   }
 
   return (
     <Box sx={{ width: "100%" }}>
-      {" "}
       <Typography variant="h6" sx={{ mb: 1, fontWeight: "600", fontSize: 14 }}>
-        RECOMENDADOS
+        {t("circuits.recommended")}
       </Typography>
       <Box
         sx={{

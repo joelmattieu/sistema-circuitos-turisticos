@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Box,
@@ -25,6 +25,7 @@ import {
   fetchCircuitoById,
   finalizarCircuito,
 } from "../store/circuitos/circuitosSlice";
+import { LanguageContext } from "@/context/LanguageContext";
 
 const getIconByTipo = (tipo) => {
   switch (tipo?.toLowerCase()) {
@@ -47,6 +48,7 @@ const getIconByTipo = (tipo) => {
 
 const CircuitoDetalle = ({ circuitoId }) => {
   const dispatch = useDispatch();
+  const { t } = useContext(LanguageContext);
   const { currentCircuito, loading, error } = useSelector(
     (state) => state.circuitos
   );
@@ -72,7 +74,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
   if (error || !currentCircuito) {
     return (
       <Box mt={4}>
-        <Typography color="error">Error al cargar el circuito</Typography>
+        <Typography color="error">{t("circuit.error")}</Typography>
       </Box>
     );
   }
@@ -100,7 +102,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
               textAlign: "center",
             }}
           >
-            CIRCUITO {currentCircuito.nombre.toUpperCase()}
+            {t("circuit.title", { name: currentCircuito.nombre.toUpperCase() })}
           </Typography>
         </Box>
       </Card>
@@ -153,7 +155,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
             },
           }}
         >
-          Comenzar Circuito
+          {t("circuit.start")}
         </Button>
       </Box>
 
@@ -161,7 +163,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
         variant="h6"
         sx={{ fontWeight: "400", fontSize: "16px", mb: 2 }}
       >
-        PUNTOS DE INTERÉS
+        {t("circuit.pois")}
       </Typography>
 
       <List sx={{ mb: 3 }}>

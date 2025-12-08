@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from "react";
+"use client";
+import React, { useState, useEffect, useContext } from "react";
 import AuthContext from "./AuthContext";
+import { LanguageContext } from "./LanguageContext";
 import { postLogin } from "../services/login";
 import { postRegister } from "../services/register";
+import preferenciasService from "../services/preferencias";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
@@ -40,6 +43,24 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("user", JSON.stringify(userData));
       localStorage.setItem("isLoggedIn", "true");
 
+      // cargar preferencias de idioma del usuario desde BD
+      try {
+        const preferencias = await preferenciasService.getByUsuarioId(
+          userData.usuario_id
+        );
+        if (preferencias && preferencias.idioma_id) {
+          const idiomaMap = {
+            1: "es",
+            2: "en",
+            3: "pt",
+          };
+          const codigoIdioma = idiomaMap[preferencias.idioma_id] || "es";
+          localStorage.setItem("idioma", codigoIdioma);
+        }
+      } catch (error) {
+        console.log("No se pudieron cargar preferencias de idioma");
+      }
+
       router.push("/");
       return response;
     } catch (error) {
@@ -59,9 +80,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await postRegister(userData);
       router.push("/login/");
-      toast.success(
-        "¡Usuario creado exitosamente!"
-      );
+      toast.success("¡Usuario creado exitosamente!");
       return response;
     } catch (error) {
       toast.error("Error al crear usuario");

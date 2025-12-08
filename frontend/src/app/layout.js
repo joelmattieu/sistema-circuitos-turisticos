@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { store } from "../store/store";
 import { AuthProvider } from "../context/AuthProvider";
+import { LanguageProvider } from "../context/LanguageContext";
 import Layout from "../layout/Layout";
 import theme from "../theme/theme";
 
@@ -24,38 +25,40 @@ const RootLayout = ({ children }) => {
         <Provider store={store}>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <AuthProvider>
-              <Layout>{children}</Layout>
-              <ToastContainer
-                position="top-center"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={true}
-                closeOnClick
-                rtl={false}
-                draggable
-                pauseOnHover
-                theme="light"
-                style={{
-                  fontSize: "14px",
-                  top: "20px",
-                  left: "20px",
-                  right: "20px",
-                  width: "auto",
-                }}
-                toastStyle={{
-                  borderRadius: "12px",
-                  padding: "16px",
-                  fontSize: "14px",
-                  fontWeight: "500",
-                }}
-              />
-            </AuthProvider>
+            <LanguageProvider>
+              <AuthProvider>
+                <Layout>{children}</Layout>
+                <ToastContainer
+                  position="top-center"
+                  autoClose={3000}
+                  hideProgressBar={false}
+                  newestOnTop={true}
+                  closeOnClick
+                  rtl={false}
+                  draggable
+                  pauseOnHover
+                  theme="light"
+                  style={{
+                    fontSize: "14px",
+                    top: "20px",
+                    left: "20px",
+                    right: "20px",
+                    width: "auto",
+                  }}
+                  toastStyle={{
+                    borderRadius: "12px",
+                    padding: "16px",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                  }}
+                />
+              </AuthProvider>
+            </LanguageProvider>
           </ThemeProvider>
         </Provider>
       </body>
     </html>
   );
-}
+};
 
 export default RootLayout;
