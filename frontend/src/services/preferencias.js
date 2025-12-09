@@ -1,6 +1,6 @@
 import api from "./api";
 
-export const preferenciasService = {
+const preferenciasService = {
   getByUsuarioId: async (usuarioId) => {
     try {
       const response = await api.get(`/preferencias/${usuarioId}`);
@@ -40,3 +40,5 @@ export const preferenciasService = {
     }
   },
 };
+
+export default preferenciasService;

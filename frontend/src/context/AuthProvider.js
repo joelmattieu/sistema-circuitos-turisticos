@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
 import AuthContext from "./AuthContext";
-import { LanguageContext } from "./LanguageContext";
 import { postLogin } from "../services/login";
 import { postRegister } from "../services/register";
 import preferenciasService from "../services/preferencias";
@@ -22,15 +21,19 @@ export const AuthProvider = ({ children }) => {
     if (savedUser && loginStatus === "true") {
       try {
         const userData = JSON.parse(savedUser);
-        setUser(userData);
-        setIsLoggedIn(true);
+        setTimeout(() => {
+          setUser(userData);
+          setIsLoggedIn(true);
+          setIsLoading(false);
+        }, 0);
       } catch (error) {
         localStorage.removeItem("user");
         localStorage.removeItem("isLoggedIn");
+        setTimeout(() => setIsLoading(false), 0);
       }
+    } else {
+      setTimeout(() => setIsLoading(false), 0);
     }
-
-    setIsLoading(false);
   }, []);
 
   const login = async (credentials) => {
