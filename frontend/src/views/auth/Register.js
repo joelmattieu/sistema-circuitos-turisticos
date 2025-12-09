@@ -15,7 +15,6 @@ import {
   IconButton,
   Menu,
 } from "@mui/material";
-import { Language as LanguageIcon } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +22,7 @@ import AuthContext from "../../context/AuthContext";
 import { LanguageContext } from "../../context/LanguageContext";
 import { fetchPaises } from "../../store/paises/paisesSlice";
 import { fetchProvinciasByPais } from "../../store/provincias/provinciasSlice";
+import LanguageSelector from "../../components/LanguageSelector";
 
 const GradientBackground = styled(Box)(({ theme }) => ({
   background: `linear-gradient(180deg, ${theme.palette.primary.main} 0%, ${theme.palette.tertiary.main} 100%)`,
@@ -121,7 +121,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [selectedPaisId, setSelectedPaisId] = useState(null);
   const [registerError, setRegisterError] = useState("");
-  const [anchorEl, setAnchorEl] = useState(null);
 
   const {
     control,
@@ -158,17 +157,6 @@ const Register = () => {
     }
   }, [paisWatched, dispatch, setValue]);
 
-  const handleLanguageClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleLanguageClose = (idioma) => {
-    if (idioma) {
-      changeLanguage(idioma);
-    }
-    setAnchorEl(null);
-  };
-
   const onSubmit = async (data) => {
     setLoading(true);
     setRegisterError("");
@@ -194,35 +182,7 @@ const Register = () => {
 
   return (
     <GradientBackground>
-      <Box sx={{ position: "absolute", top: 20, right: 20 }}>
-        <IconButton
-          onClick={handleLanguageClick}
-          sx={{
-            backgroundColor: "rgba(255, 255, 255, 0.2)",
-            color: "white",
-            "&:hover": {
-              backgroundColor: "rgba(255, 255, 255, 0.3)",
-            },
-          }}
-        >
-          <LanguageIcon />
-        </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={Boolean(anchorEl)}
-          onClose={() => handleLanguageClose(null)}
-        >
-          <MenuItem onClick={() => handleLanguageClose("es")}>
-            🇦🇷 Español
-          </MenuItem>
-          <MenuItem onClick={() => handleLanguageClose("en")}>
-            🇺🇸 English
-          </MenuItem>
-          <MenuItem onClick={() => handleLanguageClose("pt")}>
-            🇧🇷 Português
-          </MenuItem>
-        </Menu>
-      </Box>
+      <LanguageSelector />
 
       <RegisterCard>
         <Typography
