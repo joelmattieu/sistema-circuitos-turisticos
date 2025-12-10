@@ -16,8 +16,8 @@ def load_idiomas(db: Session):
     if len(idiomas_existentes) == 0:
         idiomas = [
             IdiomaModel(idioma_id=1, nombre_idioma="Español", codigo_iso="es"),
-            IdiomaModel(idioma_id=2, nombre_idioma="Inglés", codigo_iso="en"),
-            IdiomaModel(idioma_id=3, nombre_idioma="Portugués", codigo_iso="pt"),
+            IdiomaModel(idioma_id=2, nombre_idioma="English", codigo_iso="en"),
+            IdiomaModel(idioma_id=3, nombre_idioma="Português", codigo_iso="pt"),
         ]
         
         for idioma in idiomas:
