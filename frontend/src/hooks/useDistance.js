@@ -1,43 +1,7 @@
-import { useSelector } from "react-redux";
-
 export const useDistanceFormatter = () => {
-  const { preferencias } = useSelector((state) => state.preferencias);
 
   /**
-   * Convierte metros a la unidad preferida del usuario y devuelve solo el valor numérico
-   * @param {number} distanciaMetros - Distancia en metros
-   * @param {number|null} distanciaFormateada - Distancia ya formateada del backend
-   * @returns {number} - Valor numérico de la distancia
-   */
-  const getDistanceValue = (distanciaMetros, distanciaFormateada = null) => {
-    if (distanciaFormateada) {
-      return parseFloat(distanciaFormateada);
-    }
-
-    if (preferencias?.unidad_medicion_id === 2) {
-      return parseFloat(((distanciaMetros / 1000) * 0.621371).toFixed(1));
-    }
-    return parseFloat((distanciaMetros / 1000).toFixed(1));
-  };
-
-  /**
-   * Devuelve la unidad de medición del usuario
-   * @returns {string} - 'km' o 'mi'
-   */
-  const getDistanceUnit = (unidadMedicion = null) => {
-    if (unidadMedicion) {
-      return unidadMedicion;
-    }
-
-    return preferencias?.unidad_medicion_id === 2 ? "mi" : "km";
-  };
-
-  /**
-   * Convierte metros a la unidad preferida y devuelve string formateado con unidad
-   * @param {number} distanciaMetros - Distancia en metros
-   * @param {string|null} distanciaFormateada
-   * @param {string|null} unidadMedicion - Unidad de medición del backend
-   * @returns {string} - Distancia formateada con unidad (ej: "5.2 km" o "3.2 mi")
+   * Formatea la distancia
    */
   const formatDistance = (
     distanciaMetros,
@@ -47,16 +11,30 @@ export const useDistanceFormatter = () => {
     if (distanciaFormateada && unidadMedicion) {
       return `${distanciaFormateada} ${unidadMedicion}`;
     }
+    const distanciaKm = (distanciaMetros / 1000).toFixed(1);
+    return `${distanciaKm} km`; // km por defecto
+  };
 
-    const valor = getDistanceValue(distanciaMetros, distanciaFormateada);
-    const unidad = getDistanceUnit(unidadMedicion);
+  /**
+   * Obtiene solo el valor numérico
+   */
+  const getDistanceValue = (distanciaMetros, distanciaFormateada = null) => {
+    if (distanciaFormateada) {
+      return parseFloat(distanciaFormateada);
+    }
+    return parseFloat((distanciaMetros / 1000).toFixed(1));
+  };
 
-    return `${valor} ${unidad}`;
+  /**
+   * Obtiene la unidad
+   */
+  const getDistanceUnit = (unidadMedicion = null) => {
+    return unidadMedicion || "km";
   };
 
   return {
-    formatDistance, // Devuelve "5.2 km" o "3.2 mi"
-    getDistanceValue, // Devuelve 5.2 (número)
-    getDistanceUnit, // Devuelve "km" o "mi"
+    formatDistance,
+    getDistanceValue,
+    getDistanceUnit,
   };
 };

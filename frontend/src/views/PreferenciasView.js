@@ -13,7 +13,6 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  Button,
   Box,
   CircularProgress,
 } from "@mui/material";
@@ -56,8 +55,7 @@ export default function PreferenciasView() {
     modo_transporte_id: null,
     unidad_medicion_id: null,
   });
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
     dispatch(fetchIdiomas());
@@ -71,67 +69,37 @@ export default function PreferenciasView() {
     }
   }, [user?.usuario_id, dispatch]);
 
+  // Inicializar estado local con preferencias del usuario
   useEffect(() => {
-    if (preferencias) {
+    if (preferencias && !isInitialized) {
       setTimeout(() => {
         setPreferenciasState({
           idioma_id: preferencias.idioma_id,
           modo_transporte_id: preferencias.modo_transporte_id,
           unidad_medicion_id: preferencias.unidad_medicion_id,
         });
+        setIsInitialized(true);
       }, 0);
     }
-  }, [preferencias]);
+  }, [preferencias, isInitialized]);
 
-  const handleIdiomaChange = (e) => {
-    const idiomaId = e.target.value;
-    setPreferenciasState({
-      ...preferenciasState,
-      idioma_id: idiomaId,
-    });
-
-    // Cambia idioma inmediatamente en la UI
-    const idioma = idiomas.find((i) => i.idioma_id === idiomaId);
-    if (idioma) {
-      changeLanguage(idioma.codigo_iso);
-    }
-  };
-
-  const handleModoTransporteChange = (e, newValue) => {
-    if (newValue) {
-      setPreferenciasState({
-        ...preferenciasState,
-        modo_transporte_id: newValue,
-      });
-    }
-  };
-
-  const handleUnidadMedicionChange = (e) => {
-    setPreferenciasState({
-      ...preferenciasState,
-      unidad_medicion_id: e.target.value,
-    });
-  };
-
-  const handleGuardar = async () => {
+  const guardarPreferencias = (nuevasPreferencias) => {
     if (
-      !preferenciasState.idioma_id ||
-      !preferenciasState.modo_transporte_id ||
-      !preferenciasState.unidad_medicion_id
+      !nuevasPreferencias.idioma_id ||
+      !nuevasPreferencias.modo_transporte_id ||
+      !nuevasPreferencias.unidad_medicion_id
     ) {
-      toast.warning(t("preferences.warning"));
       return;
     }
 
     dispatch(
       updatePreferencias({
         usuario_id: user.usuario_id,
-        ...preferenciasState,
+        ...nuevasPreferencias,
       })
     )
       .unwrap()
       .then(() => {
-        toast.success(t("preferences.success"));
       })
       .catch((error) => {
         toast.error(t("preferences.error"));
@@ -139,12 +107,56 @@ export default function PreferenciasView() {
       });
   };
 
+  const handleIdiomaChange = (e) => {
+    const idiomaId = e.target.value;
+    const nuevasPreferencias = {
+      ...preferenciasState,
+      idioma_id: idiomaId,
+    };
+
+    setPreferenciasState(nuevasPreferencias);
+
+    // Cambia idioma inmediatamente en la UI
+    const idioma = idiomas.find((i) => i.idioma_id === idiomaId);
+    if (idioma) {
+      changeLanguage(idioma.codigo_iso);
+    }
+
+    if (isInitialized) {
+      guardarPreferencias(nuevasPreferencias);
+    }
+  };
+
+  const handleModoTransporteChange = (e, newValue) => {
+    if (newValue) {
+      const nuevasPreferencias = {
+        ...preferenciasState,
+        modo_transporte_id: newValue,
+      };
+
+      setPreferenciasState(nuevasPreferencias);
+
+      if (isInitialized) {
+        guardarPreferencias(nuevasPreferencias);
+      }
+    }
+  };
+
+  const handleUnidadMedicionChange = (e) => {
+    const nuevasPreferencias = {
+      ...preferenciasState,
+      unidad_medicion_id: e.target.value,
+    };
+
+    setPreferenciasState(nuevasPreferencias);
+
+    if (isInitialized) {
+      guardarPreferencias(nuevasPreferencias);
+    }
+  };
+
   const isLoading =
-    loading ||
-    idiomasLoading ||
-    modosLoading ||
-    unidadesLoading ||
-    preferenciasLoading;
+    idiomasLoading || modosLoading || unidadesLoading || preferenciasLoading;
 
   if (isLoading) {
     return (
@@ -338,30 +350,6 @@ export default function PreferenciasView() {
           ))}
         </RadioGroup>
       </Paper>
-
-      <Button
-        variant="contained"
-        fullWidth
-        onClick={handleGuardar}
-        disabled={saving}
-        sx={{
-          backgroundColor: "#FF9800",
-          color: "#fff",
-          fontWeight: 700,
-          py: 1.5,
-          fontSize: "14px",
-          borderRadius: 1,
-          textTransform: "none",
-          "&:hover": {
-            backgroundColor: "#F57C00",
-          },
-          "&:disabled": {
-            backgroundColor: "#BDBDBD",
-          },
-        }}
-      >
-        {saving ? <CircularProgress size={24} /> : t("preferences.save")}
-      </Button>
     </Container>
   );
 }
