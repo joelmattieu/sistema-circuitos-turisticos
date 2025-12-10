@@ -1,27 +1,32 @@
 import api from "./api";
 
 export const circuitosService = {
-  getAll: async () => {
+  getAll: async (usuarioId = null) => {
     try {
-      const response = await api.get("/circuitos");
+      const params = usuarioId ? `?usuario_id=${usuarioId}` : "";
+      const response = await api.get(`/circuitos${params}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  getById: async (id) => {
+  getById: async (id, usuarioId = null) => {
     try {
-      const response = await api.get(`/circuitos/${id}`);
+      const params = usuarioId ? `?usuario_id=${usuarioId}` : "";
+      const response = await api.get(`/circuitos/${id}${params}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;
     }
   },
 
-  getByCategoria: async (categoriaId) => {
+  getByCategoria: async (categoriaId, usuarioId = null) => {
     try {
-      const response = await api.get(`/circuitos/?categoria_id=${categoriaId}`);
+      const params = new URLSearchParams();
+      params.append("categoria_id", categoriaId);
+      if (usuarioId) params.append("usuario_id", usuarioId);
+      const response = await api.get(`/circuitos/?${params.toString()}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

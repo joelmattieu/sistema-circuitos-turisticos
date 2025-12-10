@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import AuthContext from "./AuthContext";
 import { postLogin } from "../services/login";
 import { postRegister } from "../services/register";
-import preferenciasService from "../services/preferencias";
+import { preferenciasService } from "../services/preferencias";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 

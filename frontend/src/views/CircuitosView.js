@@ -6,16 +6,22 @@ import { Box, Typography, CircularProgress } from "@mui/material";
 import { fetchCircuitos } from "../store/circuitos/circuitosSlice";
 import CardCircuitos from "../components/circuitos/CardCircuitos";
 import { LanguageContext } from "@/context/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 
 const CircuitosView = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const { t } = useContext(LanguageContext);
+  const { user } = useAuth();
   const { circuitos, loading, error } = useSelector((state) => state.circuitos);
 
   useEffect(() => {
-    dispatch(fetchCircuitos());
-  }, [dispatch]);
+    if (user?.usuario_id) {
+      dispatch(fetchCircuitos(user.usuario_id));
+    } else {
+      dispatch(fetchCircuitos());
+    }
+  }, [dispatch, user?.usuario_id]);
 
   const handleCircuitoClick = (circuitoId) => {
     router.push(`/circuito/${circuitoId}`);

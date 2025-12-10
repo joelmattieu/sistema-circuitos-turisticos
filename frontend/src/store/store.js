@@ -5,6 +5,7 @@ import circuitosReducer from "./circuitos/circuitosSlice";
 import idiomasReducer from "./idiomas/idiomasSlice";
 import modosTransporteReducer from "./modosTransporte/modosTransporteSlice";
 import unidadesMedicionReducer from "./unidadesMedicion/unidadesMedicionSlice";
+import preferenciasReducer from "./preferencias/preferenciasSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     idiomas: idiomasReducer,
     modosTransporte: modosTransporteReducer,
     unidadesMedicion: unidadesMedicionReducer,
+    preferencias: preferenciasReducer,
   },
 });
 

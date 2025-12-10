@@ -10,6 +10,11 @@ const CardCircuitos = ({ circuito, onClick }) => {
     }
   };
 
+  const distanciaDisplay =
+    circuito.distancia_formateada && circuito.unidad_medicion
+      ? `${circuito.distancia_formateada} ${circuito.unidad_medicion}`
+      : `${(circuito.distancia_total_metros / 1000).toFixed(1)} km`;
+
   return (
     <Card
       sx={{
@@ -73,8 +78,7 @@ const CardCircuitos = ({ circuito, onClick }) => {
                   color: "#000",
                 }}
               >
-                {(circuito.distancia_total_metros / 1000).toFixed(1)} km •{" "}
-                {circuito.duracion_estimada_minutos} min
+                {distanciaDisplay} • {circuito.duracion_estimada_minutos} min
               </Typography>
             </Box>
           </Box>
@@ -87,7 +91,5 @@ const CardCircuitos = ({ circuito, onClick }) => {
     </Card>
   );
 };
-
-
 
 export default CardCircuitos;

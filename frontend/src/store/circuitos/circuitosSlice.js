@@ -3,9 +3,9 @@ import { circuitosService } from "../../services/circuitos";
 
 export const fetchCircuitos = createAsyncThunk(
   "circuitos/fetchCircuitos",
-  async (_, { rejectWithValue }) => {
+  async (usuarioId = null, { rejectWithValue }) => {
     try {
-      const response = await circuitosService.getAll();
+      const response = await circuitosService.getAll(usuarioId);
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -15,9 +15,9 @@ export const fetchCircuitos = createAsyncThunk(
 
 export const fetchCircuitoById = createAsyncThunk(
   "circuitos/fetchCircuitoById",
-  async (id, { rejectWithValue }) => {
+  async ({ id, usuarioId = null }, { rejectWithValue }) => {
     try {
-      const response = await circuitosService.getById(id);
+      const response = await circuitosService.getById(id, usuarioId);
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -80,17 +80,7 @@ const circuitosSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(finalizarCircuito.fulfilled, (state, action) => {
-        const index = state.circuitos.findIndex(
-          (c) => c.circuito_id === action.payload.circuito_id
-        );
-        if (index !== -1) {
-          state.circuitos[index].veces_finalizado =
-            action.payload.veces_finalizado;
-        }
-        if (state.currentCircuito?.circuito_id === action.payload.circuito_id) {
-          state.currentCircuito.veces_finalizado =
-            action.payload.veces_finalizado;
-        }
+        state.currentCircuito = action.payload;
       });
   },
 });

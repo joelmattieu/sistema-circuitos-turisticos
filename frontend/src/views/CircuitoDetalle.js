@@ -25,7 +25,9 @@ import {
   fetchCircuitoById,
   finalizarCircuito,
 } from "../store/circuitos/circuitosSlice";
+import { fetchPreferenciasByUsuario } from "../store/preferencias/preferenciasSlice";
 import { LanguageContext } from "@/context/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 
 const getIconByTipo = (tipo) => {
   switch (tipo?.toLowerCase()) {
@@ -49,15 +51,29 @@ const getIconByTipo = (tipo) => {
 const CircuitoDetalle = ({ circuitoId }) => {
   const dispatch = useDispatch();
   const { t } = useContext(LanguageContext);
+  const { user } = useAuth();
   const { currentCircuito, loading, error } = useSelector(
     (state) => state.circuitos
   );
+  const { preferencias } = useSelector((state) => state.preferencias);
+
+  console.log("Preferencias del usuario:", preferencias);
 
   useEffect(() => {
-    if (circuitoId) {
-      dispatch(fetchCircuitoById(circuitoId));
+    if (circuitoId && user?.usuario_id) {
+      dispatch(
+        fetchCircuitoById({ id: circuitoId, usuarioId: user.usuario_id })
+      );
+    } else if (circuitoId) {
+      dispatch(fetchCircuitoById({ id: circuitoId }));
     }
-  }, [dispatch, circuitoId]);
+  }, [dispatch, circuitoId, user?.usuario_id]);
+
+  useEffect(() => {
+    if (user?.usuario_id && !preferencias) {
+      dispatch(fetchPreferenciasByUsuario(user.usuario_id));
+    }
+  }, [dispatch, user?.usuario_id, preferencias]);
 
   const handleComenzarCircuito = () => {
     dispatch(finalizarCircuito(circuitoId));
@@ -78,6 +94,11 @@ const CircuitoDetalle = ({ circuitoId }) => {
       </Box>
     );
   }
+
+  const distanciaKm = currentCircuito.distancia_total_metros / 1000;
+  const distanciaDisplay = currentCircuito.distancia_formateada
+    ? `${currentCircuito.distancia_formateada} ${currentCircuito.unidad_medicion}`
+    : `${distanciaKm.toFixed(1)} km`;
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>
@@ -131,8 +152,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
           color: "#212121",
         }}
       >
-        {(currentCircuito.distancia_total_metros / 1000).toFixed(1)} km •{" "}
-        {currentCircuito.duracion_estimada_minutos} min •{" "}
+        {distanciaDisplay} • {currentCircuito.duracion_estimada_minutos} min •{" "}
         {currentCircuito.puntos_interes?.length || 0} POIs
       </Typography>
 

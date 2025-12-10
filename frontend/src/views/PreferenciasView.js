@@ -28,7 +28,10 @@ import { LanguageContext } from "@/context/LanguageContext";
 import { fetchIdiomas } from "@/store/idiomas/idiomasSlice";
 import { fetchModosTransporte } from "@/store/modosTransporte/modosTransporteSlice";
 import { fetchUnidadesMedicion } from "@/store/unidadesMedicion/unidadesMedicionSlice";
-import preferenciasService from "@/services/preferencias";
+import {
+  fetchPreferenciasByUsuario,
+  updatePreferencias,
+} from "@/store/preferencias/preferenciasSlice";
 
 export default function PreferenciasView() {
   const dispatch = useDispatch();
@@ -44,8 +47,11 @@ export default function PreferenciasView() {
   const { unidades, loading: unidadesLoading } = useSelector(
     (state) => state.unidadesMedicion
   );
+  const { preferencias, loading: preferenciasLoading } = useSelector(
+    (state) => state.preferencias
+  );
 
-  const [preferencias, setPreferencias] = useState({
+  const [preferenciasState, setPreferenciasState] = useState({
     idioma_id: null,
     modo_transporte_id: null,
     unidad_medicion_id: null,
@@ -61,36 +67,30 @@ export default function PreferenciasView() {
 
   useEffect(() => {
     if (user?.usuario_id) {
-      loadPreferencias();
+      dispatch(fetchPreferenciasByUsuario(user.usuario_id));
     }
-  }, [user]);
+  }, [user?.usuario_id, dispatch]);
 
-  const loadPreferencias = async () => {
-    try {
-      setLoading(true);
-      const data = await preferenciasService.getByUsuarioId(user.usuario_id);
-      if (data) {
-        setPreferencias({
-          idioma_id: data.idioma_id,
-          modo_transporte_id: data.modo_transporte_id,
-          unidad_medicion_id: data.unidad_medicion_id,
+  useEffect(() => {
+    if (preferencias) {
+      setTimeout(() => {
+        setPreferenciasState({
+          idioma_id: preferencias.idioma_id,
+          modo_transporte_id: preferencias.modo_transporte_id,
+          unidad_medicion_id: preferencias.unidad_medicion_id,
         });
-      }
-    } catch (error) {
-      console.error("Error al cargar preferencias:", error);
-    } finally {
-      setLoading(false);
+      }, 0);
     }
-  };
+  }, [preferencias]);
 
   const handleIdiomaChange = (e) => {
     const idiomaId = e.target.value;
-    setPreferencias({
-      ...preferencias,
+    setPreferenciasState({
+      ...preferenciasState,
       idioma_id: idiomaId,
     });
 
-    // Cambiar idioma inmediatamente en la UI
+    // Cambia idioma inmediatamente en la UI
     const idioma = idiomas.find((i) => i.idioma_id === idiomaId);
     if (idioma) {
       changeLanguage(idioma.codigo_iso);
@@ -99,49 +99,52 @@ export default function PreferenciasView() {
 
   const handleModoTransporteChange = (e, newValue) => {
     if (newValue) {
-      setPreferencias({
-        ...preferencias,
+      setPreferenciasState({
+        ...preferenciasState,
         modo_transporte_id: newValue,
       });
     }
   };
 
   const handleUnidadMedicionChange = (e) => {
-    setPreferencias({
-      ...preferencias,
+    setPreferenciasState({
+      ...preferenciasState,
       unidad_medicion_id: e.target.value,
     });
   };
 
   const handleGuardar = async () => {
     if (
-      !preferencias.idioma_id ||
-      !preferencias.modo_transporte_id ||
-      !preferencias.unidad_medicion_id
+      !preferenciasState.idioma_id ||
+      !preferenciasState.modo_transporte_id ||
+      !preferenciasState.unidad_medicion_id
     ) {
       toast.warning(t("preferences.warning"));
       return;
     }
 
-    try {
-      setSaving(true);
-      await preferenciasService.createOrUpdate({
+    dispatch(
+      updatePreferencias({
         usuario_id: user.usuario_id,
-        idioma_id: preferencias.idioma_id,
-        modo_transporte_id: preferencias.modo_transporte_id,
-        unidad_medicion_id: preferencias.unidad_medicion_id,
+        ...preferenciasState,
+      })
+    )
+      .unwrap()
+      .then(() => {
+        toast.success(t("preferences.success"));
+      })
+      .catch((error) => {
+        toast.error(t("preferences.error"));
+        console.error(error);
       });
-      toast.success(t("preferences.success"));
-    } catch (error) {
-      toast.error(t("preferences.error"));
-      console.error(error);
-    } finally {
-      setSaving(false);
-    }
   };
 
   const isLoading =
-    loading || idiomasLoading || modosLoading || unidadesLoading;
+    loading ||
+    idiomasLoading ||
+    modosLoading ||
+    unidadesLoading ||
+    preferenciasLoading;
 
   if (isLoading) {
     return (
@@ -193,7 +196,7 @@ export default function PreferenciasView() {
         </Typography>
         <FormControl fullWidth>
           <Select
-            value={preferencias.idioma_id || ""}
+            value={preferenciasState.idioma_id || ""}
             onChange={handleIdiomaChange}
             sx={{
               backgroundColor: "#fff",
@@ -233,7 +236,7 @@ export default function PreferenciasView() {
           {t("preferences.transport")}
         </Typography>
         <ToggleButtonGroup
-          value={preferencias.modo_transporte_id}
+          value={preferenciasState.modo_transporte_id}
           exclusive
           onChange={handleModoTransporteChange}
           fullWidth
@@ -309,7 +312,7 @@ export default function PreferenciasView() {
           {t("preferences.unit")}
         </Typography>
         <RadioGroup
-          value={preferencias.unidad_medicion_id || ""}
+          value={preferenciasState.unidad_medicion_id || ""}
           onChange={handleUnidadMedicionChange}
         >
           {unidades.map((unidad) => (
