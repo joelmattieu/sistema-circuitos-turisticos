@@ -28,6 +28,7 @@ import {
 import { fetchPreferenciasByUsuario } from "../store/preferencias/preferenciasSlice";
 import { LanguageContext } from "@/context/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
+import { useDistanceFormatter } from "@/hooks/useDistance";
 
 const getIconByTipo = (tipo) => {
   switch (tipo?.toLowerCase()) {
@@ -52,6 +53,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
   const dispatch = useDispatch();
   const { t } = useContext(LanguageContext);
   const { user } = useAuth();
+  const { formatDistance } = useDistanceFormatter();
   const { currentCircuito, loading, error } = useSelector(
     (state) => state.circuitos
   );
@@ -95,10 +97,11 @@ const CircuitoDetalle = ({ circuitoId }) => {
     );
   }
 
-  const distanciaKm = currentCircuito.distancia_total_metros / 1000;
-  const distanciaDisplay = currentCircuito.distancia_formateada
-    ? `${currentCircuito.distancia_formateada} ${currentCircuito.unidad_medicion}`
-    : `${distanciaKm.toFixed(1)} km`;
+  const distanciaDisplay = formatDistance(
+    currentCircuito.distancia_total_metros,
+    currentCircuito.distancia_formateada,
+    currentCircuito.unidad_medicion
+  );
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 import { fetchCircuitos } from "../store/circuitos/circuitosSlice";
+import { fetchPreferenciasByUsuario } from "../store/preferencias/preferenciasSlice";
 import CardCircuitos from "../components/circuitos/CardCircuitos";
 import { LanguageContext } from "@/context/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +15,7 @@ const CircuitosView = () => {
   const { t } = useContext(LanguageContext);
   const { user } = useAuth();
   const { circuitos, loading, error } = useSelector((state) => state.circuitos);
+  const { preferencias } = useSelector((state) => state.preferencias);
 
   useEffect(() => {
     if (user?.usuario_id) {
@@ -22,6 +24,12 @@ const CircuitosView = () => {
       dispatch(fetchCircuitos());
     }
   }, [dispatch, user?.usuario_id]);
+
+  useEffect(() => {
+    if (user?.usuario_id && !preferencias) {
+      dispatch(fetchPreferenciasByUsuario(user.usuario_id));
+    }
+  }, [dispatch, user?.usuario_id, preferencias]);
 
   const handleCircuitoClick = (circuitoId) => {
     router.push(`/circuito/${circuitoId}`);

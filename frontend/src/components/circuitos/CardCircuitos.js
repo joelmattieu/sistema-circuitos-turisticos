@@ -2,18 +2,22 @@
 import React from "react";
 import { Card, CardContent, Typography, Box, Avatar } from "@mui/material";
 import CircularProgressIndicator from "./CircularProgressIndicator";
+import { useDistanceFormatter } from "@/hooks/useDistance";
 
 const CardCircuitos = ({ circuito, onClick }) => {
+  const { formatDistance } = useDistanceFormatter();
+
   const handleClick = () => {
     if (onClick) {
       onClick(circuito.circuito_id);
     }
   };
 
-  const distanciaDisplay =
-    circuito.distancia_formateada && circuito.unidad_medicion
-      ? `${circuito.distancia_formateada} ${circuito.unidad_medicion}`
-      : `${(circuito.distancia_total_metros / 1000).toFixed(1)} km`;
+  const distanciaDisplay = formatDistance(
+    circuito.distancia_total_metros,
+    circuito.distancia_formateada,
+    circuito.unidad_medicion
+  );
 
   return (
     <Card
