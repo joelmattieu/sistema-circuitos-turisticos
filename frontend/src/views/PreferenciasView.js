@@ -99,8 +99,7 @@ export default function PreferenciasView() {
       })
     )
       .unwrap()
-      .then(() => {
-      })
+      .then(() => {})
       .catch((error) => {
         toast.error(t("preferences.error"));
         console.error(error);
@@ -174,14 +173,14 @@ export default function PreferenciasView() {
   }
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <Container maxWidth="sm" sx={{ py: 2 }}>
       <Typography
         variant="h4"
         sx={{
           fontWeight: 700,
           textAlign: "center",
-          mb: 4,
-          fontSize: "28px",
+          mb: 5,
+          fontSize: "24px",
         }}
       >
         {t("preferences.title")}
@@ -192,16 +191,17 @@ export default function PreferenciasView() {
         sx={{
           p: 3,
           mb: 3,
-          borderRadius: 2,
-          backgroundColor: "#F5F5F5",
+          borderRadius: 5,
+          backgroundColor: "#FFFFFF",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
         <Typography
           sx={{
             fontWeight: 700,
-            fontSize: "14px",
+            fontSize: "15px",
             mb: 2,
-            color: "#000",
+            color: "#212121",
           }}
         >
           {t("preferences.language")}
@@ -213,6 +213,7 @@ export default function PreferenciasView() {
             sx={{
               backgroundColor: "#fff",
               borderRadius: 1.5,
+              height: 40,
               "& .MuiOutlinedInput-notchedOutline": {
                 borderColor: "#E0E0E0",
               },
@@ -228,21 +229,23 @@ export default function PreferenciasView() {
         </FormControl>
       </Paper>
 
+      {/* MODO DE TRANSPORTE */}
       <Paper
         elevation={0}
         sx={{
           p: 3,
           mb: 3,
-          borderRadius: 2,
-          backgroundColor: "#F5F5F5",
+          borderRadius: 5,
+          backgroundColor: "#FFFFFF",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
         <Typography
           sx={{
             fontWeight: 700,
-            fontSize: "14px",
+            fontSize: "15px",
             mb: 2,
-            color: "#000",
+            color: "#212121",
           }}
         >
           {t("preferences.transport")}
@@ -253,51 +256,72 @@ export default function PreferenciasView() {
           onChange={handleModoTransporteChange}
           fullWidth
           sx={{
+            display: "flex",
+            gap: 1,
+            "& .MuiToggleButtonGroup-grouped": {
+              border: 0,
+              borderRadius: "8px !important",
+              flex: 1,
+              margin: 0,
+            },
             "& .MuiToggleButton-root": {
               fontSize: "13px",
               fontWeight: 600,
               py: 1.5,
-              borderRadius: 1,
+              px: 1,
               border: "2px solid #E0E0E0",
+              borderRadius: "8px",
               color: "#666",
               textTransform: "none",
               display: "flex",
+              flexDirection: "column",
               gap: 0.5,
               alignItems: "center",
+              backgroundColor: "#fff",
               "&.Mui-selected": {
                 backgroundColor: "#FF9800",
                 color: "#fff",
                 borderColor: "#FF9800",
+                "&:hover": {
+                  backgroundColor: "#F57C00",
+                },
               },
               "&:hover": {
-                backgroundColor: "transparent",
+                backgroundColor: "#FAFAFA",
+                borderColor: "#C0C0C0",
               },
             },
           }}
         >
           {modos.map((modo) => {
             let icon = null;
-            if (modo.nombre_modo_transporte?.toLowerCase().includes("pie"))
-              icon = <DirectionsWalk sx={{ fontSize: "18px" }} />;
-            else if (
+            let shortLabel = modo.nombre_modo_transporte;
+
+            if (modo.nombre_modo_transporte?.toLowerCase().includes("pie")) {
+              icon = <DirectionsWalk sx={{ fontSize: "20px" }} />;
+              shortLabel = "A pie";
+            } else if (
               modo.nombre_modo_transporte?.toLowerCase().includes("bicicleta")
-            )
-              icon = <DirectionsBike sx={{ fontSize: "18px" }} />;
-            else if (
+            ) {
+              icon = <DirectionsBike sx={{ fontSize: "20px" }} />;
+              shortLabel = "Bici";
+            } else if (
               modo.nombre_modo_transporte
                 ?.toLowerCase()
                 .includes("automóvil") ||
               modo.nombre_modo_transporte?.toLowerCase().includes("auto")
-            )
-              icon = <DirectionsCar sx={{ fontSize: "18px" }} />;
+            ) {
+              icon = <DirectionsCar sx={{ fontSize: "20px" }} />;
+              shortLabel = "Auto";
+            }
 
             return (
               <ToggleButton
                 key={modo.modo_transporte_id}
                 value={modo.modo_transporte_id}
               >
-                {icon && icon}
-                {modo.nombre_modo_transporte}
+                {icon}
+                {shortLabel}
               </ToggleButton>
             );
           })}
@@ -309,16 +333,17 @@ export default function PreferenciasView() {
         sx={{
           p: 3,
           mb: 4,
-          borderRadius: 2,
-          backgroundColor: "#F5F5F5",
+          borderRadius: 5,
+          backgroundColor: "#FFFFFF",
+          boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
         }}
       >
         <Typography
           sx={{
             fontWeight: 700,
-            fontSize: "14px",
+            fontSize: "15px",
             mb: 2,
-            color: "#000",
+            color: "#212121",
           }}
         >
           {t("preferences.unit")}
