@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from models.usuario import UsuarioModel
+from models.preferencia_usuario import PreferenciaUsuarioModel
 import bcrypt
 
 ## compara la contraseña en texto plano con la contraseña hasheada
@@ -29,6 +30,17 @@ def create_user(db, user):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    
+    preferencias_default = PreferenciaUsuarioModel(
+        usuario_id=db_user.usuario_id,
+        idioma_id=1,  # Español
+        modo_transporte_id=1,  # Primer modo a pie
+        unidad_medicion_id=1  # Kilómetros
+    )
+    db.add(preferencias_default)
+    db.commit()
+    db.refresh(preferencias_default)
+    
     return db_user
     
 def authenticate_user(db, email: str, password: str):

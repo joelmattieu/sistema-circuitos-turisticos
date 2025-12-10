@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, computed_field
 from typing import Optional, List
 
 class PuntoInteresSimple(BaseModel):
@@ -31,11 +31,21 @@ class CircuitoUpdate(BaseModel):
     url_imagen_portada: Optional[str] = None
     activo: Optional[bool] = None
 
-class CircuitoResponse(CircuitoCreate):
-    circuito_id: int 
+class CircuitoResponse(BaseModel):
+    circuito_id: int
+    nombre: str
+    descripcion: str
+    categoria_id: int
+    distancia_total_metros: float
+    duracion_estimada_minutos: int
+    url_imagen_portada: Optional[str] = None
+    activo: bool
     veces_finalizado: int
     categoria_nombre: Optional[str] = None
     puntos_interes: List[PuntoInteresSimple] = []
+    
+    distancia_formateada: Optional[str] = None
+    unidad_medicion: Optional[str] = None
     
     class Config:
         from_attributes = True
