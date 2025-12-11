@@ -192,7 +192,7 @@ def load_circuitos_ejemplo(db: Session):
                 categoria_id=1,
                 distancia_total_metros=2500,
                 duracion_estimada_minutos=90,
-                url_imagen_portada="https://drive.google.com/file/d/1LpeXWme0SVZMxVNxOu1pI3mg-iHAbKyp/view?usp=drive_link",
+                url_imagen_portada="https://i.imgur.com/FbEd5vS.jpeg",
                 activo=True
             ),
             CircuitoModel(
@@ -201,7 +201,7 @@ def load_circuitos_ejemplo(db: Session):
                 categoria_id=2,
                 distancia_total_metros=1800,
                 duracion_estimada_minutos=120,
-                url_imagen_portada="https://drive.google.com/file/d/1vMxBECTMyAqkaDZ_UX2keQ6qN7g1LSWy/view?usp=drive_link",
+                url_imagen_portada="https://i.imgur.com/b6LXVj1.jpeg",
                 activo=True
             )
         ]
