@@ -30,25 +30,35 @@ const CardCircuitos = ({ circuito, onClick }) => {
           transform: "translateY(-2px)",
           transition: "all 0.2s ease-in-out",
         },
-        mb: 2,
+        mb: 1,
         width: "100%",
       }}
       onClick={handleClick}
     >
-      <CardContent sx={{ p: 3, width: "100%" }}>
+      <CardContent
+        sx={{
+          px: 3,
+          py: 2.5,
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          "&:last-child": { pb: 2.5 },
+        }}
+      >
         <Box
           display="flex"
           alignItems="center"
           justifyContent="space-between"
           width="100%"
-          gap={2}
+          gap={1}
         >
-          <Box display="flex" alignItems="center" gap={2} flex={1} minWidth={0}>
+          <Box display="flex" alignItems="center" gap={1.8} flex={1} minWidth={0}>
             <Avatar
               src={circuito.url_imagen_portada}
               sx={{
-                width: 38,
-                height: 38,
+                width: 40,
+                height: 40,
                 bgcolor: "primary.main",
                 flexShrink: 0,
               }}
@@ -64,7 +74,7 @@ const CardCircuitos = ({ circuito, onClick }) => {
                   fontWeight: 600,
                   fontSize: "13.5px",
                   lineHeight: 1.2,
-                  mb: 0.7,
+                  mb: 0.3,
                   color: "#000",
                   overflow: "hidden",
                   textOverflow: "ellipsis",

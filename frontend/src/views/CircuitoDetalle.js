@@ -19,7 +19,7 @@ import {
   Landscape as LandscapeIcon,
   LocationOn as LocationIcon,
   Park as ParkIcon,
-  Monument as MonumentIcon,
+  Castle as MonumentIcon,
 } from "@mui/icons-material";
 import {
   fetchCircuitoById,
@@ -110,7 +110,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
           sx={{
             position: "relative",
             height: 200,
-            backgroundImage: `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${currentCircuito.url_imagen_portada})`,
+            backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${currentCircuito.url_imagen_portada})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             display: "flex",
@@ -159,7 +159,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
         {currentCircuito.puntos_interes?.length || 0} POIs
       </Typography>
 
-      <Box sx={{ mb: 8, mt: 3, textAlign: "center" }}>
+      <Box sx={{ mb: 7, mt: 3, textAlign: "center" }}>
         <Button
           variant="contained"
           size="large"
@@ -184,7 +184,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
 
       <Typography
         variant="h6"
-        sx={{ fontWeight: "400", fontSize: "16px", mb: 2 }}
+        sx={{ fontWeight: "400", fontSize: "16px" }}
       >
         {t("circuit.pois")}
       </Typography>
