@@ -66,6 +66,24 @@ function obtenerDireccion(bearing) {
   return { texto: "continúa en", icono: <StraightIcon /> };
 }
 
+// Función para obtener icono según tipo de maniobra de la API
+function obtenerIconoPorTipo(tipo) {
+  const iconos = {
+    0: <StraightIcon />,
+    1: <TurnRightIcon />,
+    2: <TurnLeftIcon />,
+    3: <TurnRightIcon />,
+    4: <TurnLeftIcon />,
+    5: <TurnRightIcon />,
+    6: <TurnLeftIcon />,
+    7: <StraightIcon />,
+    10: <NorthIcon />,
+    11: <NorthIcon />,
+    12: <LocationOnIcon />,
+  };
+  return iconos[tipo] || <StraightIcon />;
+}
+
 export default function NavigationPanel({
   userLocation,
   proximoPOI,
@@ -73,6 +91,7 @@ export default function NavigationPanel({
   poiActualIndice,
   modoTransporte = "a_pie",
   onARButtonClick,
+  pasoActual, // ✅ Nuevo parámetro
 }) {
   const infoProximoPOI = useMemo(() => {
     if (!userLocation || !proximoPOI) {
@@ -188,7 +207,7 @@ export default function NavigationPanel({
             mt: 0.5,
           }}
         >
-          {direccion.icono}
+          {pasoActual ? obtenerIconoPorTipo(pasoActual.tipo) : direccion.icono}
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography
@@ -200,8 +219,11 @@ export default function NavigationPanel({
               mb: 0.5,
             }}
           >
-            A {Math.round(distanciaMetros)} metros {direccion.texto}{" "}
-            {proximoPOI.nombre}
+            {pasoActual
+              ? pasoActual.instruccion
+              : `A ${Math.round(distanciaMetros)} metros ${direccion.texto} ${
+                  proximoPOI.nombre
+                }`}
           </Typography>
         </Box>
       </Box>
@@ -216,8 +238,10 @@ export default function NavigationPanel({
           lineHeight: 1.5,
         }}
       >
-        Próximo destino: {proximoPOI.nombre} · {Math.round(distanciaMetros)} m ·{" "}
-        {minutos} min a pie
+        Próximo destino: {pasoActual?.nombrePOI || proximoPOI.nombre} ·{" "}
+        {pasoActual
+          ? `${Math.round(pasoActual.distancia)} m`
+          : `${Math.round(distanciaMetros)} m · ${minutos} min a pie`}
       </Typography>
     </Box>
   );

@@ -47,7 +47,7 @@ function calcularDistancia(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-const CircuitoNavegacion = ({ circuitoId }) => {
+export default function CircuitoNavegacion({ circuitoId }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useAuth();
@@ -66,7 +66,6 @@ const CircuitoNavegacion = ({ circuitoId }) => {
   );
   const { preferencias } = useSelector((state) => state.preferencias);
 
-  // Hook de demo
   const {
     demoEnabled,
     currentLocation: demoLocation,
@@ -74,6 +73,8 @@ const CircuitoNavegacion = ({ circuitoId }) => {
     proximityLevel,
     distancia,
     progreso,
+    pasoActual,
+    proximoPOI: demoProximoPOI,
     modoAutomatico,
     avanzar,
     retroceder,
@@ -243,6 +244,10 @@ const CircuitoNavegacion = ({ circuitoId }) => {
     );
   }
 
+  // Si está en modo demo, usar el próximo POI del demo
+  const proximoPOIFinal =
+    demoEnabled && demoProximoPOI ? demoProximoPOI : proximoPOI;
+
   return (
     <Box
       sx={{
@@ -411,35 +416,25 @@ const CircuitoNavegacion = ({ circuitoId }) => {
         <MapView
           circuito={currentCircuito}
           userLocation={userLocation}
-          proximoPOI={proximoPOI}
+          proximoPOI={proximoPOIFinal}
           isLoading={isLoading}
         />
       </Box>
 
       {/* Panel de navegación */}
-      {proximoPOI && currentCircuito.puntos_interes && (
-        <Box
-          sx={{
-            p: 2,
-            bgcolor: "#FAFAFA",
-            flexShrink: 0,
-            width: "100%",
-            boxSizing: "border-box",
-            overflow: "hidden",
-          }}
-        >
+      {proximoPOIFinal && currentCircuito.puntos_interes && (
+        <Box>
           <NavigationPanel
             userLocation={userLocation}
-            proximoPOI={proximoPOI}
+            proximoPOI={proximoPOIFinal}
             circuito={currentCircuito}
             poiActualIndice={poiActualIndice}
             modoTransporte={preferencias?.modo_transporte || "a_pie"}
             onARButtonClick={handleARButtonClick}
+            pasoActual={pasoActual}
           />
         </Box>
       )}
     </Box>
   );
 }
-
-export default CircuitoNavegacion;

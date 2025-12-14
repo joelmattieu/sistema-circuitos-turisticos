@@ -1,104 +1,106 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-
-// Función para interpolar puntos entre dos coordenadas (simular caminata)
-function generarWaypoints(lat1, lng1, lat2, lng2, numPuntos = 10) {
-  const waypoints = [];
-  for (let i = 0; i <= numPuntos; i++) {
-    const ratio = i / numPuntos;
-    waypoints.push({
-      lat: lat1 + (lat2 - lat1) * ratio,
-      lng: lng1 + (lng2 - lng1) * ratio,
-    });
-  }
-  return waypoints;
-}
-
-// Generar ruta completa del circuito con waypoints intermedios
-function generarRutaCompleta(pois) {
-  if (!pois || pois.length === 0) return [];
-
-  const rutaCompleta = [];
-
-  for (let i = 0; i < pois.length; i++) {
-    const poiActual = pois[i];
-
-    if (i === 0) {
-      // Punto de inicio: 300m antes del primer POI
-      const startLat = poiActual.latitud - 0.0027;
-      const startLng = poiActual.longitud - 0.0027;
-
-      // Generar waypoints desde inicio hasta primer POI
-      const waypoints = generarWaypoints(
-        startLat,
-        startLng,
-        poiActual.latitud,
-        poiActual.longitud,
-        15 // 15 pasos hasta llegar
-      );
-
-      rutaCompleta.push(...waypoints);
-    } else {
-      // Waypoints desde POI anterior hasta POI actual
-      const poiAnterior = pois[i - 1];
-      const waypoints = generarWaypoints(
-        poiAnterior.latitud,
-        poiAnterior.longitud,
-        poiActual.latitud,
-        poiActual.longitud,
-        20 // 20 pasos entre POIs
-      );
-
-      // Excluir el primer waypoint (ya estamos ahí)
-      rutaCompleta.push(...waypoints.slice(1));
-    }
-
-    // Añadir punto exacto del POI (para asegurar que llegamos)
-    rutaCompleta.push({
-      lat: poiActual.latitud,
-      lng: poiActual.longitud,
-    });
-  }
-
-  return rutaCompleta;
-}
+import { obtenerRutaPasoAPaso } from "@/utils/routing";
 
 export function useDemoLocation(pois) {
   const [demoEnabled, setDemoEnabled] = useState(false);
   const [currentWaypointIndex, setCurrentWaypointIndex] = useState(0);
   const [rutaCompleta, setRutaCompleta] = useState([]);
+  const [pasosNavegacion, setPasosNavegacion] = useState([]);
+  const [pasoActual, setPasoActual] = useState(null);
   const [modoAutomatico, setModoAutomatico] = useState(false);
+  const [cargandoRuta, setCargandoRuta] = useState(false);
 
-  // Generar ruta completa cuando cambian los POIs
   useEffect(() => {
-    if (pois && pois.length > 0) {
-      const ruta = generarRutaCompleta(pois);
-      setRutaCompleta(ruta);
+    async function generarRuta() {
+      if (!pois || pois.length === 0) return;
+
+      setCargandoRuta(true);
+      const todosLosPasos = [];
+      const todasLasCoordenadas = [];
+
+      for (let i = 0; i < pois.length; i++) {
+        const origen =
+          i === 0
+            ? { lat: -31.418359, lng: -64.184643 }
+            : { lat: pois[i - 1].latitud, lng: pois[i - 1].longitud };
+
+        const destino = { lat: pois[i].latitud, lng: pois[i].longitud };
+
+        const ruta = await obtenerRutaPasoAPaso(origen, destino);
+
+        if (ruta) {
+          todosLosPasos.push(
+            ...ruta.pasos.map((paso) => ({
+              ...paso,
+              poiDestino: i,
+              nombrePOI: pois[i].nombre,
+              poiCompleto: pois[i],
+            }))
+          );
+          todasLasCoordenadas.push(...ruta.coordenadas);
+        }
+      }
+
+      setPasosNavegacion(todosLosPasos);
+      setRutaCompleta(todasLasCoordenadas);
+      setCargandoRuta(false);
+
+      if (todosLosPasos.length > 0) {
+        setPasoActual(todosLosPasos[0]);
+      }
     }
+
+    generarRuta();
   }, [pois]);
 
-  // Modo automático: avanzar cada 2 segundos
   useEffect(() => {
     if (!modoAutomatico || !demoEnabled || rutaCompleta.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentWaypointIndex((prev) => {
         if (prev >= rutaCompleta.length - 1) {
-          setModoAutomatico(false); // Detener al final
+          setModoAutomatico(false);
           return prev;
         }
         return prev + 1;
       });
-    }, 2000); // Avanzar cada 2 segundos
+    }, 2000);
 
     return () => clearInterval(interval);
   }, [modoAutomatico, demoEnabled, rutaCompleta]);
 
+  useEffect(() => {
+    if (pasosNavegacion.length === 0 || rutaCompleta.length === 0) return;
+
+    let distanciaAcumulada = 0;
+    let pasoEncontrado = 0;
+
+    const distanciaTotal = pasosNavegacion.reduce(
+      (sum, p) => sum + p.distancia,
+      0
+    );
+
+    const progresoEnMetros =
+      (currentWaypointIndex / rutaCompleta.length) * distanciaTotal;
+
+    for (let i = 0; i < pasosNavegacion.length; i++) {
+      distanciaAcumulada += pasosNavegacion[i].distancia;
+
+      if (progresoEnMetros <= distanciaAcumulada) {
+        pasoEncontrado = i;
+        break;
+      }
+    }
+
+    const nuevoPaso = pasosNavegacion[pasoEncontrado];
+    setPasoActual(nuevoPaso);
+  }, [currentWaypointIndex, pasosNavegacion, rutaCompleta]);
+
   const getCurrentLocation = useCallback(() => {
     if (!demoEnabled || rutaCompleta.length === 0) return null;
-
-    const waypoint = rutaCompleta[currentWaypointIndex];
+    const waypoint = rutaCompleta[currentWaypointIndex] || rutaCompleta[0];
 
     return {
       latitude: waypoint.lat,
@@ -107,13 +109,11 @@ export function useDemoLocation(pois) {
     };
   }, [demoEnabled, rutaCompleta, currentWaypointIndex]);
 
-  // Calcular POI actual y nivel de proximidad basado en el waypoint
   const getEstadoActual = useCallback(() => {
     if (!pois || rutaCompleta.length === 0) {
       return { currentPoiIndex: 0, proximityLevel: 0 };
     }
 
-    // Calcular distancia al POI más cercano
     const ubicacionActual = getCurrentLocation();
     if (!ubicacionActual) {
       return { currentPoiIndex: 0, proximityLevel: 0 };
@@ -123,7 +123,7 @@ export function useDemoLocation(pois) {
     let distanciaMinima = Infinity;
 
     pois.forEach((poi, index) => {
-      const R = 6371000; // Radio de la Tierra en metros
+      const R = 6371000;
       const dLat = (poi.latitud - ubicacionActual.latitude) * (Math.PI / 180);
       const dLng = (poi.longitud - ubicacionActual.longitude) * (Math.PI / 180);
       const a =
@@ -141,12 +141,11 @@ export function useDemoLocation(pois) {
       }
     });
 
-    // Determinar nivel de proximidad
     let proximityLevel = 0;
-    if (distanciaMinima < 10) proximityLevel = 3; // Llegaste
-    else if (distanciaMinima < 50) proximityLevel = 2; // Muy cerca
-    else if (distanciaMinima < 150) proximityLevel = 1; // Cerca
-    else proximityLevel = 0; // Lejos
+    if (distanciaMinima < 10) proximityLevel = 3;
+    else if (distanciaMinima < 50) proximityLevel = 2;
+    else if (distanciaMinima < 150) proximityLevel = 1;
+    else proximityLevel = 0;
 
     return {
       currentPoiIndex: poiMasCercano,
@@ -154,68 +153,6 @@ export function useDemoLocation(pois) {
       distancia: Math.round(distanciaMinima),
     };
   }, [pois, rutaCompleta, getCurrentLocation, currentWaypointIndex]);
-
-  const avanzar = useCallback(() => {
-    setCurrentWaypointIndex((prev) =>
-      Math.min(prev + 1, rutaCompleta.length - 1)
-    );
-  }, [rutaCompleta]);
-
-  const retroceder = useCallback(() => {
-    setCurrentWaypointIndex((prev) => Math.max(prev - 1, 0));
-  }, []);
-
-  const avanzarRapido = useCallback(() => {
-    setCurrentWaypointIndex((prev) =>
-      Math.min(prev + 5, rutaCompleta.length - 1)
-    );
-  }, [rutaCompleta]);
-
-  const retrocederRapido = useCallback(() => {
-    setCurrentWaypointIndex((prev) => Math.max(prev - 5, 0));
-  }, []);
-
-  const irAPoi = useCallback(
-    (poiIndex) => {
-      // Buscar el waypoint más cercano a ese POI
-      if (!pois || !pois[poiIndex]) return;
-
-      const poi = pois[poiIndex];
-      let waypointMasCercano = 0;
-      let distanciaMinima = Infinity;
-
-      rutaCompleta.forEach((waypoint, index) => {
-        const dist = Math.sqrt(
-          Math.pow(waypoint.lat - poi.latitud, 2) +
-            Math.pow(waypoint.lng - poi.longitud, 2)
-        );
-        if (dist < distanciaMinima) {
-          distanciaMinima = dist;
-          waypointMasCercano = index;
-        }
-      });
-
-      setCurrentWaypointIndex(waypointMasCercano);
-    },
-    [pois, rutaCompleta]
-  );
-
-  const toggleDemo = useCallback(() => {
-    setDemoEnabled((prev) => !prev);
-    if (!demoEnabled) {
-      setCurrentWaypointIndex(0);
-      setModoAutomatico(false);
-    }
-  }, [demoEnabled]);
-
-  const toggleAutomatico = useCallback(() => {
-    setModoAutomatico((prev) => !prev);
-  }, []);
-
-  const reiniciar = useCallback(() => {
-    setCurrentWaypointIndex(0);
-    setModoAutomatico(false);
-  }, []);
 
   const estado = getEstadoActual();
 
@@ -225,18 +162,46 @@ export function useDemoLocation(pois) {
     currentPoiIndex: estado.currentPoiIndex,
     proximityLevel: estado.proximityLevel,
     distancia: estado.distancia,
+    pasoActual,
+    proximoPOI: pasoActual?.poiCompleto || null,
     progreso:
       rutaCompleta.length > 0
         ? Math.round((currentWaypointIndex / rutaCompleta.length) * 100)
         : 0,
     modoAutomatico,
-    avanzar,
-    retroceder,
-    avanzarRapido,
-    retrocederRapido,
-    irAPoi,
-    toggleDemo,
-    toggleAutomatico,
-    reiniciar,
+    cargandoRuta,
+    avanzar: useCallback(() => {
+      setCurrentWaypointIndex((prev) =>
+        Math.min(prev + 1, rutaCompleta.length - 1)
+      );
+    }, [rutaCompleta]),
+    retroceder: useCallback(() => {
+      setCurrentWaypointIndex((prev) => Math.max(prev - 1, 0));
+    }, []),
+    avanzarRapido: useCallback(() => {
+      setCurrentWaypointIndex((prev) =>
+        Math.min(prev + 10, rutaCompleta.length - 1)
+      );
+    }, [rutaCompleta]),
+    retrocederRapido: useCallback(() => {
+      setCurrentWaypointIndex((prev) => Math.max(prev - 10, 0));
+    }, []),
+    toggleDemo: useCallback(() => {
+      setDemoEnabled((prev) => !prev);
+      if (!demoEnabled) {
+        setCurrentWaypointIndex(0);
+        setModoAutomatico(false);
+      }
+    }, [demoEnabled]),
+    toggleAutomatico: useCallback(() => {
+      setModoAutomatico((prev) => !prev);
+    }, []),
+    reiniciar: useCallback(() => {
+      setCurrentWaypointIndex(0);
+      setModoAutomatico(false);
+      if (pasosNavegacion.length > 0) {
+        setPasoActual(pasosNavegacion[0]);
+      }
+    }, [pasosNavegacion]),
   };
 }
