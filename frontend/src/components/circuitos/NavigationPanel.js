@@ -34,39 +34,6 @@ function estimarTiempo(distanciaKm, modoTransporte = "a_pie") {
   return Math.max(minutos, 1);
 }
 
-function calcularBearing(lat1, lon1, lat2, lon2) {
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const y = Math.sin(dLon) * Math.cos((lat2 * Math.PI) / 180);
-  const x =
-    Math.cos((lat1 * Math.PI) / 180) * Math.sin((lat2 * Math.PI) / 180) -
-    Math.sin((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.cos(dLon);
-  const brng = Math.atan2(y, x);
-  return ((brng * 180) / Math.PI + 360) % 360;
-}
-
-function obtenerDireccion(bearing) {
-  if (bearing >= 337.5 || bearing < 22.5)
-    return { texto: "continúa en", icono: <NorthIcon /> };
-  if (bearing >= 22.5 && bearing < 67.5)
-    return { texto: "gira a la derecha en", icono: <TurnRightIcon /> };
-  if (bearing >= 67.5 && bearing < 112.5)
-    return { texto: "gira a la derecha en", icono: <TurnRightIcon /> };
-  if (bearing >= 112.5 && bearing < 157.5)
-    return { texto: "gira a la derecha en", icono: <TurnRightIcon /> };
-  if (bearing >= 157.5 && bearing < 202.5)
-    return { texto: "continúa en", icono: <StraightIcon /> };
-  if (bearing >= 202.5 && bearing < 247.5)
-    return { texto: "gira a la izquierda en", icono: <TurnLeftIcon /> };
-  if (bearing >= 247.5 && bearing < 292.5)
-    return { texto: "gira a la izquierda en", icono: <TurnLeftIcon /> };
-  if (bearing >= 292.5 && bearing < 337.5)
-    return { texto: "gira a la izquierda en", icono: <TurnLeftIcon /> };
-  return { texto: "continúa en", icono: <StraightIcon /> };
-}
-
-// Función para obtener icono según tipo de maniobra de la API
 function obtenerIconoPorTipo(tipo) {
   const iconos = {
     0: <StraightIcon />,
@@ -87,11 +54,9 @@ function obtenerIconoPorTipo(tipo) {
 export default function NavigationPanel({
   userLocation,
   proximoPOI,
-  circuito,
-  poiActualIndice,
   modoTransporte = "a_pie",
   onARButtonClick,
-  pasoActual, // ✅ Nuevo parámetro
+  pasoActual,
 }) {
   const infoProximoPOI = useMemo(() => {
     if (!userLocation || !proximoPOI) {
@@ -109,21 +74,11 @@ export default function NavigationPanel({
     const minutos = estimarTiempo(distanciaKm, modoTransporte);
     const estaProximo = distanciaMetros < 50;
 
-    const bearing = calcularBearing(
-      userLocation.latitude,
-      userLocation.longitude,
-      proximoPOI.latitud,
-      proximoPOI.longitud
-    );
-
-    const direccion = obtenerDireccion(bearing);
-
     return {
       distanciaKm,
       distanciaMetros,
       minutos,
       estaProximo,
-      direccion,
     };
   }, [userLocation, proximoPOI, modoTransporte]);
 
@@ -131,9 +86,8 @@ export default function NavigationPanel({
     return null;
   }
 
-  const { estaProximo, distanciaMetros, minutos, direccion } = infoProximoPOI;
+  const { estaProximo, distanciaMetros, minutos } = infoProximoPOI;
 
-  // Si llegó al POI
   if (estaProximo) {
     return (
       <Box
@@ -185,7 +139,6 @@ export default function NavigationPanel({
     );
   }
 
-  // Panel de navegación normal
   return (
     <Box
       sx={{
@@ -207,7 +160,7 @@ export default function NavigationPanel({
             mt: 0.5,
           }}
         >
-          {pasoActual ? obtenerIconoPorTipo(pasoActual.tipo) : direccion.icono}
+          {pasoActual ? obtenerIconoPorTipo(pasoActual.tipo) : <NorthIcon />}
         </Box>
         <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography
@@ -221,9 +174,7 @@ export default function NavigationPanel({
           >
             {pasoActual
               ? pasoActual.instruccion
-              : `A ${Math.round(distanciaMetros)} metros ${direccion.texto} ${
-                  proximoPOI.nombre
-                }`}
+              : `A ${Math.round(distanciaMetros)} metros`}
           </Typography>
         </Box>
       </Box>
@@ -238,10 +189,8 @@ export default function NavigationPanel({
           lineHeight: 1.5,
         }}
       >
-        Próximo destino: {pasoActual?.nombrePOI || proximoPOI.nombre} ·{" "}
-        {pasoActual
-          ? `${Math.round(pasoActual.distancia)} m`
-          : `${Math.round(distanciaMetros)} m · ${minutos} min a pie`}
+        Próximo destino: {proximoPOI.nombre} · {Math.round(distanciaMetros)} m ·{" "}
+        {minutos} min a pie
       </Typography>
     </Box>
   );
