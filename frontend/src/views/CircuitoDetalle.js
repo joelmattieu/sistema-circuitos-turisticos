@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 import {
   Box,
   Typography,
@@ -50,6 +51,7 @@ const getIconByTipo = (tipo) => {
 };
 
 const CircuitoDetalle = ({ circuitoId }) => {
+  const router = useRouter();
   const dispatch = useDispatch();
   const { t } = useContext(LanguageContext);
   const { user } = useAuth();
@@ -79,6 +81,8 @@ const CircuitoDetalle = ({ circuitoId }) => {
 
   const handleComenzarCircuito = () => {
     dispatch(finalizarCircuito(circuitoId));
+    // Redirigir a la vista de navegación
+    router.push(`/circuito/${circuitoId}/navegar`);
   };
 
   if (loading) {
@@ -182,10 +186,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
         </Button>
       </Box>
 
-      <Typography
-        variant="h6"
-        sx={{ fontWeight: "400", fontSize: "16px" }}
-      >
+      <Typography variant="h6" sx={{ fontWeight: "400", fontSize: "16px" }}>
         {t("circuit.pois")}
       </Typography>
 

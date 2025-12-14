@@ -5,6 +5,7 @@ import { CssBaseline } from "@mui/material";
 import { Montserrat } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import "leaflet/dist/leaflet.css";
 
 import { store } from "../store/store";
 import { AuthProvider } from "../context/AuthProvider";
