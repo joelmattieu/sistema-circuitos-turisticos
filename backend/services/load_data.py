@@ -140,8 +140,8 @@ def load_puntos_interes(db: Session):
                 nombre="Catedral de Córdoba",
                 descripcion="Principal iglesia de la ciudad.",
                 tipo=TipoPuntoInteresEnum.RELIGIOSO,
-                latitud=-31.4173,
-                longitud=-64.1887,
+                latitud=-31.416868,
+                longitud=-64.184422,
                 tiene_audioguia=True,
                 activo=True
             ),
@@ -150,8 +150,8 @@ def load_puntos_interes(db: Session):
                 nombre="Cabildo Histórico",
                 descripcion="Antiguo edificio colonial, hoy museo.",
                 tipo=TipoPuntoInteresEnum.HISTORICO,
-                latitud=-31.4203,
-                longitud=-64.1888,
+                latitud=-31.416398,
+                longitud=-64.184176,
                 tiene_audioguia=True,
                 activo=True
             ),
@@ -170,8 +170,8 @@ def load_puntos_interes(db: Session):
                 nombre="Manzana Jesuítica",
                 descripcion="Conjunto arquitectónico declarado Patrimonio de la Humanidad por la UNESCO.",
                 tipo=TipoPuntoInteresEnum.HISTORICO,
-                latitud=-31.4205,
-                longitud=-64.1892,
+                latitud=-31.416506,
+                longitud=-64.184525,
                 tiene_audioguia=True,
                 activo=True
             )
