@@ -150,8 +150,8 @@ def load_puntos_interes(db: Session):
                 nombre="Cabildo Histórico",
                 descripcion="Antiguo edificio colonial, hoy museo.",
                 tipo=TipoPuntoInteresEnum.HISTORICO,
-                latitud=-31.416398,
-                longitud=-64.184176,
+                latitud=-31.416127,
+                longitud=-64.184042,
                 tiene_audioguia=True,
                 activo=True
             ),
@@ -160,8 +160,8 @@ def load_puntos_interes(db: Session):
                 nombre="Pasaje Santa Catalina",
                 descripcion="Conexión arquitectónica con la Plazoleta del Fundador.",
                 tipo=TipoPuntoInteresEnum.ARQUITECTONICO,
-                latitud=-31.4195,
-                longitud=-64.1875,
+                latitud=-31.416374,
+                longitud=-64.18502,
                 tiene_audioguia=False,
                 activo=True
             ),
