@@ -3,13 +3,16 @@
 import { useState, useCallback, useEffect } from "react";
 import { obtenerRutaPasoAPaso } from "@/utils/routing";
 
-export function useDemoLocation(pois) {
+export function useDemoLocation(
+  pois,
+  realLocation = null,
+  demoStartLocation = null
+) {
   const [demoEnabled, setDemoEnabled] = useState(false);
   const [currentWaypointIndex, setCurrentWaypointIndex] = useState(0);
   const [rutaCompleta, setRutaCompleta] = useState([]);
   const [pasosNavegacion, setPasosNavegacion] = useState([]);
   const [pasoActual, setPasoActual] = useState(null);
-  const [modoAutomatico, setModoAutomatico] = useState(false);
   const [cargandoRuta, setCargandoRuta] = useState(false);
 
   useEffect(() => {
@@ -20,26 +23,55 @@ export function useDemoLocation(pois) {
       const todosLosPasos = [];
       const todasLasCoordenadas = [];
 
+      // Determinar punto de inicio según modo y ubicaciones disponibles
+      let puntoInicio;
+      if (demoEnabled && demoStartLocation) {
+        // Si estamos en demo y se proporciona ubicación personalizada, usarla
+        puntoInicio = {
+          lat: demoStartLocation.latitude || demoStartLocation.lat,
+          lng: demoStartLocation.longitude || demoStartLocation.lng,
+        };
+      } else if (demoEnabled) {
+        // Si estamos en demo pero sin ubicación personalizada, usar ubicación hardcodeada
+        puntoInicio = { lat: -31.418359, lng: -64.184643 };
+      } else if (realLocation) {
+        // Si no estamos en demo pero existe ubicación real, usarla
+        puntoInicio = {
+          lat: realLocation.latitude,
+          lng: realLocation.longitude,
+        };
+      } else {
+        // Fallback: ubicación hardcodeada
+        puntoInicio = { lat: -31.443435, lng: -64.184643 };
+      }
+
       for (let i = 0; i < pois.length; i++) {
         const origen =
           i === 0
-            ? { lat: -31.418359, lng: -64.184643 }
+            ? puntoInicio
             : { lat: pois[i - 1].latitud, lng: pois[i - 1].longitud };
 
         const destino = { lat: pois[i].latitud, lng: pois[i].longitud };
 
-        const ruta = await obtenerRutaPasoAPaso(origen, destino);
+        try {
+          const ruta = await obtenerRutaPasoAPaso(origen, destino);
 
-        if (ruta) {
-          todosLosPasos.push(
-            ...ruta.pasos.map((paso) => ({
-              ...paso,
-              poiDestino: i,
-              nombrePOI: pois[i].nombre,
-              poiCompleto: pois[i],
-            }))
-          );
-          todasLasCoordenadas.push(...ruta.coordenadas);
+          if (ruta) {
+            todosLosPasos.push(
+              ...ruta.pasos.map((paso) => ({
+                ...paso,
+                poiDestino: i,
+                nombrePOI: pois[i].nombre,
+                poiCompleto: pois[i],
+              }))
+            );
+            todasLasCoordenadas.push(...ruta.coordenadas);
+          }
+        } catch (error) {
+          console.error(`Error obteniendo ruta para POI ${i}:`, error);
+          // Fallback: usar línea recta si falla la API
+          todasLasCoordenadas.push({ lat: origen.lat, lng: origen.lng });
+          todasLasCoordenadas.push({ lat: destino.lat, lng: destino.lng });
         }
       }
 
@@ -53,23 +85,7 @@ export function useDemoLocation(pois) {
     }
 
     generarRuta();
-  }, [pois]);
-
-  useEffect(() => {
-    if (!modoAutomatico || !demoEnabled || rutaCompleta.length === 0) return;
-
-    const interval = setInterval(() => {
-      setCurrentWaypointIndex((prev) => {
-        if (prev >= rutaCompleta.length - 1) {
-          setModoAutomatico(false);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [modoAutomatico, demoEnabled, rutaCompleta]);
+  }, [pois, realLocation, demoStartLocation, demoEnabled]);
 
   useEffect(() => {
     if (pasosNavegacion.length === 0 || rutaCompleta.length === 0) return;
@@ -168,8 +184,8 @@ export function useDemoLocation(pois) {
       rutaCompleta.length > 0
         ? Math.round((currentWaypointIndex / rutaCompleta.length) * 100)
         : 0,
-    modoAutomatico,
     cargandoRuta,
+    rutaCompleta,
     avanzar: useCallback(() => {
       setCurrentWaypointIndex((prev) =>
         Math.min(prev + 1, rutaCompleta.length - 1)
@@ -178,30 +194,11 @@ export function useDemoLocation(pois) {
     retroceder: useCallback(() => {
       setCurrentWaypointIndex((prev) => Math.max(prev - 1, 0));
     }, []),
-    avanzarRapido: useCallback(() => {
-      setCurrentWaypointIndex((prev) =>
-        Math.min(prev + 10, rutaCompleta.length - 1)
-      );
-    }, [rutaCompleta]),
-    retrocederRapido: useCallback(() => {
-      setCurrentWaypointIndex((prev) => Math.max(prev - 10, 0));
-    }, []),
     toggleDemo: useCallback(() => {
       setDemoEnabled((prev) => !prev);
       if (!demoEnabled) {
         setCurrentWaypointIndex(0);
-        setModoAutomatico(false);
       }
     }, [demoEnabled]),
-    toggleAutomatico: useCallback(() => {
-      setModoAutomatico((prev) => !prev);
-    }, []),
-    reiniciar: useCallback(() => {
-      setCurrentWaypointIndex(0);
-      setModoAutomatico(false);
-      if (pasosNavegacion.length > 0) {
-        setPasoActual(pasosNavegacion[0]);
-      }
-    }, [pasosNavegacion]),
   };
 }

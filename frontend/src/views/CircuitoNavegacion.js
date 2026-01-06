@@ -75,15 +75,11 @@ export default function CircuitoNavegacion({ circuitoId }) {
     progreso,
     pasoActual,
     proximoPOI: demoProximoPOI,
-    modoAutomatico,
     avanzar,
     retroceder,
-    avanzarRapido,
-    retrocederRapido,
     toggleDemo,
-    toggleAutomatico,
-    reiniciar,
-  } = useDemoLocation(currentCircuito?.puntos_interes);
+    rutaCompleta,
+  } = useDemoLocation(currentCircuito?.puntos_interes, realLocation);
 
   // Usar ubicación real o demo según modo
   const userLocation = demoEnabled ? demoLocation : realLocation;
@@ -302,87 +298,39 @@ export default function CircuitoNavegacion({ circuitoId }) {
 
         {/* Controles (solo visible en modo demo) */}
         {demoEnabled && (
-          <>
-            {/* Modo Auto */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 0.3,
+              bgcolor: "white",
+              p: 0.5,
+              borderRadius: 1,
+              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+            }}
+          >
             <Button
-              variant={modoAutomatico ? "contained" : "outlined"}
-              onClick={toggleAutomatico}
+              variant="outlined"
               size="small"
-              fullWidth
+              onClick={retroceder}
+              sx={{ minWidth: 0, p: 0.3, fontSize: "0.65rem" }}
+            >
+              ←
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={avanzar}
               sx={{
-                bgcolor: modoAutomatico ? "#ff9800" : "white",
-                color: modoAutomatico ? "white" : "#ff9800",
-                borderColor: "#ff9800",
-                fontWeight: 600,
+                minWidth: 0,
+                p: 0.3,
                 fontSize: "0.65rem",
-                py: 0.4,
-                minHeight: 0,
+                bgcolor: "#2196f3",
               }}
             >
-              {modoAutomatico ? "⏸ Auto" : "▶ Auto"}
+              →
             </Button>
-
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: 0.3,
-                bgcolor: "white",
-                p: 0.5,
-                borderRadius: 1,
-                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-              }}
-            >
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={retrocederRapido}
-                sx={{ minWidth: 0, p: 0.3, fontSize: "0.65rem" }}
-              >
-                ⏪
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={avanzarRapido}
-                sx={{ minWidth: 0, p: 0.3, fontSize: "0.65rem" }}
-              >
-                ⏩
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={retroceder}
-                sx={{ minWidth: 0, p: 0.3, fontSize: "0.65rem" }}
-              >
-                ←
-              </Button>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={avanzar}
-                sx={{
-                  minWidth: 0,
-                  p: 0.3,
-                  fontSize: "0.65rem",
-                  bgcolor: "#2196f3",
-                }}
-              >
-                →
-              </Button>
-            </Box>
-
-            {/* Botón para reiniciar */}
-            <Button
-              variant="text"
-              onClick={reiniciar}
-              size="small"
-              fullWidth
-              sx={{ fontSize: "0.6rem", color: "#666", py: 0.3, minHeight: 0 }}
-            >
-              🔄
-            </Button>
-          </>
+          </Box>
         )}
       </Box>
 
@@ -418,6 +366,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
           userLocation={userLocation}
           proximoPOI={proximoPOIFinal}
           isLoading={isLoading}
+          rutaCompleta={rutaCompleta}
         />
       </Box>
 
