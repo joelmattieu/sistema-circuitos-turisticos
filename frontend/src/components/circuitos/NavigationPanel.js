@@ -36,19 +36,21 @@ function estimarTiempo(distanciaKm, modoTransporte = "a_pie") {
 
 function obtenerIconoPorTipo(tipo) {
   const iconos = {
-    0: <StraightIcon />,
-    1: <TurnRightIcon />,
-    2: <TurnLeftIcon />,
-    3: <TurnRightIcon />,
-    4: <TurnLeftIcon />,
-    5: <TurnRightIcon />,
-    6: <TurnLeftIcon />,
-    7: <StraightIcon />,
-    10: <NorthIcon />,
-    11: <NorthIcon />,
-    12: <LocationOnIcon />,
+    0: <StraightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    1: <TurnRightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    2: <TurnLeftIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    3: <TurnRightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    4: <TurnLeftIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    5: <TurnRightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    6: <TurnLeftIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    7: <StraightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    10: <NorthIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    11: <NorthIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
+    12: <LocationOnIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
   };
-  return iconos[tipo] || <StraightIcon />;
+  return (
+    iconos[tipo] || <StraightIcon sx={{ fontSize: 28, color: "#1976d2" }} />
+  );
 }
 
 export default function NavigationPanel({
@@ -88,31 +90,47 @@ export default function NavigationPanel({
 
   const { estaProximo, distanciaMetros, minutos } = infoProximoPOI;
 
+  // Estado: Llegaste al punto de interés
   if (estaProximo) {
     return (
       <Box
         sx={{
           width: "100%",
-          bgcolor: "#fafafa",
+          bgcolor: "#FFFFFF",
           borderRadius: 3,
           p: 2.5,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          mt: 2,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
         }}
       >
+        {/* Encabezado con ícono de ubicación */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
-          <LocationOnIcon sx={{ color: "#f44336", fontSize: 24 }} />
-          <Typography variant="h6" sx={{ fontWeight: 600, fontSize: "1rem" }}>
+          <LocationOnIcon sx={{ color: "#e91e63", fontSize: 22 }} />
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 600,
+              fontSize: "1rem",
+              color: "#1a1a1a",
+            }}
+          >
             Llegaste a: {proximoPOI.nombre}
           </Typography>
         </Box>
 
+        {/* Subtítulo */}
         <Typography
           variant="body2"
-          sx={{ color: "#666", mb: 2, fontSize: "0.875rem" }}
+          sx={{
+            color: "#666",
+            mb: 2,
+            fontSize: "0.875rem",
+          }}
         >
           Explora en Realidad Aumentada
         </Typography>
 
+        {/* Botón de Realidad Aumentada */}
         <Button
           variant="contained"
           fullWidth
@@ -123,13 +141,14 @@ export default function NavigationPanel({
             color: "white",
             fontWeight: 600,
             fontSize: "0.875rem",
-            py: 1.25,
-            borderRadius: 2,
+            py: 1.5,
+            borderRadius: 2.5,
             textTransform: "uppercase",
-            boxShadow: "0 2px 6px rgba(255, 152, 0, 0.3)",
+            letterSpacing: 0.5,
+            boxShadow: "0 4px 12px rgba(255, 152, 0, 0.35)",
             "&:hover": {
               bgcolor: "#f57c00",
-              boxShadow: "0 4px 10px rgba(255, 152, 0, 0.4)",
+              boxShadow: "0 6px 16px rgba(255, 152, 0, 0.45)",
             },
           }}
         >
@@ -139,48 +158,68 @@ export default function NavigationPanel({
     );
   }
 
+  // Estado: Navegando hacia el punto de interés
   return (
     <Box
       sx={{
         width: "100%",
-        bgcolor: "white",
-        borderRadius: 2,
+        bgcolor: "#FFFFFF",
+        borderRadius: 3,
         p: 2,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+        mt: 2,
+        boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
       }}
     >
+      {/* Instrucción principal con ícono */}
       <Box
-        sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, mb: 1.5 }}
+        sx={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 1.5,
+          mb: 1.5,
+        }}
       >
+        {/* Ícono de dirección */}
         <Box
           sx={{
-            color: "#1976d2",
-            fontSize: 32,
             flexShrink: 0,
-            mt: 0.5,
+            mt: 0.25,
           }}
         >
-          {pasoActual ? obtenerIconoPorTipo(pasoActual.tipo) : <NorthIcon />}
+          {pasoActual ? (
+            obtenerIconoPorTipo(pasoActual.tipo)
+          ) : (
+            <NorthIcon sx={{ fontSize: 28, color: "#1976d2" }} />
+          )}
         </Box>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 700,
-              fontSize: "1.1rem",
-              lineHeight: 1.3,
-              mb: 0.5,
-            }}
-          >
-            {pasoActual
-              ? pasoActual.instruccion
-              : `A ${Math.round(distanciaMetros)} metros`}
-          </Typography>
-        </Box>
+
+        {/* Texto de instrucción */}
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 700,
+            fontSize: "1rem",
+            lineHeight: 1.4,
+            color: "#1a1a1a",
+            flex: 1,
+          }}
+        >
+          {pasoActual
+            ? pasoActual.instruccion
+            : `A ${Math.round(distanciaMetros)} metros`}
+        </Typography>
       </Box>
 
-      <Box sx={{ height: 1, bgcolor: "#e0e0e0", mb: 1.5 }} />
+      {/* Línea separadora */}
+      <Box
+        sx={{
+          height: "1px",
+          bgcolor: "#e0e0e0",
+          mb: 1.5,
+        }}
+      />
 
+      {/* Información del próximo destino */}
       <Typography
         variant="body2"
         sx={{
