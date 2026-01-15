@@ -32,6 +32,7 @@ origins = [
     "http://localhost:3000",
     "http://192.168.1.135:3000",
     "http://127.0.0.1:3000",
+    "https://*.vercel.app",  # Para el frontend en Vercel
 ]
 
 app.add_middleware(

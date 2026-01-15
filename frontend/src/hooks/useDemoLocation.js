@@ -15,7 +15,24 @@ export function useDemoLocation(
   const [pasoActual, setPasoActual] = useState(null);
   const [cargandoRuta, setCargandoRuta] = useState(false);
 
+  // Limpiar y regenerar ruta cuando cambia el modo demo
   useEffect(() => {
+    // Limpiar ruta existente cuando cambia el modo demo
+    setRutaCompleta([]);
+    setPasosNavegacion([]);
+    setPasoActual(null);
+    setCurrentWaypointIndex(0);
+  }, [demoEnabled]);
+
+  // Regenerar ruta cuando cambien los POIs o no haya ruta
+  useEffect(() => {
+    // No hacer nada si no hay POIs
+    if (!pois || pois.length === 0) return;
+
+    // No regenerar si ya hay ruta y ya se está cargando
+    if (rutaCompleta.length > 0 && cargandoRuta) return;
+
+    // Si hay ruta y no se está cargando, no hacer nada (la ruta ya está lista)
     if (rutaCompleta.length > 0 && !cargandoRuta) return;
 
     async function generarRuta() {
@@ -87,7 +104,8 @@ export function useDemoLocation(
     }
 
     generarRuta();
-  }, [pois, demoEnabled]); // Quitar realLocation y demoStartLocation de aquí
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pois, demoEnabled, rutaCompleta.length]); // Regenerar cuando cambien POIs, modo demo, o no haya ruta
 
   useEffect(() => {
     if (pasosNavegacion.length === 0 || rutaCompleta.length === 0) return;
@@ -117,7 +135,28 @@ export function useDemoLocation(
   }, [currentWaypointIndex, pasosNavegacion, rutaCompleta]);
 
   const getCurrentLocation = useCallback(() => {
-    if (!demoEnabled || rutaCompleta.length === 0) return null;
+    // Si no está habilitado el modo demo, devolver null
+    if (!demoEnabled) return null;
+
+    // Si no hay ruta completa, devolver ubicación de inicio
+    if (rutaCompleta.length === 0) {
+      // Usar ubicación personalizada si está disponible
+      if (demoStartLocation) {
+        return {
+          latitude: demoStartLocation.latitude || demoStartLocation.lat,
+          longitude: demoStartLocation.longitude || demoStartLocation.lng,
+          accuracy: 10,
+        };
+      }
+      // Fallback a ubicación hardcodeada para demo
+      return {
+        latitude: -31.418359,
+        longitude: -64.184643,
+        accuracy: 10,
+      };
+    }
+
+    // Devolver ubicación del waypoint actual en la ruta
     const waypoint = rutaCompleta[currentWaypointIndex] || rutaCompleta[0];
 
     return {
@@ -125,28 +164,44 @@ export function useDemoLocation(
       longitude: waypoint.lng,
       accuracy: 10,
     };
-  }, [demoEnabled, rutaCompleta, currentWaypointIndex]);
+  }, [demoEnabled, rutaCompleta, currentWaypointIndex, demoStartLocation]);
 
   const getEstadoActual = useCallback(() => {
-    if (!pois || rutaCompleta.length === 0) {
-      return { currentPoiIndex: 0, proximityLevel: 0 };
+    if (!pois || pois.length === 0) {
+      return { currentPoiIndex: 0, proximityLevel: 0, distancia: 0 };
     }
 
     const ubicacionActual = getCurrentLocation();
+
+    // Si no hay ubicación actual (no hay demo habilitado), usar ubicación real o retornar estado por defecto
     if (!ubicacionActual) {
-      return { currentPoiIndex: 0, proximityLevel: 0 };
+      if (!realLocation) {
+        return { currentPoiIndex: 0, proximityLevel: 0, distancia: 0 };
+      }
+      // Calcular con ubicación real si está disponible
+      const ubicacionReal = {
+        latitude: realLocation.latitude,
+        longitude: realLocation.longitude,
+      };
+      return calcularEstadoPOI(ubicacionReal, pois);
     }
 
+    // Calcular con ubicación actual (demo o real)
+    return calcularEstadoPOI(ubicacionActual, pois);
+  }, [pois, getCurrentLocation, realLocation]);
+
+  // Función auxiliar para calcular estado del POI más cercano
+  function calcularEstadoPOI(ubicacion, pois) {
     let poiMasCercano = 0;
     let distanciaMinima = Infinity;
 
     pois.forEach((poi, index) => {
       const R = 6371000;
-      const dLat = (poi.latitud - ubicacionActual.latitude) * (Math.PI / 180);
-      const dLng = (poi.longitud - ubicacionActual.longitude) * (Math.PI / 180);
+      const dLat = (poi.latitud - ubicacion.latitude) * (Math.PI / 180);
+      const dLng = (poi.longitud - ubicacion.longitude) * (Math.PI / 180);
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(ubicacionActual.latitude * (Math.PI / 180)) *
+        Math.cos(ubicacion.latitude * (Math.PI / 180)) *
           Math.cos(poi.latitud * (Math.PI / 180)) *
           Math.sin(dLng / 2) *
           Math.sin(dLng / 2);
@@ -170,7 +225,7 @@ export function useDemoLocation(
       proximityLevel,
       distancia: Math.round(distanciaMinima),
     };
-  }, [pois, rutaCompleta, getCurrentLocation, currentWaypointIndex]);
+  }
 
   const estado = getEstadoActual();
 

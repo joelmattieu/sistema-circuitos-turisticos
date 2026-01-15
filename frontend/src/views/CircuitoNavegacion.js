@@ -33,6 +33,11 @@ const MapView = dynamic(() => import("@/components/circuitos/MapView"), {
   ssr: false,
 });
 
+// Importar ARView dinámicamente (solo en cliente)
+const ARView = dynamic(() => import("@/components/circuitos/ARView"), {
+  ssr: false,
+});
+
 function calcularDistancia(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -60,6 +65,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
   const [poiActualIndice, setPoiActualIndice] = useState(0);
   const [poiVisitados, setPoiVisitados] = useState(new Set());
   const [proximoPOI, setProximoPOI] = useState(null);
+  const [mostrarAR, setMostrarAR] = useState(false);
 
   const { currentCircuito, loading: circuitoLoading } = useSelector(
     (state) => state.circuitos
@@ -174,7 +180,9 @@ export default function CircuitoNavegacion({ circuitoId }) {
     );
 
     if (proximoIndice >= 0 && proximoIndice < pois.length) {
-      setProximoPOI(pois[proximoIndice]);
+      queueMicrotask(() => {
+        setProximoPOI(pois[proximoIndice]);
+      });
     }
   }, [poiVisitados, currentCircuito?.puntos_interes]);
 
@@ -183,7 +191,8 @@ export default function CircuitoNavegacion({ circuitoId }) {
       toast.error("POI no disponible");
       return;
     }
-    toast.info(`Vista de RA para ${proximoPOI.nombre} (próximamente)`);
+    // Abrir vista de AR
+    setMostrarAR(true);
   }, [proximoPOI]);
 
   useEffect(() => {
@@ -245,145 +254,156 @@ export default function CircuitoNavegacion({ circuitoId }) {
     demoEnabled && demoProximoPOI ? demoProximoPOI : proximoPOI;
 
   return (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        bgcolor: "#FAFAFA",
-        overflow: "hidden",
-      }}
-    >
-      {/* Controles de Demo */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: 70,
-          right: 10,
-          zIndex: 2000,
-          display: "flex",
-          flexDirection: "column",
-          gap: 0.5,
-          maxWidth: 140,
-        }}
-      >
-        {/* Toggle Demo Mode */}
-        <Button
-          variant="contained"
-          onClick={toggleDemo}
-          size="small"
-          sx={{
-            bgcolor: demoEnabled ? "#4caf50" : "#757575",
-            color: "white",
-            fontWeight: 600,
-            fontSize: "0.7rem",
-            py: 0.5,
-            px: 1,
-            boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
-            "&:hover": {
-              bgcolor: demoEnabled ? "#45a049" : "#616161",
-            },
-          }}
-          startIcon={
-            demoEnabled ? (
-              <PauseIcon sx={{ fontSize: 14 }} />
-            ) : (
-              <PlayArrowIcon sx={{ fontSize: 14 }} />
-            )
-          }
-        >
-          {demoEnabled ? "Demo" : "Demo"}
-        </Button>
+    <>
+      {/* Vista de Realidad Aumentada */}
+      {mostrarAR && proximoPOIFinal && userLocation && (
+        <ARView
+          poi={proximoPOIFinal}
+          userLocation={userLocation}
+          onClose={() => setMostrarAR(false)}
+        />
+      )}
 
-        {/* Controles (solo visible en modo demo) */}
-        {demoEnabled && (
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 0.3,
-              bgcolor: "white",
-              p: 0.5,
-              borderRadius: 1,
-              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-            }}
-          >
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={retroceder}
-              sx={{ minWidth: 0, p: 0.3, fontSize: "0.65rem" }}
-            >
-              ←
-            </Button>
-            <Button
-              variant="contained"
-              size="small"
-              onClick={avanzar}
-              sx={{
-                minWidth: 0,
-                p: 0.3,
-                fontSize: "0.65rem",
-                bgcolor: "#2196f3",
-              }}
-            >
-              →
-            </Button>
-          </Box>
-        )}
-      </Box>
-
-      {/* Panel Superior */}
-      <Box
-        sx={{
-          p: 2,
-          borderBottom: "1px solid #FAFAFA",
-          textAlign: "center",
-          flexShrink: 0,
-        }}
-      >
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
-          {currentCircuito.nombre}
-        </Typography>
-        <Typography variant="caption" sx={{ color: "#999" }}>
-          ({poiActualIndice + 1} de {currentCircuito.puntos_interes.length})
-        </Typography>
-      </Box>
-
-      {/* Mapa */}
       <Box
         sx={{
           width: "100%",
-          height: "50vh",
-          position: "relative",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          bgcolor: "#FAFAFA",
           overflow: "hidden",
-          flexShrink: 0,
         }}
       >
-        <MapView
-          circuito={currentCircuito}
-          userLocation={userLocation}
-          proximoPOI={proximoPOIFinal}
-          isLoading={isLoading}
-          rutaCompleta={rutaCompleta}
-        />
-      </Box>
+        {/* Controles de Demo */}
+        <Box
+          sx={{
+            position: "fixed",
+            top: 70,
+            right: 10,
+            zIndex: 2000,
+            display: "flex",
+            flexDirection: "column",
+            gap: 0.5,
+            maxWidth: 140,
+          }}
+        >
+          {/* Toggle Demo Mode */}
+          <Button
+            variant="contained"
+            onClick={toggleDemo}
+            size="small"
+            sx={{
+              bgcolor: demoEnabled ? "#4caf50" : "#757575",
+              color: "white",
+              fontWeight: 600,
+              fontSize: "0.7rem",
+              py: 0.5,
+              px: 1,
+              boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+              "&:hover": {
+                bgcolor: demoEnabled ? "#45a049" : "#616161",
+              },
+            }}
+            startIcon={
+              demoEnabled ? (
+                <PauseIcon sx={{ fontSize: 14 }} />
+              ) : (
+                <PlayArrowIcon sx={{ fontSize: 14 }} />
+              )
+            }
+          >
+            {demoEnabled ? "Demo" : "Demo"}
+          </Button>
 
-      {/* Panel de navegación */}
-      {proximoPOIFinal && currentCircuito.puntos_interes && (
-        <Box>
-          <NavigationPanel
+          {/* Controles (solo visible en modo demo) */}
+          {demoEnabled && (
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 0.3,
+                bgcolor: "white",
+                p: 0.5,
+                borderRadius: 1,
+                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+              }}
+            >
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={retroceder}
+                sx={{ minWidth: 0, p: 0.3, fontSize: "0.65rem" }}
+              >
+                ←
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={avanzar}
+                sx={{
+                  minWidth: 0,
+                  p: 0.3,
+                  fontSize: "0.65rem",
+                  bgcolor: "#2196f3",
+                }}
+              >
+                →
+              </Button>
+            </Box>
+          )}
+        </Box>
+
+        {/* Panel Superior */}
+        <Box
+          sx={{
+            p: 2,
+            borderBottom: "1px solid #FAFAFA",
+            textAlign: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            {currentCircuito.nombre}
+          </Typography>
+          <Typography variant="caption" sx={{ color: "#999" }}>
+            ({poiActualIndice + 1} de {currentCircuito.puntos_interes.length})
+          </Typography>
+        </Box>
+
+        {/* Mapa */}
+        <Box
+          sx={{
+            width: "100%",
+            height: "50vh",
+            position: "relative",
+            overflow: "hidden",
+            flexShrink: 0,
+          }}
+        >
+          <MapView
+            circuito={currentCircuito}
             userLocation={userLocation}
             proximoPOI={proximoPOIFinal}
-            circuito={currentCircuito}
-            poiActualIndice={poiActualIndice}
-            modoTransporte={preferencias?.modo_transporte || "a_pie"}
-            onARButtonClick={handleARButtonClick}
-            pasoActual={pasoActual}
+            isLoading={isLoading}
+            rutaCompleta={rutaCompleta}
           />
         </Box>
-      )}
-    </Box>
+
+        {/* Panel de navegación */}
+        {proximoPOIFinal && currentCircuito.puntos_interes && (
+          <Box>
+            <NavigationPanel
+              userLocation={userLocation}
+              proximoPOI={proximoPOIFinal}
+              circuito={currentCircuito}
+              poiActualIndice={poiActualIndice}
+              modoTransporte={preferencias?.modo_transporte || "a_pie"}
+              onARButtonClick={handleARButtonClick}
+              pasoActual={pasoActual}
+            />
+          </Box>
+        )}
+      </Box>
+    </>
   );
 }
