@@ -32,7 +32,10 @@ origins = [
     "http://localhost:3000",
     "http://192.168.1.135:3000",
     "http://127.0.0.1:3000",
-    "https://*.vercel.app",  # Para el frontend en Vercel
+    "https://localhost:3000",
+    "https://192.168.1.135:3000",
+    "https://127.0.0.1:3000",
+    "https://*.vercel.app"
 ]
 
 app.add_middleware(
@@ -59,5 +62,7 @@ if __name__ == "__main__":
         "main:app",
         host="0.0.0.0",
         port=8000,
-        reload=True
+        reload=True,
+        ssl_keyfile="./localhost+1-key.pem",
+        ssl_certfile="./localhost+1.pem"
     )
