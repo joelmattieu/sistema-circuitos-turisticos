@@ -16,6 +16,8 @@ export function useDemoLocation(
   const [cargandoRuta, setCargandoRuta] = useState(false);
 
   useEffect(() => {
+    if (rutaCompleta.length > 0 && !cargandoRuta) return;
+
     async function generarRuta() {
       if (!pois || pois.length === 0) return;
 
@@ -85,7 +87,7 @@ export function useDemoLocation(
     }
 
     generarRuta();
-  }, [pois, realLocation, demoStartLocation, demoEnabled]);
+  }, [pois, demoEnabled]); // Quitar realLocation y demoStartLocation de aquí
 
   useEffect(() => {
     if (pasosNavegacion.length === 0 || rutaCompleta.length === 0) return;
