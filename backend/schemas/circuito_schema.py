@@ -1,6 +1,12 @@
 from pydantic import BaseModel, Field, computed_field
 from typing import Optional, List
 
+class CategoriaSimple(BaseModel):
+    nombre_categoria: str
+    
+    class Config:
+        from_attributes = True
+
 class PuntoInteresSimple(BaseModel):
     poi_id: int
     nombre: str
@@ -9,6 +15,10 @@ class PuntoInteresSimple(BaseModel):
     latitud: float
     longitud: float
     tiene_audioguia: bool
+    fecha_inauguracion: Optional[str] = None
+    dato_historico: Optional[str] = None
+    informacion_cultural: Optional[str] = None
+    informacion_extra: Optional[str] = None
     
     class Config:
         from_attributes = True
@@ -42,6 +52,7 @@ class CircuitoResponse(BaseModel):
     activo: bool
     veces_finalizado: int
     categoria_nombre: Optional[str] = None
+    categoria: Optional[CategoriaSimple] = None
     puntos_interes: List[PuntoInteresSimple] = []
     
     distancia_formateada: Optional[str] = None

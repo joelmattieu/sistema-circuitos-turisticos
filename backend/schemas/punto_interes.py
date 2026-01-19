@@ -10,6 +10,10 @@ class PuntoInteresCreate(BaseModel):
     longitud: float
     tiene_audioguia: bool = False
     activo: bool = True
+    fecha_inauguracion: Optional[str] = None
+    dato_historico: Optional[str] = None
+    informacion_cultural: Optional[str] = None
+    informacion_extra: Optional[str] = None
 
 class PuntoInteresUpdate(BaseModel):
     nombre: Optional[str] = None
@@ -19,6 +23,10 @@ class PuntoInteresUpdate(BaseModel):
     longitud: Optional[float] = None
     tiene_audioguia: Optional[bool] = None
     activo: Optional[bool] = None
+    fecha_inauguracion: Optional[str] = None
+    dato_historico: Optional[str] = None
+    informacion_cultural: Optional[str] = None
+    informacion_extra: Optional[str] = None
 
 class PuntoInteresResponse(BaseModel):
     poi_id: int
@@ -29,6 +37,10 @@ class PuntoInteresResponse(BaseModel):
     longitud: float
     tiene_audioguia: bool
     activo: bool
+    fecha_inauguracion: Optional[str] = None
+    dato_historico: Optional[str] = None
+    informacion_cultural: Optional[str] = None
+    informacion_extra: Optional[str] = None
     
     class Config:
         from_attributes = True

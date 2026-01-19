@@ -16,6 +16,12 @@ class PuntoInteresModel(Base):
     tiene_audioguia = Column(Boolean)
     activo = Column(Boolean, default=False)
     
+    # Datos AR
+    fecha_inauguracion = Column(String, nullable=True)
+    dato_historico = Column(String, nullable=True)
+    informacion_cultural = Column(String, nullable=True)
+    informacion_extra = Column(String, nullable=True)
+    
     circuito_puntos = relationship(
         "CircuitoPuntoInteresModel", 
         back_populates="punto_interes",
