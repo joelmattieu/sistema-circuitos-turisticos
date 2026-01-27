@@ -4,6 +4,7 @@ from models.categoria_circuito import CategoriaCircuitoModel
 from models.preferencia_usuario import PreferenciaUsuarioModel
 from models.unidad_medicion import UnidadMedicionModel
 from schemas.circuito_schema import CircuitoCreate, CircuitoUpdate, CircuitoResponse
+from services.progreso_service import obtener_progresos_usuario
 from fastapi import HTTPException
 
 def calcular_distancia_con_preferencias(distancia_metros: float, unidad_id: int) -> tuple:
@@ -17,6 +18,16 @@ def calcular_distancia_con_preferencias(distancia_metros: float, unidad_id: int)
     else: 
         distancia_km = distancia_metros / 1000
         return f"{distancia_km:.1f}", "km"
+
+def get_circuitos_raw(db: Session, skip: int = 0, limit: int = 100):
+    """
+    Obtiene circuitos como objetos del modelo sin procesar.
+    Útil para servicios internos como el de recomendaciones.
+    """
+    return db.query(CircuitoModel).options(
+        joinedload(CircuitoModel.categoria),
+        joinedload(CircuitoModel.puntos_interes)
+    ).offset(skip).limit(limit).all()
 
 def create_circuito(db: Session, circuito: CircuitoCreate):
     categoria = db.query(CategoriaCircuitoModel).filter(
@@ -38,26 +49,39 @@ def get_circuitos(db: Session, skip: int = 0, limit: int = 100, usuario_id: int 
         joinedload(CircuitoModel.puntos_interes)
     ).offset(skip).limit(limit).all()
     
-    # Si hay usuario_id, obtener sus preferencias y calcular distancias
+    progresos = {}
+    if usuario_id:
+        progresos = obtener_progresos_usuario(db, usuario_id)
+    
+    preferencias = None
     if usuario_id:
         preferencias = db.query(PreferenciaUsuarioModel).filter(
             PreferenciaUsuarioModel.usuario_id == usuario_id
         ).first()
+    
+    circuitos_response = []
+    for circuito in circuitos:
+        circuito_dict = CircuitoResponse.from_orm(circuito).dict()
         
         if preferencias:
-            circuitos_response = []
-            for circuito in circuitos:
-                circuito_dict = CircuitoResponse.from_orm(circuito).dict()
-                distancia_fmt, unidad = calcular_distancia_con_preferencias(
-                    circuito.distancia_total_metros,
-                    preferencias.unidad_medicion_id
-                )
-                circuito_dict['distancia_formateada'] = distancia_fmt
-                circuito_dict['unidad_medicion'] = unidad
-                circuitos_response.append(CircuitoResponse(**circuito_dict))
-            return circuitos_response
+            distancia_fmt, unidad = calcular_distancia_con_preferencias(
+                circuito.distancia_total_metros,
+                preferencias.unidad_medicion_id
+            )
+            circuito_dict['distancia_formateada'] = distancia_fmt
+            circuito_dict['unidad_medicion'] = unidad
+        
+        circuito_dict['progreso_porcentaje'] = progresos.get(circuito.circuito_id, 0.0)
+        
+        # Mantener categoría como objeto para compatibilidad con frontend
+        if circuito.categoria:
+            circuito_dict['categoria'] = {
+                'nombre_categoria': circuito.categoria.nombre_categoria
+            }
+        
+        circuitos_response.append(circuito_dict)
     
-    return circuitos
+    return circuitos_response
 
 def get_circuito(db: Session, circuito_id: int, usuario_id: int = None):
     circuito = db.query(CircuitoModel).options(
@@ -68,7 +92,6 @@ def get_circuito(db: Session, circuito_id: int, usuario_id: int = None):
     if not circuito:
         raise HTTPException(status_code=404, detail="Circuito no encontrado")
     
-    # Si hay usuario_id, calcular distancia con sus preferencias
     if usuario_id:
         preferencias = db.query(PreferenciaUsuarioModel).filter(
             PreferenciaUsuarioModel.usuario_id == usuario_id
