@@ -6,7 +6,6 @@ from db import create_tables, get_db
 from services.load_data import load_data
 import uvicorn
 
-# importación de rutas
 from routes.auth_route import route_auth
 from routes.paises_route import route_paises
 from routes.provincias_route import route_provincias
@@ -17,6 +16,8 @@ from routes.circuitos_route import route_circuitos
 from routes.preferencias_route import route_preferencias
 from routes.puntos_interes_route import route_puntos_interes
 from routes.circuito_punto_interes_route import route_circuito_puntos
+from routes.recomendaciones_route import route_recomendaciones
+from routes.recorridos_route import route_recorridos
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -56,6 +57,8 @@ app.include_router(route_circuitos)
 app.include_router(route_preferencias)
 app.include_router(route_puntos_interes)
 app.include_router(route_circuito_puntos)
+app.include_router(route_recomendaciones)
+app.include_router(route_recorridos)
 
 if __name__ == "__main__":
     uvicorn.run(
