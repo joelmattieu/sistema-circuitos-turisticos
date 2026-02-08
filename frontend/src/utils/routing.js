@@ -1,27 +1,24 @@
 const ORS_API_KEY =
   "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjRhZjYzOWQwZmQwMjQ2YTdiNDA0ZjlmODM4NDgzYTkxIiwiaCI6Im11cm11cjY0In0=";
 
-// Función para generar instrucción en español
-function generarInstruccionEspanol(tipo, nombreCalle, distancia) {
-  const metros = distancia ? `${Math.round(distancia)} metros` : "";
+// Genera instrucción en español con placeholder {dist} para la unidad del usuario
+function generarInstruccionEspanol(tipo, nombreCalle) {
   const tiposInstruccion = {
-    0: (calle, m) => `Continúa ${m} por ${calle}`,
-    1: (calle, m) => `Gira a la derecha y sigue ${m} por ${calle}`,
-    2: (calle, m) => `Gira a la izquierda y sigue ${m} por ${calle}`,
-    3: (calle, m) => `Gira fuertemente a la derecha y sigue ${m} por ${calle}`,
-    4: (calle, m) =>
-      `Gira fuertemente a la izquierda y sigue ${m} por ${calle}`,
-    5: (calle, m) => `Gira ligeramente a la derecha y sigue ${m} por ${calle}`,
-    6: (calle, m) =>
-      `Gira ligeramente a la izquierda y sigue ${m} por ${calle}`,
-    7: (calle, m) => `Continúa ${m} por ${calle}`,
-    10: (calle, m) => `Toma la rotonda y sigue ${m} por ${calle}`,
-    11: (calle, m) => `Dirígete ${m} por ${calle}`,
-    12: (calle, m) => `Llegas a ${calle}`,
+    0: (calle) => `Continúa {dist} por ${calle}`,
+    1: (calle) => `Gira a la derecha y sigue {dist} por ${calle}`,
+    2: (calle) => `Gira a la izquierda y sigue {dist} por ${calle}`,
+    3: (calle) => `Gira fuertemente a la derecha y sigue {dist} por ${calle}`,
+    4: (calle) => `Gira fuertemente a la izquierda y sigue {dist} por ${calle}`,
+    5: (calle) => `Gira ligeramente a la derecha y sigue {dist} por ${calle}`,
+    6: (calle) => `Gira ligeramente a la izquierda y sigue {dist} por ${calle}`,
+    7: (calle) => `Continúa {dist} por ${calle}`,
+    10: (calle) => `Toma la rotonda y sigue {dist} por ${calle}`,
+    11: (calle) => `Dirígete {dist} por ${calle}`,
+    12: (calle) => `Llegas a ${calle}`,
   };
   const generador =
-    tiposInstruccion[tipo] || ((calle, m) => `Continúa ${m} por ${calle}`);
-  return generador(nombreCalle || "esta calle", metros);
+    tiposInstruccion[tipo] || ((calle) => `Continúa {dist} por ${calle}`);
+  return generador(nombreCalle || "esta calle");
 }
 
 export async function obtenerRutaPasoAPaso(origen, destino) {
@@ -38,11 +35,7 @@ export async function obtenerRutaPasoAPaso(origen, destino) {
     return {
       coordenadas: geometry.map(([lng, lat]) => ({ lat, lng })),
       pasos: steps.map((step, index) => ({
-        instruccion: generarInstruccionEspanol(
-          step.type,
-          step.name,
-          step.distance
-        ),
+        instruccion: generarInstruccionEspanol(step.type, step.name),
         instruccionOriginal: step.instruction,
         distancia: step.distance,
         duracion: step.duration,

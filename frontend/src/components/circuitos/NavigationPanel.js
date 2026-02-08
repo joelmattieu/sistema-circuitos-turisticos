@@ -8,6 +8,7 @@ import TurnRightIcon from "@mui/icons-material/TurnRight";
 import TurnLeftIcon from "@mui/icons-material/TurnLeft";
 import StraightIcon from "@mui/icons-material/Straight";
 import NorthIcon from "@mui/icons-material/North";
+import { useDistanceFormatter } from "@/hooks/useDistance";
 
 function calcularDistancia(lat1, lon1, lat2, lon2) {
   const R = 6371;
@@ -60,6 +61,8 @@ export default function NavigationPanel({
   onARButtonClick,
   pasoActual,
 }) {
+  const { formatDistance } = useDistanceFormatter();
+
   const infoProximoPOI = useMemo(() => {
     if (!userLocation || !proximoPOI) {
       return null;
@@ -69,26 +72,29 @@ export default function NavigationPanel({
       userLocation.latitude,
       userLocation.longitude,
       proximoPOI.latitud,
-      proximoPOI.longitud
+      proximoPOI.longitud,
     );
 
     const distanciaMetros = distanciaKm * 1000;
     const minutos = estimarTiempo(distanciaKm, modoTransporte);
     const estaProximo = distanciaMetros < 50;
+    const distanciaDisplay = formatDistance(distanciaMetros, true);
 
     return {
       distanciaKm,
       distanciaMetros,
       minutos,
       estaProximo,
+      distanciaDisplay,
     };
-  }, [userLocation, proximoPOI, modoTransporte]);
+  }, [userLocation, proximoPOI, modoTransporte, formatDistance]);
 
   if (!infoProximoPOI || !proximoPOI) {
     return null;
   }
 
-  const { estaProximo, distanciaMetros, minutos } = infoProximoPOI;
+  const { estaProximo, distanciaMetros, distanciaDisplay, minutos } =
+    infoProximoPOI;
 
   // Estado: Llegaste al punto de interés
   if (estaProximo) {
@@ -103,7 +109,6 @@ export default function NavigationPanel({
           boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
         }}
       >
-        {/* Encabezado con ícono de ubicación */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>
           <LocationOnIcon sx={{ color: "#e91e63", fontSize: 22 }} />
           <Typography
@@ -118,7 +123,6 @@ export default function NavigationPanel({
           </Typography>
         </Box>
 
-        {/* Subtítulo */}
         <Typography
           variant="body2"
           sx={{
@@ -130,7 +134,6 @@ export default function NavigationPanel({
           Explora en Realidad Aumentada
         </Typography>
 
-        {/* Botón de Realidad Aumentada */}
         <Button
           variant="contained"
           fullWidth
@@ -170,7 +173,6 @@ export default function NavigationPanel({
         boxShadow: "0 4px 20px rgba(0,0,0,0.12)",
       }}
     >
-      {/* Instrucción principal con ícono */}
       <Box
         sx={{
           display: "flex",
@@ -179,7 +181,6 @@ export default function NavigationPanel({
           mb: 1.5,
         }}
       >
-        {/* Ícono de dirección */}
         <Box
           sx={{
             flexShrink: 0,
@@ -193,7 +194,6 @@ export default function NavigationPanel({
           )}
         </Box>
 
-        {/* Texto de instrucción */}
         <Typography
           variant="h6"
           sx={{
@@ -205,12 +205,14 @@ export default function NavigationPanel({
           }}
         >
           {pasoActual
-            ? pasoActual.instruccion
-            : `A ${Math.round(distanciaMetros)} metros`}
+            ? pasoActual.instruccion.replace(
+                "{dist}",
+                formatDistance(pasoActual.distancia, true),
+              )
+            : `A ${distanciaDisplay}`}
         </Typography>
       </Box>
 
-      {/* Línea separadora */}
       <Box
         sx={{
           height: "1px",
@@ -219,7 +221,6 @@ export default function NavigationPanel({
         }}
       />
 
-      {/* Información del próximo destino */}
       <Typography
         variant="body2"
         sx={{
@@ -228,8 +229,8 @@ export default function NavigationPanel({
           lineHeight: 1.5,
         }}
       >
-        Próximo destino: {proximoPOI.nombre} · {Math.round(distanciaMetros)} m ·{" "}
-        {minutos} min a pie
+        Próximo destino: {proximoPOI.nombre} · {distanciaDisplay} · {minutos}{" "}
+        min
       </Typography>
     </Box>
   );
