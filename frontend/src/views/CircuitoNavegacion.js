@@ -1,5 +1,3 @@
-// CircuitoNavegacion.js - Versión con modo demo
-
 "use client";
 
 import React, {
@@ -10,7 +8,16 @@ import React, {
   useRef,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Box, CircularProgress, Typography, Button } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -23,8 +30,10 @@ import { fetchPreferenciasByUsuario } from "@/store/preferencias/preferenciasSli
 import NavigationPanel from "@/components/circuitos/NavigationPanel";
 import { toast } from "react-toastify";
 import { useDemoLocation } from "@/hooks/useDemoLocation";
+import { registrarVisita } from "@/services/recorridos";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 const MapView = dynamic(() => import("@/components/circuitos/MapView"), {
   loading: () => (
@@ -33,7 +42,6 @@ const MapView = dynamic(() => import("@/components/circuitos/MapView"), {
   ssr: false,
 });
 
-// Importar ARView dinámicamente (solo en cliente)
 const ARView = dynamic(() => import("@/components/circuitos/ARView"), {
   ssr: false,
 });
@@ -56,6 +64,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useAuth();
+  const [mostrarModalExito, setMostrarModalExito] = useState(false);
   const {
     location: realLocation,
     error: geoError,
@@ -68,7 +77,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
   const [mostrarAR, setMostrarAR] = useState(false);
 
   const { currentCircuito, loading: circuitoLoading } = useSelector(
-    (state) => state.circuitos
+    (state) => state.circuitos,
   );
   const { preferencias } = useSelector((state) => state.preferencias);
 
@@ -87,14 +96,13 @@ export default function CircuitoNavegacion({ circuitoId }) {
     rutaCompleta,
   } = useDemoLocation(currentCircuito?.puntos_interes, realLocation);
 
-  // Usar ubicación real o demo según modo
   const userLocation = demoEnabled ? demoLocation : realLocation;
   const isLoading = demoEnabled ? false : geoLoading;
 
   useEffect(() => {
     if (circuitoId && user?.usuario_id) {
       dispatch(
-        fetchCircuitoById({ id: circuitoId, usuarioId: user.usuario_id })
+        fetchCircuitoById({ id: circuitoId, usuarioId: user.usuario_id }),
       );
       dispatch(fetchPreferenciasByUsuario(user.usuario_id));
     } else if (circuitoId) {
@@ -117,13 +125,13 @@ export default function CircuitoNavegacion({ circuitoId }) {
           userLocation.latitude,
           userLocation.longitude,
           poi.latitud,
-          poi.longitud
+          poi.longitud,
         );
         return { poi, indice: idx, distancia };
       })
       .sort((a, b) => a.distancia - b.distancia);
 
-    if (poisCercanos[0] && poisCercanos[0].distancia < 0.2) {
+    if (poisCercanos[0] && poisCercanos[0].distancia < 0.05) {
       const indiceProximo = poisCercanos[0].indice;
 
       if (
@@ -137,6 +145,22 @@ export default function CircuitoNavegacion({ circuitoId }) {
             return newSet;
           });
 
+          if (user?.usuario_id) {
+            const poiId = pois[indiceProximo].poi_id;
+            registrarVisita(user.usuario_id, circuitoId, poiId)
+              .then((resultado) => {
+                const progreso = resultado?.progreso ?? 0;
+                console.log(`POI visitado. Progreso: ${Math.round(progreso)}%`);
+
+                if (progreso >= 100) {
+                  setMostrarModalExito(true);
+                }
+              })
+              .catch((error) => {
+                console.error("Error registrando visita:", error);
+              });
+          }
+
           if (
             indiceProximo === poiActualIndice &&
             indiceProximo < pois.length - 1
@@ -148,7 +172,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
     }
 
     const proximoIndice = Array.from({ length: pois.length }).findIndex(
-      (_, idx) => !poiVisitados.has(idx)
+      (_, idx) => !poiVisitados.has(idx),
     );
 
     if (proximoIndice >= 0 && proximoIndice < pois.length) {
@@ -176,7 +200,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
 
     const pois = currentCircuito.puntos_interes;
     const proximoIndice = Array.from({ length: pois.length }).findIndex(
-      (_, idx) => !poiVisitados.has(idx)
+      (_, idx) => !poiVisitados.has(idx),
     );
 
     if (proximoIndice >= 0 && proximoIndice < pois.length) {
@@ -191,14 +215,13 @@ export default function CircuitoNavegacion({ circuitoId }) {
       toast.error("POI no disponible");
       return;
     }
-    // Abrir vista de AR
     setMostrarAR(true);
   }, [proximoPOI]);
 
   useEffect(() => {
     if (geoError) {
       toast.error(
-        "No se pudo obtener tu ubicación. Verifica los permisos del navegador."
+        "No se pudo obtener tu ubicación. Verifica los permisos del navegador.",
       );
     }
   }, [geoError]);
@@ -249,17 +272,104 @@ export default function CircuitoNavegacion({ circuitoId }) {
     );
   }
 
-  // Si está en modo demo, usar el próximo POI del demo
   const proximoPOIFinal =
     demoEnabled && demoProximoPOI ? demoProximoPOI : proximoPOI;
 
+  const handleCerrarModal = () => {
+    setMostrarModalExito(false);
+  };
+
+  const handleVolverInicio = () => {
+    setMostrarModalExito(false);
+    router.push("/");
+  };
+
   return (
     <>
-      {/* Vista de Realidad Aumentada */}
+      <Dialog
+        open={mostrarModalExito}
+        onClose={handleCerrarModal}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            mx: 2,
+          },
+        }}
+      >
+        <DialogTitle sx={{ textAlign: "center", pt: 3, pb: 1 }}>
+          <CheckCircleIcon
+            sx={{
+              fontSize: 56,
+              color: "#4CAF50",
+              mb: 1,
+            }}
+          />
+          <Typography
+            variant="body1"
+            sx={{
+              fontWeight: 600,
+              fontSize: "16px",
+              lineHeight: 1.3,
+            }}
+          >
+            ¡Circuito Completado!
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ textAlign: "center", pb: 1.5, px: 3 }}>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            sx={{ fontSize: "13px" }}
+          >
+            ¡Felicitaciones! Has completado todos los puntos de interés de este
+            circuito.
+          </Typography>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            justifyContent: "center",
+            pb: 2.5,
+            px: 2,
+            gap: 1.5,
+            flexDirection: "column",
+          }}
+        >
+          <Button
+            onClick={handleVolverInicio}
+            variant="contained"
+            fullWidth
+            sx={{
+              py: 1.2,
+              fontSize: "14px",
+              textTransform: "none",
+              fontWeight: 600,
+            }}
+          >
+            Volver al inicio
+          </Button>
+          <Button
+            onClick={handleCerrarModal}
+            variant="text"
+            fullWidth
+            sx={{
+              py: 1,
+              fontSize: "13px",
+              textTransform: "none",
+              color: "text.secondary",
+            }}
+          >
+            Continuar aquí
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {mostrarAR && proximoPOIFinal && userLocation && (
         <ARView
           poi={proximoPOIFinal}
           userLocation={userLocation}
+          demoMode={demoEnabled}
           onClose={() => setMostrarAR(false)}
         />
       )}
@@ -274,7 +384,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
           overflow: "hidden",
         }}
       >
-        {/* Controles de Demo */}
         <Box
           sx={{
             position: "fixed",
@@ -287,7 +396,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
             maxWidth: 140,
           }}
         >
-          {/* Toggle Demo Mode */}
           <Button
             variant="contained"
             onClick={toggleDemo}
@@ -315,7 +423,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
             {demoEnabled ? "Demo" : "Demo"}
           </Button>
 
-          {/* Controles (solo visible en modo demo) */}
           {demoEnabled && (
             <Box
               sx={{
@@ -353,7 +460,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
           )}
         </Box>
 
-        {/* Panel Superior */}
         <Box
           sx={{
             p: 2,
@@ -370,7 +476,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
           </Typography>
         </Box>
 
-        {/* Mapa */}
         <Box
           sx={{
             width: "100%",
@@ -389,7 +494,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
           />
         </Box>
 
-        {/* Panel de navegación */}
         {proximoPOIFinal && currentCircuito.puntos_interes && (
           <Box>
             <NavigationPanel
