@@ -15,8 +15,9 @@ const CardCircuitos = ({ circuito, onClick }) => {
 
   const distanciaDisplay = formatDistance(
     circuito.distancia_total_metros,
+    false,
     circuito.distancia_formateada,
-    circuito.unidad_medicion
+    circuito.unidad_medicion,
   );
 
   return (
@@ -53,7 +54,13 @@ const CardCircuitos = ({ circuito, onClick }) => {
           width="100%"
           gap={1}
         >
-          <Box display="flex" alignItems="center" gap={1.8} flex={1} minWidth={0}>
+          <Box
+            display="flex"
+            alignItems="center"
+            gap={1.8}
+            flex={1}
+            minWidth={0}
+          >
             <Avatar
               src={circuito.url_imagen_portada}
               sx={{
@@ -98,7 +105,9 @@ const CardCircuitos = ({ circuito, onClick }) => {
           </Box>
 
           <Box flexShrink={0}>
-            <CircularProgressIndicator percentage={0} />
+            <CircularProgressIndicator
+              percentage={circuito.progreso_porcentaje || 0}
+            />
           </Box>
         </Box>
       </CardContent>
