@@ -57,7 +57,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
   const { user } = useAuth();
   const { formatDistance } = useDistanceFormatter();
   const { currentCircuito, loading, error } = useSelector(
-    (state) => state.circuitos
+    (state) => state.circuitos,
   );
   const { preferencias } = useSelector((state) => state.preferencias);
 
@@ -66,7 +66,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
   useEffect(() => {
     if (circuitoId && user?.usuario_id) {
       dispatch(
-        fetchCircuitoById({ id: circuitoId, usuarioId: user.usuario_id })
+        fetchCircuitoById({ id: circuitoId, usuarioId: user.usuario_id }),
       );
     } else if (circuitoId) {
       dispatch(fetchCircuitoById({ id: circuitoId }));
@@ -103,8 +103,9 @@ const CircuitoDetalle = ({ circuitoId }) => {
 
   const distanciaDisplay = formatDistance(
     currentCircuito.distancia_total_metros,
+    false,
     currentCircuito.distancia_formateada,
-    currentCircuito.unidad_medicion
+    currentCircuito.unidad_medicion,
   );
 
   return (

@@ -146,9 +146,8 @@ export default function MapView({
           maxZoom={19}
         />
 
-        {/* Ruta del circuito */}
         {rutaCompleta.length > 0 ? (
-          // Usar la ruta real que sigue las calles
+          // Ruta real por calles
           <Polyline
             positions={rutaCompleta.map((coord) => [coord.lat, coord.lng])}
             color="#1976d2"
@@ -157,7 +156,6 @@ export default function MapView({
             dashArray="5, 5"
           />
         ) : routeCoordinates.length > 0 ? (
-          // Fallback: líneas rectas entre puntos
           <Polyline
             positions={routeCoordinates}
             color="#1976d2"
@@ -167,7 +165,6 @@ export default function MapView({
           />
         ) : null}
 
-        {/* Marcadores de POIs */}
         {circuito.puntos_interes?.map((poi, index) => {
           const isProximo = proximoPOI?.poi_id === poi.poi_id;
           return (
@@ -190,7 +187,6 @@ export default function MapView({
           );
         })}
 
-        {/* Ubicación del usuario */}
         {userLocation && (
           <Marker
             position={[userLocation.latitude, userLocation.longitude]}
@@ -202,7 +198,6 @@ export default function MapView({
           </Marker>
         )}
 
-        {/* Círculo de precisión */}
         {userLocation && userLocation.accuracy && (
           <CircleMarker
             center={[userLocation.latitude, userLocation.longitude]}

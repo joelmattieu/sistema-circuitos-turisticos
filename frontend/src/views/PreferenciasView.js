@@ -38,16 +38,16 @@ export default function PreferenciasView() {
   const { t, changeLanguage } = useContext(LanguageContext);
 
   const { idiomas, loading: idiomasLoading } = useSelector(
-    (state) => state.idiomas
+    (state) => state.idiomas,
   );
   const { modos, loading: modosLoading } = useSelector(
-    (state) => state.modosTransporte
+    (state) => state.modosTransporte,
   );
   const { unidades, loading: unidadesLoading } = useSelector(
-    (state) => state.unidadesMedicion
+    (state) => state.unidadesMedicion,
   );
   const { preferencias, loading: preferenciasLoading } = useSelector(
-    (state) => state.preferencias
+    (state) => state.preferencias,
   );
 
   const [preferenciasState, setPreferenciasState] = useState({
@@ -69,7 +69,6 @@ export default function PreferenciasView() {
     }
   }, [user?.usuario_id, dispatch]);
 
-  // Inicializar estado local con preferencias del usuario
   useEffect(() => {
     if (preferencias && !isInitialized) {
       setTimeout(() => {
@@ -96,7 +95,7 @@ export default function PreferenciasView() {
       updatePreferencias({
         usuario_id: user.usuario_id,
         ...nuevasPreferencias,
-      })
+      }),
     )
       .unwrap()
       .then(() => {})

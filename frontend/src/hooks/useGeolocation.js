@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 
-/**
- * Hook para rastrear la ubicación del usuario en tiempo real
- * Usa la Geolocation API del navegador
- */
+// Tracking de ubicación en tiempo real via Geolocation API
 export function useGeolocation() {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
@@ -32,8 +29,8 @@ export function useGeolocation() {
           error.code === 1
             ? "Permiso de ubicación denegado"
             : error.code === 2
-            ? "Ubicación no disponible"
-            : "Error al obtener ubicación"
+              ? "Ubicación no disponible"
+              : "Error al obtener ubicación",
         );
         setIsLoading(false);
       },
@@ -41,7 +38,7 @@ export function useGeolocation() {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
 
     // Rastrear cambios continuos
@@ -56,14 +53,14 @@ export function useGeolocation() {
         setError(
           error.code === 1
             ? "Permiso de ubicación denegado"
-            : "Error al obtener ubicación"
+            : "Error al obtener ubicación",
         );
       },
       {
         enableHighAccuracy: true,
         timeout: 10000,
         maximumAge: 0,
-      }
+      },
     );
   }, []);
 

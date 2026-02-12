@@ -16,6 +16,5 @@ class UsuarioModel(Base):
     contrasena = Column(String(255), nullable=False)
     fecha_registro = Column(DateTime, default=datetime.now, nullable=False)
     
-    # Relación con provincia
     provincia = relationship("ProvinciaModel", back_populates="usuarios")
 

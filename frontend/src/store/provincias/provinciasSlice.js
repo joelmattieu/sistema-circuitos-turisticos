@@ -10,7 +10,7 @@ export const fetchProvincias = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const fetchProvinciaById = createAsyncThunk(
@@ -22,7 +22,7 @@ export const fetchProvinciaById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 export const fetchProvinciasByPais = createAsyncThunk(
@@ -34,7 +34,7 @@ export const fetchProvinciasByPais = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
 const provinciasSlice = createSlice({
@@ -59,7 +59,6 @@ const provinciasSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch todas las provincias
       .addCase(fetchProvincias.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -72,7 +71,6 @@ const provinciasSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Fetch provincia por ID
       .addCase(fetchProvinciaById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -85,7 +83,6 @@ const provinciasSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Fetch provincias por país
       .addCase(fetchProvinciasByPais.pending, (state) => {
         state.loading = true;
         state.error = null;

@@ -3,7 +3,6 @@ from models.usuario import UsuarioModel
 from models.preferencia_usuario import PreferenciaUsuarioModel
 import bcrypt
 
-## compara la contraseña en texto plano con la contraseña hasheada
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     try:
         password_bytes = plain_password.encode('utf-8')
@@ -13,7 +12,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
         print(f"Error verificando contraseña: {e}")
         return False
 
-## hashea la contraseña en texto plano
 def get_password_hash(password: str) -> str:
     password_bytes = password.encode('utf-8')
     salt = bcrypt.gensalt()
