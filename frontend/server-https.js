@@ -11,8 +11,8 @@ const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
 const httpsOptions = {
-  key: fs.readFileSync("./localhost+3-key.pem"),
-  cert: fs.readFileSync("./localhost+3.pem"),
+  key: fs.readFileSync("./localhost+ip-key.pem"),
+  cert: fs.readFileSync("./localhost+ip.pem"),
 };
 
 app.prepare().then(() => {
@@ -28,6 +28,6 @@ app.prepare().then(() => {
   }).listen(port, (err) => {
     if (err) throw err;
     console.log(`> Ready on https://localhost:${port}`);
-    console.log(`> También disponible en https://192.168.1.135:${port}`);
+    console.log(`> También disponible en https://192.168.1.136:${port}`);
   });
 });

@@ -6,8 +6,10 @@ const ProtectedRoutes = ({ children, redirectIfLoggedIn = false }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const loggedIn = localStorage.getItem("isLoggedIn") === "true";
 
     if (redirectIfLoggedIn && loggedIn) {
@@ -20,12 +22,9 @@ const ProtectedRoutes = ({ children, redirectIfLoggedIn = false }) => {
     }
   }, [router, redirectIfLoggedIn, pathname]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div>Cargando...</div>
-      </div>
-    );
+  // Retornar null hasta montar - evita errores de hidratación
+  if (!mounted || isLoading) {
+    return null;
   }
 
   return <>{children}</>;

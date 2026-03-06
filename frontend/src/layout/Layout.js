@@ -1,14 +1,23 @@
 "use client";
 import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { Box, Toolbar } from "@mui/material";
 import Header from "@/components/navigation/Header";
 
 const Layout = ({ children }) => {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
   const noLayoutRoutes = ["/login/", "/register/"];
-
   const showLayout = !noLayoutRoutes.includes(pathname);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <>{children}</>;
+  }
 
   if (showLayout) {
     return (

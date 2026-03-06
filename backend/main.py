@@ -31,9 +31,11 @@ app = FastAPI(lifespan=lifespan)
 ## CORS         
 origins = [
     "http://localhost:3000",
+    "http://192.168.1.136:3000",
     "http://192.168.1.135:3000",
     "http://127.0.0.1:3000",
     "https://localhost:3000",
+    "https://192.168.1.136:3000",
     "https://192.168.1.135:3000",
     "https://127.0.0.1:3000",
     "https://*.vercel.app"
@@ -66,6 +68,6 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-        ssl_keyfile="./localhost+1-key.pem",
-        ssl_certfile="./localhost+1.pem"
+        ssl_keyfile="./localhost+ip-key.pem",
+        ssl_certfile="./localhost+ip.pem"
     )

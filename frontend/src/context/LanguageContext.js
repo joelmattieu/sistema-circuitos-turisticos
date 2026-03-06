@@ -272,8 +272,10 @@ const translations = {
 
 export const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState("es");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const savedLang = localStorage.getItem("idioma");
     if (savedLang) {
       setLanguage(savedLang);
@@ -282,7 +284,9 @@ export const LanguageProvider = ({ children }) => {
 
   const changeLanguage = (lang) => {
     setLanguage(lang);
-    localStorage.setItem("idioma", lang);
+    if (mounted) {
+      localStorage.setItem("idioma", lang);
+    }
   };
 
   const t = (key, params = {}) => {
