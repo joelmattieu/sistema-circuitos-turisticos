@@ -18,6 +18,7 @@ from routes.puntos_interes_route import route_puntos_interes
 from routes.circuito_punto_interes_route import route_circuito_puntos
 from routes.recomendaciones_route import route_recomendaciones
 from routes.recorridos_route import route_recorridos
+from routes.clima_route import router as route_clima
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -61,6 +62,7 @@ app.include_router(route_puntos_interes)
 app.include_router(route_circuito_puntos)
 app.include_router(route_recomendaciones)
 app.include_router(route_recorridos)
+app.include_router(route_clima)
 
 if __name__ == "__main__":
     uvicorn.run(

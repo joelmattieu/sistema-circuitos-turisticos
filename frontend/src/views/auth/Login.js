@@ -8,7 +8,10 @@ import {
   Typography,
   Link,
   Alert,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { useForm, Controller } from "react-hook-form";
 import AuthContext from "../../context/AuthContext";
@@ -80,6 +83,7 @@ const Login = () => {
   const { t } = useContext(LanguageContext);
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     control,
@@ -192,9 +196,27 @@ const Login = () => {
                 <StyledTextField
                   {...field}
                   fullWidth
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   error={!!errors.contrasena}
                   helperText={errors.contrasena?.message}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          size="small"
+                          sx={{ marginRight: "-8px" }}
+                        >
+                          {showPassword ? (
+                            <Visibility fontSize="small" />
+                          ) : (
+                            <VisibilityOff fontSize="small" />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             />

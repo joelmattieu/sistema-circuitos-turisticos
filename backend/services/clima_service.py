@@ -37,8 +37,10 @@ def obtener_clima(lat: float, lon: float):
         # https://openweathermap.org/weather-conditions
         if 200 <= weather_id < 600:  # Lluvia, tormenta, llovizna
             condicion = "lluvioso"
-        elif 800 <= weather_id < 900:  # Despejado o parcialmente nublado
+        elif weather_id == 800:  # Cielo despejado
             condicion = "soleado"
+        elif 801 <= weather_id <= 804:  # Nubes
+            condicion = "nublado"
         else:
             condicion = "nublado"
         
@@ -50,7 +52,6 @@ def obtener_clima(lat: float, lon: float):
     
     except Exception as e:
         print(f"Error obteniendo clima: {e}")
-        # Fallback en caso de error
         return {
             "condicion": "soleado",
             "temperatura": 25.0,
