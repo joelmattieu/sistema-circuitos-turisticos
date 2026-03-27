@@ -1,31 +1,27 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const ProtectedRoutes = ({ children, redirectIfLoggedIn = false }) => {
   const router = useRouter();
-  const pathname = usePathname();
-  const [isLoading, setIsLoading] = useState(true);
-  const [mounted, setMounted] = useState(false);
+  const isClient = typeof window !== "undefined";
+
+  const loggedIn = isClient && localStorage.getItem("isLoggedIn") === "true";
+  const goHome = redirectIfLoggedIn && loggedIn;
+  const goLogin = !redirectIfLoggedIn && !loggedIn;
 
   useEffect(() => {
-    setMounted(true);
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-
-    if (redirectIfLoggedIn && loggedIn) {
-      router.push("/");
+    if (goHome) {
+      router.replace("/");
+      return;
     }
-    else if (!redirectIfLoggedIn && !loggedIn) {
-      router.push("/login/");
-    } else {
-      setIsLoading(false);
+    if (goLogin) {
+      router.replace("/login/");
     }
-  }, [router, redirectIfLoggedIn, pathname]);
+  }, [router, goHome, goLogin]);
 
-  // Retornar null hasta montar - evita errores de hidratación
-  if (!mounted || isLoading) {
-    return null;
-  }
+  if (!isClient) return null;
+  if (goHome || goLogin) return null;
 
   return <>{children}</>;
 };

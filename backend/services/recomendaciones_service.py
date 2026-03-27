@@ -21,6 +21,12 @@ def calcular_distancia(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     return R * c
 
 
+def criterio_ordenamiento_circuitos(item: dict) -> tuple:
+    score = item["score"]
+    nombre = item["circuito"].nombre.lower()
+    return (-score, nombre)
+
+
 def calcular_score_circuito(
     circuito: CircuitoModel,
     clima: dict,
@@ -80,29 +86,26 @@ def calcular_score_circuito(
         # > 20km: 0 puntos
     
     # Transporte (15 pts)
-    # Por ahora, este criterio no se puede aplicar porque los circuitos no tienen modo_transporte asignado
-    # TODO: Agregar campo modo_transporte_id a la tabla circuitos
-    # if modo_transporte and circuito.modo_transporte:
-    #     modo_circuito = circuito.modo_transporte.nombre.lower()
-    #     modo_usuario = modo_transporte.lower()
-    #     
-    #     if modo_usuario == modo_circuito:
-    #         score += 15  # Coincidencia exacta
-    #     elif modo_usuario == "auto" and modo_circuito in ["a_pie", "bicicleta"]:
-    #         score += 5   # Auto puede hacer cualquier circuito
-    #     elif modo_usuario == "bicicleta" and modo_circuito == "a_pie":
-    #         score += 10  # Bici puede hacer circuitos a pie
-    
-    # Asignar puntaje base para el criterio de transporte
-    if modo_transporte:
-        score += 7.5  # Puntaje neutral si el usuario tiene preferencia de transporte
+    if modo_transporte and circuito.modo_transporte:
+        modo_circuito = circuito.modo_transporte.nombre_modo_transporte.strip().lower()
+        modo_usuario = modo_transporte.strip().lower()
+
+        if modo_usuario == modo_circuito:
+            score += 15 
+        elif modo_usuario == "bicicleta" and modo_circuito == "a pie":
+            score += 10
+    elif modo_transporte:
+        score += 7.5
     
     # Popularidad (10 pts)
-    # Basado en cantidad de visitas (simulado con un valor fijo por ahora)
-    # TODO: Implementar campo de visitas en el modelo
-    # Por ahora, usar un valor base
-    popularidad = 5  # Valor neutral
-    score += popularidad
+    if circuito.veces_finalizado >= 20:
+        score += 10
+    elif circuito.veces_finalizado >= 10:
+        score += 7
+    elif circuito.veces_finalizado >= 5:
+        score += 5
+    else:
+        score += 2
     
     
     return round(score, 2)
@@ -137,8 +140,6 @@ def obtener_circuitos_recomendados(
         })
     
     # Ordenar por score (mayor a menor), empates por nombre alfabético
-    circuitos_con_score.sort(
-        key=lambda x: (-x["score"], x["circuito"].nombre.lower())
-    )
+    circuitos_con_score.sort(key=criterio_ordenamiento_circuitos)
     
     return circuitos_con_score

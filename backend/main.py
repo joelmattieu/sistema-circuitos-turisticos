@@ -34,6 +34,7 @@ origins = [
     "http://localhost:3000",
     "http://192.168.1.136:3000",
     "http://192.168.1.135:3000",
+    "https://192.168.1.112:3000",
     "http://127.0.0.1:3000",
     "https://localhost:3000",
     "https://192.168.1.136:3000",
@@ -70,6 +71,6 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-        ssl_keyfile="./localhost+ip-key.pem",
-        ssl_certfile="./localhost+ip.pem"
+        ssl_keyfile="./localhost+3-key.pem",
+        ssl_certfile="./localhost+3.pem"
     )

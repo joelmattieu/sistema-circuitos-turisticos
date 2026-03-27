@@ -20,12 +20,9 @@ def calcular_distancia_con_preferencias(distancia_metros: float, unidad_id: int)
         return f"{distancia_km:.1f}", "km"
 
 def get_circuitos_raw(db: Session, skip: int = 0, limit: int = 100):
-    """
-    Obtiene circuitos como objetos del modelo sin procesar.
-    Útil para servicios internos como el de recomendaciones.
-    """
     return db.query(CircuitoModel).options(
         joinedload(CircuitoModel.categoria),
+        joinedload(CircuitoModel.modo_transporte),
         joinedload(CircuitoModel.puntos_interes)
     ).offset(skip).limit(limit).all()
 

@@ -9,6 +9,7 @@ class CircuitoModel(Base):
     nombre = Column(String, index=True)
     descripcion = Column(String)
     categoria_id = Column(Integer, ForeignKey('categorias_circuitos.categoria_id'))
+    modo_transporte_id = Column(Integer, ForeignKey('modos_transporte.modo_transporte_id'))
     distancia_total_metros = Column(Float)
     duracion_estimada_minutos = Column(Integer)
     url_imagen_portada = Column(String)
@@ -16,6 +17,7 @@ class CircuitoModel(Base):
     activo = Column(Boolean, default=False)
     
     categoria = relationship("CategoriaCircuitoModel", back_populates="circuitos")
+    modo_transporte = relationship("ModoTransporteModel")
     
     puntos_interes = relationship(
         "PuntoInteresModel",
@@ -29,4 +31,3 @@ class CircuitoModel(Base):
         back_populates="circuito",
         overlaps="puntos_interes,circuitos"
     )
-
