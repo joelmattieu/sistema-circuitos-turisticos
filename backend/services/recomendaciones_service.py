@@ -21,12 +21,6 @@ def calcular_distancia(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     return R * c
 
 
-def criterio_ordenamiento_circuitos(item: dict) -> tuple:
-    score = item["score"]
-    nombre = item["circuito"].nombre.lower()
-    return (-score, nombre)
-
-
 def calcular_score_circuito(
     circuito: CircuitoModel,
     clima: dict,
@@ -139,7 +133,6 @@ def obtener_circuitos_recomendados(
             "clima": clima["condicion"]
         })
     
-    # Ordenar por score (mayor a menor), empates por nombre alfabético
-    circuitos_con_score.sort(key=criterio_ordenamiento_circuitos)
+    circuitos_con_score.sort(key=lambda item: -item["score"])
     
     return circuitos_con_score

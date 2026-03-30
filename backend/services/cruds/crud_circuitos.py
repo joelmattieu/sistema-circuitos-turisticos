@@ -94,13 +94,11 @@ def get_circuitos(
         circuitos_response.append(circuito_dict)
 
     if ordenar_por_distancia and lat is not None and lon is not None:
-        circuitos_response.sort(
-            key=lambda circuito: (
-                circuito.get('distancia_al_usuario_km') is None,
-                circuito.get('distancia_al_usuario_km') or float('inf'),
-                circuito['nombre'].lower(),
-            )
-        )
+        def distancia_o_infinito(circuito):
+            d = circuito.get('distancia_al_usuario_km')
+            return d if d is not None else float('inf')
+
+        circuitos_response.sort(key=distancia_o_infinito)
     
     return circuitos_response
 
