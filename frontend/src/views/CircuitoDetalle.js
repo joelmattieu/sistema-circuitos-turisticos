@@ -61,8 +61,6 @@ const CircuitoDetalle = ({ circuitoId }) => {
   );
   const { preferencias } = useSelector((state) => state.preferencias);
 
-  console.log("Preferencias del usuario:", preferencias);
-
   useEffect(() => {
     if (circuitoId && user?.usuario_id) {
       dispatch(

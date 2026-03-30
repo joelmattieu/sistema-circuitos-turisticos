@@ -5,7 +5,7 @@ export const fetchCircuitos = createAsyncThunk(
   "circuitos/fetchCircuitos",
   async (usuarioId = null, { rejectWithValue }) => {
     try {
-      const response = await circuitosService.getAll(usuarioId);
+      const response = await circuitosService.getAll({ usuarioId });
       return response;
     } catch (error) {
       return rejectWithValue(error);

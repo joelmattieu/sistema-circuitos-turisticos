@@ -44,10 +44,9 @@ def update_vinculo(db: Session, circuito_poi_id: int, vinculo_update: CircuitoPu
     if not db_vinculo:
         raise HTTPException(status_code=404, detail="Vínculo no encontrado")
     
-    update_data = vinculo_update.dict(exclude_unset=True)
-    for field, value in update_data.items():
+    for field, value in vinculo_update.dict(exclude_unset=True).items():
         setattr(db_vinculo, field, value)
-    
+
     db.commit()
     db.refresh(db_vinculo)
     return db_vinculo

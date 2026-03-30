@@ -19,9 +19,20 @@ def listar_circuitos(
     skip: int = 0, 
     limit: int = 100, 
     usuario_id: Optional[int] = Query(None),
+    lat: Optional[float] = Query(None),
+    lon: Optional[float] = Query(None),
+    ordenar_por_distancia: bool = Query(False),
     db: Session = Depends(get_db)
 ):
-    return get_circuitos(db, skip=skip, limit=limit, usuario_id=usuario_id)
+    return get_circuitos(
+        db,
+        skip=skip,
+        limit=limit,
+        usuario_id=usuario_id,
+        lat=lat,
+        lon=lon,
+        ordenar_por_distancia=ordenar_por_distancia,
+    )
 
 @route_circuitos.get("/{circuito_id}", response_model=CircuitoResponse)
 def obtener_circuito(

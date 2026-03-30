@@ -57,6 +57,8 @@ class CircuitoResponse(BaseModel):
     
     distancia_formateada: Optional[str] = None
     unidad_medicion: Optional[str] = None
-    
+    progreso_porcentaje: Optional[float] = None
+    distancia_al_usuario_km: Optional[float] = None
+
     class Config:
         from_attributes = True

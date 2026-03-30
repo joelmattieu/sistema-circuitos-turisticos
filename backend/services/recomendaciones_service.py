@@ -53,7 +53,7 @@ def calcular_score_circuito(
         # if circuito.tiene_tramos_techados:
         #     score += 10
         else:
-            score += 10  # Puntaje parcial por ser corto
+            score += 10  # Puntaje parcial para circuitos largos con lluvia
     
     elif condicion == "soleado":
         # Priorizar circuitos al aire libre o más largos

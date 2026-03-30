@@ -2,9 +2,9 @@ from sqlalchemy.orm import Session, joinedload
 from models.circuito import CircuitoModel
 from models.categoria_circuito import CategoriaCircuitoModel
 from models.preferencia_usuario import PreferenciaUsuarioModel
-from models.unidad_medicion import UnidadMedicionModel
 from schemas.circuito_schema import CircuitoCreate, CircuitoUpdate, CircuitoResponse
 from services.progreso_service import obtener_progresos_usuario
+from services.recomendaciones_service import calcular_distancia
 from fastapi import HTTPException
 
 def calcular_distancia_con_preferencias(distancia_metros: float, unidad_id: int) -> tuple:
@@ -40,7 +40,15 @@ def create_circuito(db: Session, circuito: CircuitoCreate):
     db.refresh(db_circuito)
     return db_circuito
 
-def get_circuitos(db: Session, skip: int = 0, limit: int = 100, usuario_id: int = None):
+def get_circuitos(
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    usuario_id: int = None,
+    lat: float = None,
+    lon: float = None,
+    ordenar_por_distancia: bool = False,
+):
     circuitos = db.query(CircuitoModel).options(
         joinedload(CircuitoModel.categoria),
         joinedload(CircuitoModel.puntos_interes)
@@ -69,6 +77,13 @@ def get_circuitos(db: Session, skip: int = 0, limit: int = 100, usuario_id: int 
             circuito_dict['unidad_medicion'] = unidad
         
         circuito_dict['progreso_porcentaje'] = progresos.get(circuito.circuito_id, 0.0)
+
+        if lat is not None and lon is not None and circuito.puntos_interes:
+            primer_poi = circuito.puntos_interes[0]
+            circuito_dict['distancia_al_usuario_km'] = round(
+                calcular_distancia(lat, lon, primer_poi.latitud, primer_poi.longitud),
+                3
+            )
         
         # Mantener categoría como objeto para compatibilidad con frontend
         if circuito.categoria:
@@ -77,6 +92,15 @@ def get_circuitos(db: Session, skip: int = 0, limit: int = 100, usuario_id: int 
             }
         
         circuitos_response.append(circuito_dict)
+
+    if ordenar_por_distancia and lat is not None and lon is not None:
+        circuitos_response.sort(
+            key=lambda circuito: (
+                circuito.get('distancia_al_usuario_km') is None,
+                circuito.get('distancia_al_usuario_km') or float('inf'),
+                circuito['nombre'].lower(),
+            )
+        )
     
     return circuitos_response
 

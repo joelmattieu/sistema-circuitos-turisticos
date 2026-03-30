@@ -50,3 +50,4 @@ def obtener_progresos_usuario(db: Session, usuario_id: int) -> Dict[int, float]:
         progresos[recorrido.circuito_id] = progreso
     
     return progresos
+ 

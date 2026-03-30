@@ -1,10 +1,18 @@
 import api from "./api";
 
 export const circuitosService = {
-  getAll: async (usuarioId = null) => {
+  getAll: async (options = {}) => {
     try {
-      const params = usuarioId ? `?usuario_id=${usuarioId}` : "";
-      const response = await api.get(`/circuitos${params}`);
+      const { usuarioId, lat, lon, ordenarPorDistancia } = options;
+      const query = new URLSearchParams();
+
+      if (usuarioId) query.append("usuario_id", String(usuarioId));
+      if (lat != null) query.append("lat", String(lat));
+      if (lon != null) query.append("lon", String(lon));
+      if (ordenarPorDistancia) query.append("ordenar_por_distancia", "true");
+
+      const queryString = query.toString();
+      const response = await api.get(`/circuitos${queryString ? `?${queryString}` : ""}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error.message;

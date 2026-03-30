@@ -21,19 +21,14 @@ export const AuthProvider = ({ children }) => {
     if (savedUser && loginStatus === "true") {
       try {
         const userData = JSON.parse(savedUser);
-        setTimeout(() => {
-          setUser(userData);
-          setIsLoggedIn(true);
-          setIsLoading(false);
-        }, 0);
+        setUser(userData);
+        setIsLoggedIn(true);
       } catch (error) {
         localStorage.removeItem("user");
         localStorage.removeItem("isLoggedIn");
-        setTimeout(() => setIsLoading(false), 0);
       }
-    } else {
-      setTimeout(() => setIsLoading(false), 0);
     }
+    setIsLoading(false);
   }, []);
 
   const login = async (credentials) => {

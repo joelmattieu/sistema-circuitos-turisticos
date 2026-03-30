@@ -8,6 +8,7 @@ import { fetchPreferenciasByUsuario } from "../store/preferencias/preferenciasSl
 import CardCircuitos from "../components/circuitos/CardCircuitos";
 import CircuitosRecomendados from "../components/circuitos/CircuitosRecomendados";
 import { obtenerCircuitosRecomendados } from "../services/recomendaciones";
+import { circuitosService } from "../services/circuitos";
 import { LanguageContext } from "@/context/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -22,6 +23,7 @@ const CircuitosView = () => {
   const { circuitos, loading, error } = useSelector((state) => state.circuitos);
   const { preferencias } = useSelector((state) => state.preferencias);
   const [circuitosRecomendados, setCircuitosRecomendados] = useState([]);
+  const [circuitosCercanos, setCircuitosCercanos] = useState([]);
   const [loadingRecomendaciones, setLoadingRecomendaciones] = useState(true);
 
   useEffect(() => {
@@ -59,55 +61,31 @@ const CircuitosView = () => {
     if (circuitos.length > 0) {
       cargarRecomendaciones();
     }
-  }, [
-    circuitos.length,
-    location?.latitude,
-    location?.longitude,
-    preferencias?.modo_transporte?.nombre,
-    user?.usuario_id,
-  ]);
+  }, [circuitos.length, location, preferencias?.modo_transporte?.nombre, user?.usuario_id]);
 
-  // Haversine
-  const calcularDistancia = (lat1, lon1, lat2, lon2) => {
-    const R = 6371; // Radio de la Tierra en km
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
+  useEffect(() => {
+    if (!location?.latitude || !location?.longitude) {
+      setCircuitosCercanos([]);
+      return;
+    }
 
-  const circuitosCercanos = React.useMemo(() => {
-    if (!location || !circuitos.length) return [];
+    const cargarCircuitosCercanos = async () => {
+      try {
+        const todos = await circuitosService.getAll({
+          usuarioId: user?.usuario_id,
+          lat: location.latitude,
+          lon: location.longitude,
+          ordenarPorDistancia: true,
+        });
+        setCircuitosCercanos(todos.slice(0, 3));
+      } catch (error) {
+        console.error("Error cargando circuitos cercanos:", error);
+        setCircuitosCercanos([]);
+      }
+    };
 
-    const circuitosConDistancia = circuitos
-      .map((circuito) => {
-        const primerPunto = circuito.puntos_interes?.[0];
-        if (!primerPunto) return null;
-
-        const distancia = calcularDistancia(
-          location.latitude,
-          location.longitude,
-          primerPunto.latitud,
-          primerPunto.longitud,
-        );
-
-        return {
-          ...circuito,
-          distancia_calculada: distancia,
-        };
-      })
-      .filter((c) => c !== null)
-      .sort((a, b) => a.distancia_calculada - b.distancia_calculada)
-      .slice(0, 3); // Top 3 más cercanos
-
-    return circuitosConDistancia;
-  }, [circuitos, location]);
+    cargarCircuitosCercanos();
+  }, [location?.latitude, location?.longitude, user?.usuario_id]);
 
   const circuitosPorCategoria = React.useMemo(() => {
     const grupos = {};
