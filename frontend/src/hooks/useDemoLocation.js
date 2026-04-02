@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { obtenerRutaPasoAPaso } from "@/utils/routing";
+import { calcularDistanciaMetros } from "@/utils/geo";
 
 export function useDemoLocation(
   pois,
@@ -173,18 +174,10 @@ export function useDemoLocation(
     let distanciaMinima = Infinity;
 
     pois.forEach((poi, index) => {
-      const R = 6371000;
-      const dLat = (poi.latitud - ubicacion.latitude) * (Math.PI / 180);
-      const dLng = (poi.longitud - ubicacion.longitude) * (Math.PI / 180);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(ubicacion.latitude * (Math.PI / 180)) *
-          Math.cos(poi.latitud * (Math.PI / 180)) *
-          Math.sin(dLng / 2) *
-          Math.sin(dLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const distancia = R * c;
-
+      const distancia = calcularDistanciaMetros(
+        ubicacion.latitude, ubicacion.longitude,
+        poi.latitud, poi.longitud,
+      );
       if (distancia < distanciaMinima) {
         distanciaMinima = distancia;
         poiMasCercano = index;

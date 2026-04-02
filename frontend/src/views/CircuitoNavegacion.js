@@ -2,10 +2,8 @@
 
 import React, {
   useEffect,
-  useMemo,
   useState,
   useCallback,
-  useRef,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -21,11 +19,9 @@ import {
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { calcularDistanciaMetros } from "@/utils/geo";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  fetchCircuitoById,
-  finalizarCircuito,
-} from "@/store/circuitos/circuitosSlice";
+import { fetchCircuitoById } from "@/store/circuitos/circuitosSlice";
 import { fetchPreferenciasByUsuario } from "@/store/preferencias/preferenciasSlice";
 import NavigationPanel from "@/components/circuitos/NavigationPanel";
 import { toast } from "react-toastify";
@@ -46,19 +42,6 @@ const ARView = dynamic(() => import("@/components/circuitos/ARView"), {
   ssr: false,
 });
 
-function calcularDistancia(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
 
 export default function CircuitoNavegacion({ circuitoId }) {
   const router = useRouter();
@@ -84,10 +67,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
   const {
     demoEnabled,
     currentLocation: demoLocation,
-    currentPoiIndex: demoPoiIndex,
-    proximityLevel,
-    distancia,
-    progreso,
     pasoActual,
     proximoPOI: demoProximoPOI,
     avanzar,
@@ -100,17 +79,13 @@ export default function CircuitoNavegacion({ circuitoId }) {
   const isLoading = demoEnabled ? false : geoLoading;
 
   useEffect(() => {
-    if (circuitoId && user?.usuario_id) {
-      dispatch(
-        fetchCircuitoById({ id: circuitoId, usuarioId: user.usuario_id }),
-      );
-      dispatch(fetchPreferenciasByUsuario(user.usuario_id));
-    } else if (circuitoId) {
-      dispatch(fetchCircuitoById({ id: circuitoId }));
+    if (circuitoId) {
+      dispatch(fetchCircuitoById({ id: circuitoId, usuarioId: user?.usuario_id }));
+      if (user?.usuario_id) {
+        dispatch(fetchPreferenciasByUsuario(user.usuario_id));
+      }
     }
   }, [dispatch, circuitoId, user?.usuario_id]);
-
-  const prevLocationRef = useRef(null);
 
   useEffect(() => {
     if (!currentCircuito?.puntos_interes || !userLocation) {
@@ -121,7 +96,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
 
     const poisCercanos = pois
       .map((poi, idx) => {
-        const distancia = calcularDistancia(
+        const distancia = calcularDistanciaMetros(
           userLocation.latitude,
           userLocation.longitude,
           poi.latitud,
@@ -131,40 +106,35 @@ export default function CircuitoNavegacion({ circuitoId }) {
       })
       .sort((a, b) => a.distancia - b.distancia);
 
-    if (poisCercanos[0] && poisCercanos[0].distancia < 0.05) {
+    if (poisCercanos[0] && poisCercanos[0].distancia < 50) {
       const indiceProximo = poisCercanos[0].indice;
 
       if (
         indiceProximo <= poiActualIndice + 1 &&
         !poiVisitados.has(indiceProximo)
       ) {
+        if (user?.usuario_id) {
+          const poiId = pois[indiceProximo].poi_id;
+          registrarVisita(user.usuario_id, circuitoId, poiId)
+            .then((resultado) => {
+              const progreso = resultado?.progreso ?? 0;
+              if (progreso >= 100) {
+                setMostrarModalExito(true);
+              }
+            })
+            .catch((error) => {
+              console.error("Error registrando visita:", error);
+            });
+        }
+
+        // Diferir setState para no actualizar estado sincrónicamente dentro del efecto
         queueMicrotask(() => {
           setPoiVisitados((prev) => {
             const newSet = new Set(prev);
             newSet.add(indiceProximo);
             return newSet;
           });
-
-          if (user?.usuario_id) {
-            const poiId = pois[indiceProximo].poi_id;
-            registrarVisita(user.usuario_id, circuitoId, poiId)
-              .then((resultado) => {
-                const progreso = resultado?.progreso ?? 0;
-                console.log(`POI visitado. Progreso: ${Math.round(progreso)}%`);
-
-                if (progreso >= 100) {
-                  setMostrarModalExito(true);
-                }
-              })
-              .catch((error) => {
-                console.error("Error registrando visita:", error);
-              });
-          }
-
-          if (
-            indiceProximo === poiActualIndice &&
-            indiceProximo < pois.length - 1
-          ) {
+          if (indiceProximo === poiActualIndice && indiceProximo < pois.length - 1) {
             setPoiActualIndice(indiceProximo + 1);
           }
         });
@@ -178,19 +148,17 @@ export default function CircuitoNavegacion({ circuitoId }) {
     if (proximoIndice >= 0 && proximoIndice < pois.length) {
       const nuevoPOI = pois[proximoIndice];
       if (!proximoPOI || proximoPOI.poi_id !== nuevoPOI.poi_id) {
-        queueMicrotask(() => {
-          setProximoPOI(nuevoPOI);
-        });
+        queueMicrotask(() => setProximoPOI(nuevoPOI));
       }
     }
-
-    prevLocationRef.current = userLocation;
   }, [
     userLocation,
     currentCircuito?.puntos_interes,
     poiActualIndice,
     poiVisitados,
     proximoPOI,
+    circuitoId,
+    user?.usuario_id,
   ]);
 
   useEffect(() => {

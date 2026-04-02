@@ -39,25 +39,8 @@ export const useDistanceFormatter = () => {
     return `${km} km`;
   };
 
-  const getDistanceValue = (distanciaMetros, distanciaFormateada = null) => {
-    if (distanciaFormateada) {
-      return parseFloat(distanciaFormateada);
-    }
-    if (usaMillas) {
-      return parseFloat(((distanciaMetros / 1000) * 0.621371).toFixed(1));
-    }
-    return parseFloat((distanciaMetros / 1000).toFixed(1));
-  };
-
-  const getDistanceUnit = (unidadMedicion = null) => {
-    if (unidadMedicion) return unidadMedicion;
-    return usaMillas ? "mi" : "km";
-  };
-
   return {
     formatDistance,
-    getDistanceValue,
-    getDistanceUnit,
     usaMillas,
   };
 };

@@ -1,89 +1,41 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect } from "react";
 
-// Tracking de ubicación en tiempo real via Geolocation API
 export function useGeolocation() {
   const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const watchIdRef = useRef(null);
 
-  const startTracking = useCallback(() => {
+  useEffect(() => {
     if (!navigator.geolocation) {
       setError("Geolocation no está soportada en este navegador");
       setIsLoading(false);
       return;
     }
 
-    // Obtener ubicación inicial
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
-        setLocation({ latitude, longitude, accuracy });
-        setError(null);
-        setIsLoading(false);
-      },
-      (error) => {
-        setError(
-          error.code === 1
-            ? "Permiso de ubicación denegado"
-            : error.code === 2
-              ? "Ubicación no disponible"
-              : "Error al obtener ubicación",
-        );
-        setIsLoading(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      },
-    );
+    const opciones = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
+
+    const onExito = (position) => {
+      const { latitude, longitude, accuracy } = position.coords;
+      setLocation({ latitude, longitude, accuracy });
+      setError(null);
+      setIsLoading(false);
+    };
+
+    const onError = (err) => {
+      setError(err.code === 1 ? "Permiso de ubicación denegado" : "Error al obtener ubicación");
+      setIsLoading(false);
+    };
+
+    // Obtener posición inicial
+    navigator.geolocation.getCurrentPosition(onExito, onError, opciones);
 
     // Rastrear cambios continuos
-    watchIdRef.current = navigator.geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude, accuracy } = position.coords;
-        setLocation({ latitude, longitude, accuracy });
-        setError(null);
-      },
-      (error) => {
-        console.error("Error en watchPosition:", error);
-        setError(
-          error.code === 1
-            ? "Permiso de ubicación denegado"
-            : "Error al obtener ubicación",
-        );
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      },
-    );
+    const watchId = navigator.geolocation.watchPosition(onExito, onError, opciones);
+
+    return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  const stopTracking = useCallback(() => {
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    startTracking();
-
-    return () => {
-      stopTracking();
-    };
-  }, [startTracking, stopTracking]);
-
-  return {
-    location,
-    error,
-    isLoading,
-    startTracking,
-    stopTracking,
-  };
+  return { location, error, isLoading };
 }

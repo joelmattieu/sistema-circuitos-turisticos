@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import {
@@ -62,12 +62,8 @@ const CircuitoDetalle = ({ circuitoId }) => {
   const { preferencias } = useSelector((state) => state.preferencias);
 
   useEffect(() => {
-    if (circuitoId && user?.usuario_id) {
-      dispatch(
-        fetchCircuitoById({ id: circuitoId, usuarioId: user.usuario_id }),
-      );
-    } else if (circuitoId) {
-      dispatch(fetchCircuitoById({ id: circuitoId }));
+    if (circuitoId) {
+      dispatch(fetchCircuitoById({ id: circuitoId, usuarioId: user?.usuario_id }));
     }
   }, [dispatch, circuitoId, user?.usuario_id]);
 
