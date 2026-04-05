@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import AuthContext from "./AuthContext";
 import { postLogin } from "../services/login";
 import { postRegister } from "../services/register";
@@ -8,69 +8,58 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
+  const isLoggedIn = !!token;
 
   useEffect(() => {
+    const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
-    const loginStatus = localStorage.getItem("isLoggedIn");
 
-    if (savedUser && loginStatus === "true") {
+    if (savedToken && savedUser) {
       try {
-        const userData = JSON.parse(savedUser);
-        setUser(userData);
-        setIsLoggedIn(true);
-      } catch (error) {
+        setToken(savedToken);
+        setUser(JSON.parse(savedUser));
+      } catch {
+        localStorage.removeItem("token");
         localStorage.removeItem("user");
-        localStorage.removeItem("isLoggedIn");
       }
     }
     setIsLoading(false);
   }, []);
 
+  const IDIOMA_POR_ID = { 1: "es", 2: "en", 3: "pt" };
+
   const login = async (credentials) => {
+    const response = await postLogin(credentials);
+    const { access_token, user: userData } = response;
+
+    setToken(access_token);
+    setUser(userData);
+    localStorage.setItem("token", access_token);
+    localStorage.setItem("user", JSON.stringify(userData));
+
     try {
-      const response = await postLogin(credentials);
-      const userData = response.user || response;
-
-      setUser(userData);
-      setIsLoggedIn(true);
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("isLoggedIn", "true");
-
-      // cargar preferencias de idioma del usuario desde BD
-      try {
-        const preferencias = await preferenciasService.getByUsuarioId(
-          userData.usuario_id
-        );
-        if (preferencias && preferencias.idioma_id) {
-          const idiomaMap = {
-            1: "es",
-            2: "en",
-            3: "pt",
-          };
-          const codigoIdioma = idiomaMap[preferencias.idioma_id] || "es";
-          localStorage.setItem("idioma", codigoIdioma);
-        }
-      } catch (error) {
-        console.log("No se pudieron cargar preferencias de idioma");
+      const preferencias = await preferenciasService.getMe();
+      if (preferencias?.idioma_id) {
+        localStorage.setItem("idioma", IDIOMA_POR_ID[preferencias.idioma_id] || "es");
       }
-
-      router.push("/");
-      return response;
-    } catch (error) {
-      throw error;
+    } catch {
+      // si no hay preferencias guardadas, queda el idioma actual
     }
+
+    router.push("/");
+    return response;
   };
 
   const logout = () => {
     setUser(null);
-    setIsLoggedIn(false);
+    setToken(null);
+    localStorage.removeItem("token");
     localStorage.removeItem("user");
-    localStorage.removeItem("isLoggedIn");
     router.push("/login/");
   };
 
@@ -88,7 +77,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ isLoggedIn, user, login, logout, register, isLoading }}
+      value={{ isLoggedIn, user, token, login, logout, register, isLoading }}
     >
       {children}
     </AuthContext.Provider>
