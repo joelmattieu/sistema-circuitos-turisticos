@@ -29,18 +29,16 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-## CORS         
 origins = [
     "http://localhost:3000",
-    "http://192.168.1.136:3000",
-    "http://192.168.1.135:3000",
-    "https://192.168.1.112:3000",
-    "http://127.0.0.1:3000",
     "https://localhost:3000",
-    "https://192.168.1.136:3000",
-    "https://192.168.1.135:3000",
+    "http://127.0.0.1:3000",
     "https://127.0.0.1:3000",
-    "https://*.vercel.app"
+    "http://192.168.1.136:3000",
+    "https://192.168.1.136:3000",
+    "http://192.168.1.135:3000",
+    "https://192.168.1.135:3000",
+    "https://192.168.1.112:3000",
 ]
 
 app.add_middleware(

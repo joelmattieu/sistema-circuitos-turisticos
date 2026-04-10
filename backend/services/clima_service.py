@@ -7,53 +7,43 @@ load_dotenv()
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 
-def obtener_clima(lat: float, lon: float):
-    """
-    Obtiene el clima actual. Retorna condicion, temperatura y descripcion.
-    """
+CLIMA_FALLBACK = {
+    "condicion": "soleado",
+    "temperatura": 25.0,
+    "descripcion": "Clima no disponible",
+}
+
+
+def _condicion_desde_id(weather_id):
+    if 200 <= weather_id < 600:
+        return "lluvioso"
+    if weather_id == 800:
+        return "soleado"
+    return "nublado"
+
+
+def obtener_clima(lat, lon):
     if not OPENWEATHER_API_KEY:
-        # Fallback si no hay API key configurada
-        return {
-            "condicion": "soleado",
-            "temperatura": 25.0,
-            "descripcion": "Clima no disponible"
-        }
-    
+        return CLIMA_FALLBACK
+
     try:
-        params = {
-            "lat": lat,
-            "lon": lon,
-            "appid": OPENWEATHER_API_KEY,
-            "units": "metric",
-            "lang": "es"
-        }
-        
-        response = requests.get(OPENWEATHER_URL, params=params, timeout=5)
+        response = requests.get(
+            OPENWEATHER_URL,
+            params={
+                "lat": lat,
+                "lon": lon,
+                "appid": OPENWEATHER_API_KEY,
+                "units": "metric",
+                "lang": "es",
+            },
+            timeout=5,
+        )
         response.raise_for_status()
-        
         data = response.json()
-        weather_id = data["weather"][0]["id"]
-        
-        # https://openweathermap.org/weather-conditions
-        if 200 <= weather_id < 600:  # Lluvia, tormenta, llovizna
-            condicion = "lluvioso"
-        elif weather_id == 800:  # Cielo despejado
-            condicion = "soleado"
-        elif 801 <= weather_id <= 804:  # Nubes
-            condicion = "nublado"
-        else:
-            condicion = "nublado"
-        
         return {
-            "condicion": condicion,
+            "condicion": _condicion_desde_id(data["weather"][0]["id"]),
             "temperatura": data["main"]["temp"],
-            "descripcion": data["weather"][0]["description"]
+            "descripcion": data["weather"][0]["description"],
         }
-    
-    except Exception as e:
-        print(f"Error obteniendo clima: {e}")
-        return {
-            "condicion": "soleado",
-            "temperatura": 25.0,
-            "descripcion": "Clima no disponible"
-        }
+    except Exception:
+        return CLIMA_FALLBACK
