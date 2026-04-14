@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from db import get_db
+from models.usuario import UsuarioModel
+from services.auth.dependencies import obtener_usuario_actual
 from services.cruds.crud_recorridos import (
     registrar_visita,
     obtener_recorrido_usuario,
@@ -12,7 +14,6 @@ route_recorridos = APIRouter(prefix="/recorridos", tags=["Recorridos"])
 
 
 class RegistrarVisitaRequest(BaseModel):
-    usuario_id: int
     circuito_id: int
     poi_id: int
 
@@ -20,35 +21,25 @@ class RegistrarVisitaRequest(BaseModel):
 @route_recorridos.post("/visita")
 def registrar_visita_poi(
     request: RegistrarVisitaRequest,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario_actual: UsuarioModel = Depends(obtener_usuario_actual),
 ):
-    """
-    Registra que un usuario visitó un punto de interés.
-    Crea el recorrido automáticamente si no existe.
-    """
-    try:
-        resultado = registrar_visita(
-            db,
-            request.usuario_id,
-            request.circuito_id,
-            request.poi_id
-        )
-        return resultado
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return registrar_visita(
+        db,
+        usuario_actual.usuario_id,
+        request.circuito_id,
+        request.poi_id,
+    )
 
 
-@route_recorridos.get("/usuario/{usuario_id}/circuito/{circuito_id}")
+@route_recorridos.get("/circuito/{circuito_id}")
 def obtener_recorrido(
-    usuario_id: int,
     circuito_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario_actual: UsuarioModel = Depends(obtener_usuario_actual),
 ):
-    """
-    Obtiene el recorrido de un usuario en un circuito específico.
-    """
-    recorrido = obtener_recorrido_usuario(db, usuario_id, circuito_id)
-    
+    recorrido = obtener_recorrido_usuario(db, usuario_actual.usuario_id, circuito_id)
+
     if not recorrido:
         return {
             "recorrido_id": None,
@@ -56,9 +47,9 @@ def obtener_recorrido(
             "progreso": 0.0,
             "pois_visitados": []
         }
-    
-    pois_visitados = obtener_pois_visitados(db, usuario_id, circuito_id)
-    
+
+    pois_visitados = obtener_pois_visitados(db, usuario_actual.usuario_id, circuito_id)
+
     return {
         "recorrido_id": recorrido.recorrido_id,
         "estado": recorrido.estado,
@@ -69,14 +60,11 @@ def obtener_recorrido(
     }
 
 
-@route_recorridos.get("/usuario/{usuario_id}/circuito/{circuito_id}/visitados")
+@route_recorridos.get("/circuito/{circuito_id}/visitados")
 def obtener_pois_visitados_route(
-    usuario_id: int,
     circuito_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    usuario_actual: UsuarioModel = Depends(obtener_usuario_actual),
 ):
-    """
-    Obtiene la lista de POI IDs que el usuario ya visitó en un circuito.
-    """
-    pois = obtener_pois_visitados(db, usuario_id, circuito_id)
+    pois = obtener_pois_visitados(db, usuario_actual.usuario_id, circuito_id)
     return {"pois_visitados": pois}
