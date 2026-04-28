@@ -1,3 +1,4 @@
+from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 from models.pais import PaisModel
 from models.provincia import ProvinciaModel
@@ -9,6 +10,57 @@ from models.circuito import CircuitoModel
 from models.punto_interes import PuntoInteresModel
 from models.circuito_punto_interes import CircuitoPuntoInteresModel
 from utils.enums import TipoPuntoInteresEnum
+
+
+COLUMNAS_I18N = {
+    "circuitos": [
+        ("nombre_en", "VARCHAR"),
+        ("nombre_pt", "VARCHAR"),
+        ("descripcion_en", "VARCHAR"),
+        ("descripcion_pt", "VARCHAR"),
+    ],
+    "puntos_interes": [
+        ("nombre_en", "VARCHAR"),
+        ("nombre_pt", "VARCHAR"),
+        ("descripcion_en", "VARCHAR"),
+        ("descripcion_pt", "VARCHAR"),
+        ("dato_historico_en", "VARCHAR(1000)"),
+        ("dato_historico_pt", "VARCHAR(1000)"),
+        ("informacion_cultural_en", "VARCHAR(1000)"),
+        ("informacion_cultural_pt", "VARCHAR(1000)"),
+        ("informacion_extra_en", "VARCHAR(500)"),
+        ("informacion_extra_pt", "VARCHAR(500)"),
+    ],
+    "categorias_circuitos": [
+        ("nombre_categoria_en", "VARCHAR"),
+        ("nombre_categoria_pt", "VARCHAR"),
+    ],
+}
+
+
+COLUMNAS_OBSOLETAS = {
+    "circuitos_puntos_interes": ["distancia_tramo_metros", "duracion_tramo_minutos"],
+}
+
+
+def asegurar_columnas_i18n(db: Session):
+    inspector = inspect(db.bind)
+    for tabla, columnas in COLUMNAS_I18N.items():
+        if not inspector.has_table(tabla):
+            continue
+        existentes = {col["name"] for col in inspector.get_columns(tabla)}
+        for nombre_col, tipo in columnas:
+            if nombre_col not in existentes:
+                db.execute(text(f'ALTER TABLE {tabla} ADD COLUMN {nombre_col} {tipo}'))
+    for tabla, columnas in COLUMNAS_OBSOLETAS.items():
+        if not inspector.has_table(tabla):
+            continue
+        existentes = {col["name"] for col in inspector.get_columns(tabla)}
+        for nombre_col in columnas:
+            if nombre_col in existentes:
+                db.execute(text(f'ALTER TABLE {tabla} DROP COLUMN {nombre_col}'))
+    db.commit()
+
 
 def load_idiomas(db: Session):
     idiomas_existentes = db.query(IdiomaModel).all()
@@ -111,152 +163,220 @@ def load_modos_transporte(db: Session):
             db.add(modo)
         db.commit()
 
+CATEGORIAS_SEED = [
+    (1, "Histórico", "Historical", "Histórico"),
+    (2, "Cultural", "Cultural", "Cultural"),
+    (3, "Religioso", "Religious", "Religioso"),
+    (4, "Gastronómico", "Gastronomic", "Gastronômico"),
+    (5, "Arquitectónico", "Architectural", "Arquitetônico"),
+    (6, "Naturaleza", "Nature", "Natureza"),
+    (7, "Aventura", "Adventure", "Aventura"),
+    (8, "Familiar", "Family-friendly", "Familiar"),
+]
+
+
 def load_categorias_circuitos(db: Session):
     categorias_existentes = db.query(CategoriaCircuitoModel).all()
-    
+
     if len(categorias_existentes) == 0:
-        categorias = [
-            CategoriaCircuitoModel(categoria_id=1, nombre_categoria="Histórico"),
-            CategoriaCircuitoModel(categoria_id=2, nombre_categoria="Cultural"),
-            CategoriaCircuitoModel(categoria_id=3, nombre_categoria="Religioso"),
-            CategoriaCircuitoModel(categoria_id=4, nombre_categoria="Gastronómico"),
-            CategoriaCircuitoModel(categoria_id=5, nombre_categoria="Arquitectónico"),
-            CategoriaCircuitoModel(categoria_id=6, nombre_categoria="Naturaleza"),
-            CategoriaCircuitoModel(categoria_id=7, nombre_categoria="Aventura"),
-            CategoriaCircuitoModel(categoria_id=8, nombre_categoria="Familiar"),
-        ]
-        
-        for categoria in categorias:
-            db.add(categoria)
+        for cat_id, es, en, pt in CATEGORIAS_SEED:
+            db.add(CategoriaCircuitoModel(
+                categoria_id=cat_id,
+                nombre_categoria=es,
+                nombre_categoria_en=en,
+                nombre_categoria_pt=pt,
+            ))
         db.commit()
+        return
+
+    # Completar traducciones faltantes.
+    traducciones = {cat_id: (en, pt) for cat_id, _, en, pt in CATEGORIAS_SEED}
+    for categoria in categorias_existentes:
+        en, pt = traducciones.get(categoria.categoria_id, (None, None))
+        if en and not categoria.nombre_categoria_en:
+            categoria.nombre_categoria_en = en
+        if pt and not categoria.nombre_categoria_pt:
+            categoria.nombre_categoria_pt = pt
+    db.commit()
+
+POIS_SEED = [
+    {
+        "poi_id": 1,
+        "tipo_poi": TipoPuntoInteresEnum.RELIGIOSO,
+        "latitud": -31.416868,
+        "longitud": -64.184422,
+        "tiene_audioguia": True,
+        "nombre": "Catedral de Córdoba",
+        "nombre_en": "Córdoba Cathedral",
+        "nombre_pt": "Catedral de Córdoba",
+        "descripcion": "Principal iglesia de la ciudad.",
+        "descripcion_en": "The city's main church.",
+        "descripcion_pt": "Principal igreja da cidade.",
+    },
+    {
+        "poi_id": 2,
+        "tipo_poi": TipoPuntoInteresEnum.HISTORICO,
+        "latitud": -31.416127,
+        "longitud": -64.184042,
+        "tiene_audioguia": True,
+        "nombre": "Cabildo Histórico",
+        "nombre_en": "Historic Cabildo",
+        "nombre_pt": "Cabildo Histórico",
+        "descripcion": "Antiguo edificio colonial, hoy museo.",
+        "descripcion_en": "Former colonial building, today a museum.",
+        "descripcion_pt": "Antigo edifício colonial, hoje um museu.",
+    },
+    {
+        "poi_id": 3,
+        "tipo_poi": TipoPuntoInteresEnum.ARQUITECTONICO,
+        "latitud": -31.416374,
+        "longitud": -64.18502,
+        "tiene_audioguia": False,
+        "nombre": "Pasaje Santa Catalina",
+        "nombre_en": "Santa Catalina Passage",
+        "nombre_pt": "Passagem Santa Catalina",
+        "descripcion": "Conexión arquitectónica con la Plazoleta del Fundador.",
+        "descripcion_en": "Architectural link with the Plazoleta del Fundador.",
+        "descripcion_pt": "Conexão arquitetônica com a Plazoleta del Fundador.",
+    },
+    {
+        "poi_id": 4,
+        "tipo_poi": TipoPuntoInteresEnum.HISTORICO,
+        "latitud": -31.4198,
+        "longitud": -64.1880,
+        "tiene_audioguia": True,
+        "nombre": "Manzana Jesuítica",
+        "nombre_en": "Jesuit Block",
+        "nombre_pt": "Quarteirão Jesuíta",
+        "descripcion": "Conjunto arquitectónico declarado Patrimonio de la Humanidad por la UNESCO.",
+        "descripcion_en": "Architectural complex declared a UNESCO World Heritage Site.",
+        "descripcion_pt": "Conjunto arquitetônico declarado Patrimônio da Humanidade pela UNESCO.",
+    },
+]
+
+CAMPOS_I18N_POI = ["nombre", "descripcion"]
+
+COORDS_OBSOLETAS_POI = {
+    4: (-31.416506, -64.184525),
+}
+
 
 def load_puntos_interes(db: Session):
     puntos_existentes = db.query(PuntoInteresModel).all()
-    
+
     if len(puntos_existentes) == 0:
-        puntos = [
-            PuntoInteresModel(
-                poi_id=1,
-                nombre="Catedral de Córdoba",
-                descripcion="Principal iglesia de la ciudad.",
-                tipo=TipoPuntoInteresEnum.RELIGIOSO,
-                latitud=-31.416868,
-                longitud=-64.184422,
-                tiene_audioguia=True,
-                activo=True
-            ),
-            PuntoInteresModel(
-                poi_id=2,
-                nombre="Cabildo Histórico",
-                descripcion="Antiguo edificio colonial, hoy museo.",
-                tipo=TipoPuntoInteresEnum.HISTORICO,
-                latitud=-31.416127,
-                longitud=-64.184042,
-                tiene_audioguia=True,
-                activo=True
-            ),
-            PuntoInteresModel(
-                poi_id=3,
-                nombre="Pasaje Santa Catalina",
-                descripcion="Conexión arquitectónica con la Plazoleta del Fundador.",
-                tipo=TipoPuntoInteresEnum.ARQUITECTONICO,
-                latitud=-31.416374,
-                longitud=-64.18502,
-                tiene_audioguia=False,
-                activo=True
-            ),
-            PuntoInteresModel(
-                poi_id=4,
-                nombre="Manzana Jesuítica",
-                descripcion="Conjunto arquitectónico declarado Patrimonio de la Humanidad por la UNESCO.",
-                tipo=TipoPuntoInteresEnum.HISTORICO,
-                latitud=-31.416506,
-                longitud=-64.184525,
-                tiene_audioguia=True,
-                activo=True
-            )
-        ]
-        
-        for punto in puntos:
-            db.add(punto)
+        for data in POIS_SEED:
+            db.add(PuntoInteresModel(**data, activo=True))
         db.commit()
+        return
+
+    # Completar traducciones y corregir coordenadas obsoletas.
+    seed_por_id = {data["poi_id"]: data for data in POIS_SEED}
+    for poi in puntos_existentes:
+        seed = seed_por_id.get(poi.poi_id)
+        if not seed:
+            continue
+        for campo in CAMPOS_I18N_POI:
+            for lang in ("en", "pt"):
+                attr = f"{campo}_{lang}"
+                if seed.get(attr) and not getattr(poi, attr, None):
+                    setattr(poi, attr, seed[attr])
+        coord_obsoleta = COORDS_OBSOLETAS_POI.get(poi.poi_id)
+        if coord_obsoleta and (poi.latitud, poi.longitud) == coord_obsoleta:
+            poi.latitud = seed["latitud"]
+            poi.longitud = seed["longitud"]
+    db.commit()
+
+CIRCUITOS_SEED = [
+    {
+        "nombre": "Centro Histórico",
+        "nombre_en": "Historic Downtown",
+        "nombre_pt": "Centro Histórico",
+        "descripcion": "Recorrido patrimonial por el corazón de la ciudad, que incluye la Catedral, el Cabildo y el Pasaje Santa Catalina, entre otros.",
+        "descripcion_en": "A heritage tour through the heart of the city, including the Cathedral, the Cabildo and the Santa Catalina Passage, among others.",
+        "descripcion_pt": "Um passeio pelo patrimônio do coração da cidade, incluindo a Catedral, o Cabildo e a Passagem Santa Catalina, entre outros.",
+        "categoria_id": 1,
+        "modo_transporte_id": 1,
+        "distancia_total_metros": 2320,
+        "duracion_estimada_minutos": 84,
+        "url_imagen_portada": "https://i.imgur.com/FbEd5vS.jpeg",
+        "accesible_auto": False,
+        "tiene_tramos_techados": True,
+    },
+    {
+        "nombre": "Nueva Córdoba Patrimonial",
+        "nombre_en": "Nueva Córdoba Heritage",
+        "nombre_pt": "Nueva Córdoba Patrimonial",
+        "descripcion": "Tour por los principales museos culturales",
+        "descripcion_en": "Tour of the main cultural museums.",
+        "descripcion_pt": "Tour pelos principais museus culturais.",
+        "categoria_id": 2,
+        "modo_transporte_id": 1,
+        "distancia_total_metros": 1800,
+        "duracion_estimada_minutos": 120,
+        "url_imagen_portada": "https://i.imgur.com/b6LXVj1.jpeg",
+        "accesible_auto": True,
+        "tiene_tramos_techados": False,
+    },
+]
+
 
 def load_circuitos_ejemplo(db: Session):
     circuitos_existentes = db.query(CircuitoModel).all()
-    
+
     if len(circuitos_existentes) == 0:
-        circuitos = [
-            CircuitoModel(
-                nombre="Centro Histórico",
-                descripcion="Recorrido patrimonial por el corazón de la ciudad, que incluye la Catedral, el Cabildo y el Pasaje Santa Catalina, entre otros.",
-                categoria_id=1,
-                modo_transporte_id=1,
-                distancia_total_metros=2500,
-                duracion_estimada_minutos=90,
-                url_imagen_portada="https://i.imgur.com/FbEd5vS.jpeg",
-                activo=True
-            ),
-            CircuitoModel(
-                nombre="Nueva Córdoba Patrimonial",
-                descripcion="Tour por los principales museos culturales",
-                categoria_id=2,
-                modo_transporte_id=1,
-                distancia_total_metros=1800,
-                duracion_estimada_minutos=120,
-                url_imagen_portada="https://i.imgur.com/b6LXVj1.jpeg",
-                activo=True
-            )
-        ]
-        
-        for circuito in circuitos:
-            db.add(circuito)
+        for data in CIRCUITOS_SEED:
+            db.add(CircuitoModel(**data, activo=True))
         db.commit()
+        return
+
+    seed_por_nombre = {data["nombre"]: data for data in CIRCUITOS_SEED}
+    totales_obsoletos = {
+        "Centro Histórico": {"distancia_total_metros": 2500, "duracion_estimada_minutos": 90},
+    }
+    for circuito in circuitos_existentes:
+        seed = seed_por_nombre.get(circuito.nombre)
+        if not seed:
+            continue
+        for campo in ("nombre", "descripcion"):
+            for lang in ("en", "pt"):
+                attr = f"{campo}_{lang}"
+                if seed.get(attr) and not getattr(circuito, attr, None):
+                    setattr(circuito, attr, seed[attr])
+        obsoletos = totales_obsoletos.get(circuito.nombre)
+        if obsoletos:
+            if (
+                circuito.distancia_total_metros == obsoletos["distancia_total_metros"]
+                and circuito.duracion_estimada_minutos == obsoletos["duracion_estimada_minutos"]
+            ):
+                circuito.distancia_total_metros = seed["distancia_total_metros"]
+                circuito.duracion_estimada_minutos = seed["duracion_estimada_minutos"]
+    db.commit()
+
+VINCULOS_OBSOLETOS = {(1, 4)}
+
 
 def load_circuitos_puntos_interes(db: Session):
     vinculos_existentes = db.query(CircuitoPuntoInteresModel).all()
-    
+
     if len(vinculos_existentes) == 0:
-        # vincula puntos de interés al circuito "Centro Histórico" (circuito_id=1)
         vinculos = [
-            CircuitoPuntoInteresModel(
-                circuito_poi_id=1,
-                circuito_id=1,  # Centro Histórico
-                poi_id=1,  # Catedral de Córdoba
-                orden_en_circuito=1,
-                distancia_tramo_metros=0,  # Punto de inicio
-                duracion_tramo_minutos=0
-            ),
-            CircuitoPuntoInteresModel(
-                circuito_poi_id=2,
-                circuito_id=1,
-                poi_id=2,  # Cabildo Histórico
-                orden_en_circuito=2,
-                distancia_tramo_metros=150,
-                duracion_tramo_minutos=5
-            ),
-            CircuitoPuntoInteresModel(
-                circuito_poi_id=3,
-                circuito_id=1,
-                poi_id=3,  # Pasaje Santa Catalina
-                orden_en_circuito=3,
-                distancia_tramo_metros=200,
-                duracion_tramo_minutos=7
-            ),
-            CircuitoPuntoInteresModel(
-                circuito_poi_id=4,
-                circuito_id=1,
-                poi_id=4,  # Manzana Jesuítica
-                orden_en_circuito=4,
-                distancia_tramo_metros=180,
-                duracion_tramo_minutos=6
-            ),
+            CircuitoPuntoInteresModel(circuito_poi_id=1, circuito_id=1, poi_id=1, orden_en_circuito=1),
+            CircuitoPuntoInteresModel(circuito_poi_id=2, circuito_id=1, poi_id=2, orden_en_circuito=2),
+            CircuitoPuntoInteresModel(circuito_poi_id=3, circuito_id=1, poi_id=3, orden_en_circuito=3),
         ]
-        
         for vinculo in vinculos:
             db.add(vinculo)
         db.commit()
+        return
 
-def load_data(db: Session):    
+    for vinculo in vinculos_existentes:
+        if (vinculo.circuito_id, vinculo.poi_id) in VINCULOS_OBSOLETOS:
+            db.delete(vinculo)
+    db.commit()
+
+def load_data(db: Session):
+    asegurar_columnas_i18n(db)
     load_idiomas(db)
     load_paises(db)
     load_provincias(db)

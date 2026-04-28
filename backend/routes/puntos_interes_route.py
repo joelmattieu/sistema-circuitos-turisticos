@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from typing import List
 from db import get_db
@@ -15,12 +15,21 @@ def crear_punto_interes(punto: PuntoInteresCreate, db: Session = Depends(get_db)
     return create_punto_interes(db, punto)
 
 @route_puntos_interes.get("", response_model=List[PuntoInteresResponse])
-def listar_puntos_interes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    return get_puntos_interes(db, skip=skip, limit=limit)
+def listar_puntos_interes(
+    skip: int = 0,
+    limit: int = 100,
+    idioma: str = Query("es"),
+    db: Session = Depends(get_db),
+):
+    return get_puntos_interes(db, skip=skip, limit=limit, idioma=idioma)
 
 @route_puntos_interes.get("/{poi_id}", response_model=PuntoInteresResponse)
-def obtener_punto_interes(poi_id: int, db: Session = Depends(get_db)):
-    return get_punto_interes(db, poi_id)
+def obtener_punto_interes(
+    poi_id: int,
+    idioma: str = Query("es"),
+    db: Session = Depends(get_db),
+):
+    return get_punto_interes(db, poi_id, idioma=idioma)
 
 @route_puntos_interes.put("/{poi_id}", response_model=PuntoInteresResponse)
 def actualizar_punto_interes(poi_id: int, punto_update: PuntoInteresUpdate, db: Session = Depends(get_db)):
