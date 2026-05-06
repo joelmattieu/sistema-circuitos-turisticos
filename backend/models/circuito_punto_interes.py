@@ -6,11 +6,9 @@ class CircuitoPuntoInteresModel(Base):
     __tablename__ = 'circuitos_puntos_interes'
     
     circuito_poi_id = Column(Integer, primary_key=True, index=True)
-    circuito_id = Column(Integer, ForeignKey('circuitos.circuito_id'))
-    poi_id = Column(Integer, ForeignKey('puntos_interes.poi_id'))
+    circuito_id = Column(Integer, ForeignKey('circuitos.circuito_id'), nullable=False)
+    poi_id = Column(Integer, ForeignKey('puntos_interes.poi_id'), nullable=False)
     orden_en_circuito = Column(Integer)
-    distancia_tramo_metros = Column(Integer)
-    duracion_tramo_minutos = Column(Integer)
     
     circuito = relationship(
         "CircuitoModel", 
