@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useState,
   useCallback,
+  useContext,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -22,10 +23,11 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { calcularDistanciaMetros } from "@/utils/geo";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchCircuitoById } from "@/store/circuitos/circuitosSlice";
-import { fetchPreferenciasByUsuario } from "@/store/preferencias/preferenciasSlice";
+import { fetchPreferencias } from "@/store/preferencias/preferenciasSlice";
 import NavigationPanel from "@/components/circuitos/NavigationPanel";
 import { toast } from "react-toastify";
 import { useDemoLocation } from "@/hooks/useDemoLocation";
+import { LanguageContext } from "@/context/LanguageContext";
 import { registrarVisita } from "@/services/recorridos";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -47,7 +49,9 @@ export default function CircuitoNavegacion({ circuitoId }) {
   const router = useRouter();
   const dispatch = useDispatch();
   const { user } = useAuth();
+  const { t, language } = useContext(LanguageContext);
   const [mostrarModalExito, setMostrarModalExito] = useState(false);
+  const [circuitoCompletable, setCircuitoCompletable] = useState(false);
   const {
     location: realLocation,
     error: geoError,
@@ -73,19 +77,19 @@ export default function CircuitoNavegacion({ circuitoId }) {
     retroceder,
     toggleDemo,
     rutaCompleta,
-  } = useDemoLocation(currentCircuito?.puntos_interes, realLocation);
+  } = useDemoLocation(currentCircuito?.puntos_interes, realLocation, null, language);
 
   const userLocation = demoEnabled ? demoLocation : realLocation;
   const isLoading = demoEnabled ? false : geoLoading;
 
   useEffect(() => {
     if (circuitoId) {
-      dispatch(fetchCircuitoById({ id: circuitoId, usuarioId: user?.usuario_id }));
-      if (user?.usuario_id) {
-        dispatch(fetchPreferenciasByUsuario(user.usuario_id));
+      dispatch(fetchCircuitoById(circuitoId));
+      if (user) {
+        dispatch(fetchPreferencias());
       }
     }
-  }, [dispatch, circuitoId, user?.usuario_id]);
+  }, [dispatch, circuitoId, user]);
 
   useEffect(() => {
     if (!currentCircuito?.puntos_interes || !userLocation) {
@@ -113,13 +117,13 @@ export default function CircuitoNavegacion({ circuitoId }) {
         indiceProximo <= poiActualIndice + 1 &&
         !poiVisitados.has(indiceProximo)
       ) {
-        if (user?.usuario_id) {
+        if (user) {
           const poiId = pois[indiceProximo].poi_id;
-          registrarVisita(user.usuario_id, circuitoId, poiId)
+          registrarVisita(circuitoId, poiId)
             .then((resultado) => {
               const progreso = resultado?.progreso ?? 0;
               if (progreso >= 100) {
-                setMostrarModalExito(true);
+                setCircuitoCompletable(true);
               }
             })
             .catch((error) => {
@@ -180,19 +184,17 @@ export default function CircuitoNavegacion({ circuitoId }) {
 
   const handleARButtonClick = useCallback(() => {
     if (!proximoPOI) {
-      toast.error("POI no disponible");
+      toast.error(t("nav.poiUnavailable"));
       return;
     }
     setMostrarAR(true);
-  }, [proximoPOI]);
+  }, [proximoPOI, t]);
 
   useEffect(() => {
     if (geoError) {
-      toast.error(
-        "No se pudo obtener tu ubicación. Verifica los permisos del navegador.",
-      );
+      toast.error(t("nav.noLocation"));
     }
-  }, [geoError]);
+  }, [geoError, t]);
 
   if (circuitoLoading) {
     return (
@@ -226,14 +228,14 @@ export default function CircuitoNavegacion({ circuitoId }) {
       >
         <Box sx={{ textAlign: "center" }}>
           <Typography variant="h6" color="error">
-            Circuito no encontrado
+            {t("nav.notFound")}
           </Typography>
           <Button
             variant="contained"
             onClick={() => router.push("/")}
             sx={{ mt: 2 }}
           >
-            Volver al inicio
+            {t("nav.backHome")}
           </Button>
         </Box>
       </Box>
@@ -282,7 +284,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
               lineHeight: 1.3,
             }}
           >
-            ¡Circuito Completado!
+            {t("nav.completed")}
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ textAlign: "center", pb: 1.5, px: 3 }}>
@@ -291,8 +293,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
             color="text.secondary"
             sx={{ fontSize: "13px" }}
           >
-            ¡Felicitaciones! Has completado todos los puntos de interés de este
-            circuito.
+            {t("nav.completedMessage")}
           </Typography>
         </DialogContent>
         <DialogActions
@@ -315,7 +316,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
               fontWeight: 600,
             }}
           >
-            Volver al inicio
+            {t("nav.backHome")}
           </Button>
           <Button
             onClick={handleCerrarModal}
@@ -328,7 +329,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
               color: "text.secondary",
             }}
           >
-            Continuar aquí
+            {t("nav.stayHere")}
           </Button>
         </DialogActions>
       </Dialog>
@@ -336,8 +337,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
       {mostrarAR && proximoPOIFinal && userLocation && (
         <ARView
           poi={proximoPOIFinal}
-          userLocation={userLocation}
-          demoMode={demoEnabled}
           onClose={() => setMostrarAR(false)}
         />
       )}
@@ -388,7 +387,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
               )
             }
           >
-            {demoEnabled ? "Demo" : "Demo"}
+            {demoEnabled ? t("nav.demoStop") : t("nav.demoStart")}
           </Button>
 
           {demoEnabled && (
@@ -440,7 +439,10 @@ export default function CircuitoNavegacion({ circuitoId }) {
             {currentCircuito.nombre}
           </Typography>
           <Typography variant="caption" sx={{ color: "#999" }}>
-            ({poiActualIndice + 1} de {currentCircuito.puntos_interes.length})
+            {t("nav.poiCounter", {
+              current: poiActualIndice + 1,
+              total: currentCircuito.puntos_interes.length,
+            })}
           </Typography>
         </Box>
 
@@ -462,14 +464,69 @@ export default function CircuitoNavegacion({ circuitoId }) {
           />
         </Box>
 
-        {proximoPOIFinal && currentCircuito.puntos_interes && (
+        {!userLocation && geoError && (
+          <Box sx={{ p: 2, textAlign: "center" }}>
+            <Typography variant="body2" color="error">
+              {t("nav.noLocation")}
+            </Typography>
+          </Box>
+        )}
+
+        {circuitoCompletable && (
+          <Box
+            sx={{
+              mx: 2,
+              mt: 1.5,
+              mb: 0.5,
+              px: 2,
+              py: 1.25,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 1.5,
+              bgcolor: "#E8F5E9",
+              borderRadius: 2,
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <CheckCircleIcon sx={{ fontSize: 20, color: "#2E7D32" }} />
+              <Typography
+                variant="body2"
+                sx={{ color: "#2E7D32", fontWeight: 600 }}
+              >
+                {t("nav.readyToFinish")}
+              </Typography>
+            </Box>
+            <Button
+              onClick={() => setMostrarModalExito(true)}
+              variant="outlined"
+              size="small"
+              sx={{
+                color: "#2E7D32",
+                borderColor: "#2E7D32",
+                fontWeight: 600,
+                textTransform: "none",
+                px: 1.75,
+                py: 0.5,
+                borderRadius: 2,
+                whiteSpace: "nowrap",
+                "&:hover": {
+                  borderColor: "#2E7D32",
+                  bgcolor: "rgba(46,125,50,0.08)",
+                },
+              }}
+            >
+              {t("nav.finishCircuit")}
+            </Button>
+          </Box>
+        )}
+
+        {proximoPOIFinal && currentCircuito.puntos_interes && userLocation && (
           <Box>
             <NavigationPanel
               userLocation={userLocation}
               proximoPOI={proximoPOIFinal}
-              circuito={currentCircuito}
-              poiActualIndice={poiActualIndice}
-              modoTransporte={preferencias?.modo_transporte || "a_pie"}
+              modoTransporte={preferencias?.modo_transporte_id || "a_pie"}
               onARButtonClick={handleARButtonClick}
               pasoActual={pasoActual}
             />
