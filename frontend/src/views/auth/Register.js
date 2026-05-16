@@ -26,7 +26,7 @@ import LanguageSelector from "../../components/LanguageSelector";
 
 const GradientBackground = styled(Box)(({ theme }) => ({
   background: `linear-gradient(180deg, ${theme.palette.primary.main} 0%, ${theme.palette.tertiary.main} 100%)`,
-  minHeight: "100vh",
+  minHeight: "100dvh",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -63,8 +63,8 @@ const StyledButton = styled(Button)({
 const StyledTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
-    height: "30px",
-    fontSize: "13px",
+    height: "44px",
+    fontSize: "16px",
     border: "1px solid #e0e0e0",
     "& fieldset": {
       border: "none",
@@ -80,14 +80,15 @@ const StyledTextField = styled(TextField)({
     },
   },
   "& .MuiOutlinedInput-input": {
-    padding: "14px 16px",
+    padding: "12px 16px",
+    fontSize: "16px",
   },
 });
 
 const StyledSelect = styled(Select)({
   borderRadius: "8px",
-  height: "30px",
-  fontSize: "13px",
+  height: "44px",
+  fontSize: "16px",
   border: "1px solid #e0e0e0",
   "& fieldset": {
     border: "none",
@@ -102,7 +103,7 @@ const StyledSelect = styled(Select)({
     border: "2px solid #f44336",
   },
   "& .MuiSelect-select": {
-    padding: "14px 16px",
+    padding: "12px 16px",
   },
 });
 
@@ -461,8 +462,18 @@ const Register = () => {
               rules={{
                 required: t("validation.passwordRequired"),
                 minLength: {
-                  value: 6,
+                  value: 8,
                   message: t("validation.passwordMin"),
+                },
+                validate: {
+                  hasUpper: (v) =>
+                    /[A-Z]/.test(v) || t("validation.passwordUpper"),
+                  hasLower: (v) =>
+                    /[a-z]/.test(v) || t("validation.passwordLower"),
+                  hasNumber: (v) =>
+                    /[0-9]/.test(v) || t("validation.passwordNumber"),
+                  hasSpecial: (v) =>
+                    /[^A-Za-z0-9]/.test(v) || t("validation.passwordSpecial"),
                 },
               }}
               render={({ field }) => (

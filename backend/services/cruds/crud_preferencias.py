@@ -10,6 +10,12 @@ def get_preferencia_by_usuario(db: Session, usuario_id: int) -> PreferenciaUsuar
     ).first()
     return preferencia
 
+def get_preferencia_by_id(db: Session, preferencia_id: int) -> PreferenciaUsuarioModel:
+    preferencia = db.query(PreferenciaUsuarioModel).filter(
+        PreferenciaUsuarioModel.preferencia_id == preferencia_id
+    ).first()
+    return preferencia
+
 def create_preferencia(db: Session, preferencia_data: PreferenciaUsuarioCreate) -> PreferenciaUsuarioModel:
     preferencia_existente = get_preferencia_by_usuario(db, preferencia_data.usuario_id)
     
@@ -27,9 +33,7 @@ def create_preferencia(db: Session, preferencia_data: PreferenciaUsuarioCreate) 
     return nueva_preferencia
 
 def update_preferencia(db: Session, preferencia_id: int, preferencia_data: PreferenciaUsuario) -> PreferenciaUsuarioModel:
-    preferencia_db = db.query(PreferenciaUsuarioModel).filter(
-        PreferenciaUsuarioModel.preferencia_id == preferencia_id
-    ).first()
+    preferencia_db = get_preferencia_by_id(db, preferencia_id)
     
     if not preferencia_db:
         raise HTTPException(status_code=404, detail="Preferencia no encontrada")
@@ -41,9 +45,7 @@ def update_preferencia(db: Session, preferencia_id: int, preferencia_data: Prefe
     return preferencia_db
 
 def delete_preferencia(db: Session, preferencia_id: int) -> None:
-    preferencia_db = db.query(PreferenciaUsuarioModel).filter(
-        PreferenciaUsuarioModel.preferencia_id == preferencia_id
-    ).first()
+    preferencia_db = get_preferencia_by_id(db, preferencia_id)
     
     if not preferencia_db:
         raise HTTPException(status_code=404, detail="Preferencia no encontrada")

@@ -26,10 +26,11 @@ import {
   fetchCircuitoById,
   finalizarCircuito,
 } from "../store/circuitos/circuitosSlice";
-import { fetchPreferenciasByUsuario } from "../store/preferencias/preferenciasSlice";
+import { fetchPreferencias } from "../store/preferencias/preferenciasSlice";
 import { LanguageContext } from "@/context/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useDistanceFormatter } from "@/hooks/useDistance";
+import { estimarDuracion } from "@/utils/geo";
 
 const getIconByTipo = (tipo) => {
   switch (tipo?.toLowerCase()) {
@@ -63,19 +64,18 @@ const CircuitoDetalle = ({ circuitoId }) => {
 
   useEffect(() => {
     if (circuitoId) {
-      dispatch(fetchCircuitoById({ id: circuitoId, usuarioId: user?.usuario_id }));
+      dispatch(fetchCircuitoById(circuitoId));
     }
   }, [dispatch, circuitoId, user?.usuario_id]);
 
   useEffect(() => {
-    if (user?.usuario_id && !preferencias) {
-      dispatch(fetchPreferenciasByUsuario(user.usuario_id));
+    if (user && !preferencias) {
+      dispatch(fetchPreferencias());
     }
-  }, [dispatch, user?.usuario_id, preferencias]);
+  }, [dispatch, user, preferencias]);
 
   const handleComenzarCircuito = () => {
     dispatch(finalizarCircuito(circuitoId));
-    // Redirigir a la vista de navegación
     router.push(`/circuito/${circuitoId}/navegar`);
   };
 
@@ -101,6 +101,11 @@ const CircuitoDetalle = ({ circuitoId }) => {
     currentCircuito.distancia_formateada,
     currentCircuito.unidad_medicion,
   );
+
+  // Si el usuario eligió auto pero el circuito no es accesible en auto, forzar a pie
+  const modoUsuario = preferencias?.modo_transporte_id;
+  const autoEnCircuitoPeatonal = modoUsuario === 2 && currentCircuito.accesible_auto === false;
+  const modoParaDuracion = autoEnCircuitoPeatonal ? 1 : (modoUsuario || currentCircuito.modo_transporte_id);
 
   return (
     <Box sx={{ maxWidth: 600, mx: "auto", p: 2 }}>
@@ -154,9 +159,24 @@ const CircuitoDetalle = ({ circuitoId }) => {
           color: "#212121",
         }}
       >
-        {distanciaDisplay} • {currentCircuito.duracion_estimada_minutos} min •{" "}
+        {distanciaDisplay} • {estimarDuracion(currentCircuito.distancia_total_metros, modoParaDuracion)} min •{" "}
         {currentCircuito.puntos_interes?.length || 0} POIs
       </Typography>
+
+      {autoEnCircuitoPeatonal && (
+        <Typography
+          variant="body2"
+          sx={{
+            textAlign: "center",
+            mb: 2,
+            fontSize: "12px",
+            color: "#FF9800",
+            fontWeight: 500,
+          }}
+        >
+          {t("circuit.pedestrianWarning")}
+        </Typography>
+      )}
 
       <Box sx={{ mb: 7, mt: 3, textAlign: "center" }}>
         <Button
@@ -177,7 +197,9 @@ const CircuitoDetalle = ({ circuitoId }) => {
             },
           }}
         >
-          {t("circuit.start")}
+          {currentCircuito.progreso_porcentaje > 0 && currentCircuito.progreso_porcentaje < 100
+            ? t("circuit.continue")
+            : t("circuit.start")}
         </Button>
       </Box>
 
@@ -188,7 +210,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
       <List sx={{ mb: 3 }}>
         {currentCircuito.puntos_interes?.map((punto) => (
           <ListItem key={punto.poi_id} sx={{ pl: 0 }}>
-            <ListItemIcon>{getIconByTipo(punto.tipo)}</ListItemIcon>
+            <ListItemIcon>{getIconByTipo(punto.tipo_poi)}</ListItemIcon>
             <ListItemText
               primary={punto.nombre}
               secondary={punto.descripcion}

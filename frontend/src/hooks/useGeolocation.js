@@ -2,40 +2,35 @@
 
 import { useState, useEffect } from "react";
 
+const ESTADO_INICIAL = { location: null, error: null, isLoading: true };
+const OPCIONES_GPS = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
+
 export function useGeolocation() {
-  const [location, setLocation] = useState(null);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [state, setState] = useState(ESTADO_INICIAL);
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setError("Geolocation no está soportada en este navegador");
-      setIsLoading(false);
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setState({
+        location: null,
+        error: "Geolocation no está soportada en este navegador",
+        isLoading: false,
+      });
       return;
     }
 
-    const opciones = { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 };
-
     const onExito = (position) => {
       const { latitude, longitude, accuracy } = position.coords;
-      setLocation({ latitude, longitude, accuracy });
-      setError(null);
-      setIsLoading(false);
+      setState({ location: { latitude, longitude, accuracy }, error: null, isLoading: false });
     };
 
     const onError = (err) => {
-      setError(err.code === 1 ? "Permiso de ubicación denegado" : "Error al obtener ubicación");
-      setIsLoading(false);
+      const error = err.code === 1 ? "Permiso de ubicación denegado" : "Error al obtener ubicación";
+      setState({ location: null, error, isLoading: false });
     };
 
-    // Obtener posición inicial
-    navigator.geolocation.getCurrentPosition(onExito, onError, opciones);
-
-    // Rastrear cambios continuos
-    const watchId = navigator.geolocation.watchPosition(onExito, onError, opciones);
-
+    const watchId = navigator.geolocation.watchPosition(onExito, onError, OPCIONES_GPS);
     return () => navigator.geolocation.clearWatch(watchId);
   }, []);
 
-  return { location, error, isLoading };
+  return state;
 }

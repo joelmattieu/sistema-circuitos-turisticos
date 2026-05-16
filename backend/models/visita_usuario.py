@@ -6,8 +6,8 @@ class VisitaUsuarioModel(Base):
   __tablename__ = 'visitas_usuarios'
   
   visita_id = Column(Integer, primary_key=True, index=True)
-  recorrido_id = Column(Integer, ForeignKey('recorridos_usuarios.recorrido_id'))
-  poi_id = Column(Integer, ForeignKey('puntos_interes.poi_id'))
+  recorrido_id = Column(Integer, ForeignKey('recorridos_usuarios.recorrido_id'), nullable=False)
+  poi_id = Column(Integer, ForeignKey('puntos_interes.poi_id'), nullable=False)
   orden_visita = Column(Integer)
   fecha_visita = Column(DateTime)
 

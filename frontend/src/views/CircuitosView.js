@@ -3,8 +3,9 @@ import React, { useEffect, useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
+import { toast } from "react-toastify";
 import { fetchCircuitos } from "../store/circuitos/circuitosSlice";
-import { fetchPreferenciasByUsuario } from "../store/preferencias/preferenciasSlice";
+import { fetchPreferencias } from "../store/preferencias/preferenciasSlice";
 import CardCircuitos from "../components/circuitos/CardCircuitos";
 import CircuitosRecomendados from "../components/circuitos/CircuitosRecomendados";
 import { obtenerCircuitosRecomendados } from "../services/recomendaciones";
@@ -27,32 +28,25 @@ const CircuitosView = () => {
   const [loadingRecomendaciones, setLoadingRecomendaciones] = useState(true);
 
   useEffect(() => {
-    if (user?.usuario_id) {
-      dispatch(fetchCircuitos(user.usuario_id));
-    } else {
-      dispatch(fetchCircuitos());
-    }
+    dispatch(fetchCircuitos());
   }, [dispatch, user?.usuario_id]);
 
   useEffect(() => {
-    if (user?.usuario_id && !preferencias) {
-      dispatch(fetchPreferenciasByUsuario(user.usuario_id));
+    if (user && !preferencias) {
+      dispatch(fetchPreferencias());
     }
-  }, [dispatch, user?.usuario_id, preferencias]);
+  }, [dispatch, user, preferencias]);
 
   useEffect(() => {
     const cargarRecomendaciones = async () => {
       try {
         setLoadingRecomendaciones(true);
         const modoTransporte = preferencias?.modo_transporte?.nombre;
-        const recomendaciones = await obtenerCircuitosRecomendados(
-          location,
-          modoTransporte,
-          user?.usuario_id,
-        );
+        const recomendaciones = await obtenerCircuitosRecomendados(location, modoTransporte);
         setCircuitosRecomendados(recomendaciones);
       } catch (error) {
         console.error("Error cargando recomendaciones:", error);
+        toast.error(t("circuits.recommendedError"));
       } finally {
         setLoadingRecomendaciones(false);
       }
@@ -61,7 +55,7 @@ const CircuitosView = () => {
     if (circuitos.length > 0) {
       cargarRecomendaciones();
     }
-  }, [circuitos.length, location, preferencias?.modo_transporte?.nombre, user?.usuario_id]);
+  }, [circuitos.length, location, preferencias?.modo_transporte?.nombre, user?.usuario_id, t]);
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) {
@@ -72,7 +66,6 @@ const CircuitosView = () => {
     const cargarCircuitosCercanos = async () => {
       try {
         const todos = await circuitosService.getAll({
-          usuarioId: user?.usuario_id,
           lat: location.latitude,
           lon: location.longitude,
           ordenarPorDistancia: true,
@@ -80,12 +73,13 @@ const CircuitosView = () => {
         setCircuitosCercanos(todos.slice(0, 3));
       } catch (error) {
         console.error("Error cargando circuitos cercanos:", error);
+        toast.error(t("circuits.nearbyError"));
         setCircuitosCercanos([]);
       }
     };
 
     cargarCircuitosCercanos();
-  }, [location?.latitude, location?.longitude, user?.usuario_id]);
+  }, [location?.latitude, location?.longitude, user?.usuario_id, t]);
 
   const circuitosPorCategoria = React.useMemo(() => {
     const grupos = {};
@@ -133,6 +127,16 @@ const CircuitosView = () => {
     );
   }
 
+  if (!circuitos || circuitos.length === 0) {
+    return (
+      <Box mt={4} display="flex" justifyContent="center">
+        <Typography color="text.secondary">
+          {t("circuits.empty")}
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ width: "100%" }}>
       {!loadingRecomendaciones && circuitosRecomendados.length > 0 && (
@@ -146,7 +150,7 @@ const CircuitosView = () => {
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
             <LocationOnIcon sx={{ color: "#E53935", fontSize: 20 }} />
             <Typography variant="body2" color="text.secondary">
-              Cercanos a ti
+              {t("circuits.nearby")}
             </Typography>
           </Box>
 
@@ -175,7 +179,7 @@ const CircuitosView = () => {
           mt: 2,
         }}
       >
-        TODOS LOS CIRCUITOS
+        {t("circuits.all")}
       </Typography>
 
       {Object.entries(circuitosPorCategoria).map(

@@ -20,7 +20,7 @@ import LanguageSelector from "../../components/LanguageSelector";
 
 const GradientBackground = styled(Box)(({ theme }) => ({
   background: `linear-gradient(180deg, ${theme.palette.primary.main} 0%, ${theme.palette.tertiary.main} 100%)`,
-  minHeight: "100vh",
+  minHeight: "100dvh",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -57,8 +57,8 @@ const StyledButton = styled(Button)({
 const StyledTextField = styled(TextField)({
   "& .MuiOutlinedInput-root": {
     borderRadius: "8px",
-    height: "30px",
-    fontSize: "13px",
+    height: "44px",
+    fontSize: "16px",
     border: "1px solid #e0e0e0",
     "& fieldset": {
       border: "none",
@@ -74,7 +74,8 @@ const StyledTextField = styled(TextField)({
     },
   },
   "& .MuiOutlinedInput-input": {
-    padding: "14px 16px",
+    padding: "12px 16px",
+    fontSize: "16px",
   },
 });
 
@@ -187,10 +188,6 @@ const Login = () => {
               control={control}
               rules={{
                 required: t("validation.passwordRequired"),
-                minLength: {
-                  value: 6,
-                  message: t("validation.passwordMin"),
-                },
               }}
               render={({ field }) => (
                 <StyledTextField

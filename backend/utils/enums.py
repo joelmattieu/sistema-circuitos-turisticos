@@ -10,3 +10,7 @@ class TipoPuntoInteresEnum(str, enum.Enum):
     CULTURAL = "cultural"
     RECREATIVO = "recreativo"
     MONUMENTO = "monumento"
+
+class EstadoRecorridoEnum(str, enum.Enum):
+    EN_PROGRESO = "en_progreso"
+    COMPLETADO = "completado"

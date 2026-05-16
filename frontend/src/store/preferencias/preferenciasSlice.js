@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { preferenciasService } from "../../services/preferencias";
 
-export const fetchPreferenciasByUsuario = createAsyncThunk(
-  "preferencias/fetchByUsuario",
-  async (usuarioId, { rejectWithValue }) => {
+export const fetchPreferencias = createAsyncThunk(
+  "preferencias/fetch",
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await preferenciasService.getByUsuarioId(usuarioId);
+      const response = await preferenciasService.getMe();
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -17,9 +17,7 @@ export const updatePreferencias = createAsyncThunk(
   "preferencias/update",
   async (preferenciaData, { rejectWithValue }) => {
     try {
-      const response = await preferenciasService.createOrUpdate(
-        preferenciaData
-      );
+      const response = await preferenciasService.createOrUpdate(preferenciaData);
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -44,15 +42,15 @@ const preferenciasSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchPreferenciasByUsuario.pending, (state) => {
+      .addCase(fetchPreferencias.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchPreferenciasByUsuario.fulfilled, (state, action) => {
+      .addCase(fetchPreferencias.fulfilled, (state, action) => {
         state.loading = false;
         state.preferencias = action.payload;
       })
-      .addCase(fetchPreferenciasByUsuario.rejected, (state, action) => {
+      .addCase(fetchPreferencias.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

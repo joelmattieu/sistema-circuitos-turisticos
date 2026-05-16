@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useContext } from "react";
 import { Box, Typography, Button } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
@@ -8,50 +8,33 @@ import TurnRightIcon from "@mui/icons-material/TurnRight";
 import TurnLeftIcon from "@mui/icons-material/TurnLeft";
 import StraightIcon from "@mui/icons-material/Straight";
 import NorthIcon from "@mui/icons-material/North";
+import { estimarDuracion, calcularDistanciaMetros } from "@/utils/geo";
 import { useDistanceFormatter } from "@/hooks/useDistance";
+import { LanguageContext } from "@/context/LanguageContext";
+import { obtenerClaveInstruccion } from "@/utils/routing";
 
-function calcularDistancia(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+const ICONO_NAVEGACION = { fontSize: 28, color: "#1976d2" };
+const DISTANCIA_LLEGADA_METROS = 50;
 
-function estimarTiempo(distanciaKm, modoTransporte = "a_pie") {
-  const velocidades = {
-    a_pie: 5,
-    bicicleta: 15,
-    auto: 40,
-  };
-  const velocidad = velocidades[modoTransporte] || 5;
-  const minutos = Math.round((distanciaKm / velocidad) * 60);
-  return Math.max(minutos, 1);
-}
+// Mapea códigos de instrucción de OpenRouteService al ícono visual.
+// Los códigos (0=recto, 1=derecha, 2=izquierda, etc.) vienen de la API.
+const ICONOS_POR_TIPO_INSTRUCCION = {
+  0: StraightIcon,
+  1: TurnRightIcon,
+  2: TurnLeftIcon,
+  3: TurnRightIcon,
+  4: TurnLeftIcon,
+  5: TurnRightIcon,
+  6: TurnLeftIcon,
+  7: StraightIcon,
+  10: NorthIcon,
+  11: NorthIcon,
+  12: LocationOnIcon,
+};
 
-function obtenerIconoPorTipo(tipo) {
-  const iconos = {
-    0: <StraightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    1: <TurnRightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    2: <TurnLeftIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    3: <TurnRightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    4: <TurnLeftIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    5: <TurnRightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    6: <TurnLeftIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    7: <StraightIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    10: <NorthIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    11: <NorthIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-    12: <LocationOnIcon sx={{ fontSize: 28, color: "#1976d2" }} />,
-  };
-  return (
-    iconos[tipo] || <StraightIcon sx={{ fontSize: 28, color: "#1976d2" }} />
-  );
+function IconoInstruccion({ tipo }) {
+  const Icono = ICONOS_POR_TIPO_INSTRUCCION[tipo] || StraightIcon;
+  return <Icono sx={ICONO_NAVEGACION} />;
 }
 
 export default function NavigationPanel({
@@ -62,30 +45,25 @@ export default function NavigationPanel({
   pasoActual,
 }) {
   const { formatDistance } = useDistanceFormatter();
+  const { t } = useContext(LanguageContext);
 
   const infoProximoPOI = useMemo(() => {
     if (!userLocation || !proximoPOI) {
       return null;
     }
 
-    const distanciaKm = calcularDistancia(
+    const distanciaMetros = calcularDistanciaMetros(
       userLocation.latitude,
       userLocation.longitude,
       proximoPOI.latitud,
       proximoPOI.longitud,
     );
 
-    const distanciaMetros = distanciaKm * 1000;
-    const minutos = estimarTiempo(distanciaKm, modoTransporte);
-    const estaProximo = distanciaMetros < 50;
-    const distanciaDisplay = formatDistance(distanciaMetros, true);
-
     return {
-      distanciaKm,
       distanciaMetros,
-      minutos,
-      estaProximo,
-      distanciaDisplay,
+      minutos: estimarDuracion(distanciaMetros, modoTransporte),
+      estaProximo: distanciaMetros < DISTANCIA_LLEGADA_METROS,
+      distanciaDisplay: formatDistance(distanciaMetros, true),
     };
   }, [userLocation, proximoPOI, modoTransporte, formatDistance]);
 
@@ -93,8 +71,7 @@ export default function NavigationPanel({
     return null;
   }
 
-  const { estaProximo, distanciaMetros, distanciaDisplay, minutos } =
-    infoProximoPOI;
+  const { estaProximo, distanciaDisplay, minutos } = infoProximoPOI;
 
   // Estado: Llegaste al punto de interés
   if (estaProximo) {
@@ -119,7 +96,7 @@ export default function NavigationPanel({
               color: "#1a1a1a",
             }}
           >
-            Llegaste a: {proximoPOI.nombre}
+            {t("nav.arrivedAt", { name: proximoPOI.nombre })}
           </Typography>
         </Box>
 
@@ -131,7 +108,7 @@ export default function NavigationPanel({
             fontSize: "0.875rem",
           }}
         >
-          Explora en Realidad Aumentada
+          {t("nav.exploreInAR")}
         </Typography>
 
         <Button
@@ -155,7 +132,7 @@ export default function NavigationPanel({
             },
           }}
         >
-          Abrir en RA
+          {t("nav.openInAR")}
         </Button>
       </Box>
     );
@@ -188,9 +165,9 @@ export default function NavigationPanel({
           }}
         >
           {pasoActual ? (
-            obtenerIconoPorTipo(pasoActual.tipo)
+            <IconoInstruccion tipo={pasoActual.tipo} />
           ) : (
-            <NorthIcon sx={{ fontSize: 28, color: "#1976d2" }} />
+            <NorthIcon sx={ICONO_NAVEGACION} />
           )}
         </Box>
 
@@ -205,11 +182,11 @@ export default function NavigationPanel({
           }}
         >
           {pasoActual
-            ? pasoActual.instruccion.replace(
-                "{dist}",
-                formatDistance(pasoActual.distancia, true),
-              )
-            : `A ${distanciaDisplay}`}
+            ? t(obtenerClaveInstruccion(pasoActual.tipo), {
+                dist: formatDistance(pasoActual.distancia, true),
+                street: pasoActual.nombreCalle || t("routing.defaultStreet"),
+              })
+            : `${distanciaDisplay}`}
         </Typography>
       </Box>
 
@@ -229,8 +206,11 @@ export default function NavigationPanel({
           lineHeight: 1.5,
         }}
       >
-        Próximo destino: {proximoPOI.nombre} · {distanciaDisplay} · {minutos}{" "}
-        min
+        {t("nav.nextDestination", {
+          name: proximoPOI.nombre,
+          distance: distanciaDisplay,
+          minutes: minutos,
+        })}
       </Typography>
     </Box>
   );

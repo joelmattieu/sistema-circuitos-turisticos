@@ -1,28 +1,32 @@
-const ORS_API_KEY =
-  "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjRhZjYzOWQwZmQwMjQ2YTdiNDA0ZjlmODM4NDgzYTkxIiwiaCI6Im11cm11cjY0In0=";
+const ORS_API_KEY = process.env.NEXT_PUBLIC_ORS_API_KEY;
 
-// Genera instrucción en español con placeholder {dist} para la unidad del usuario
-function generarInstruccionEspanol(tipo, nombreCalle) {
-  const tiposInstruccion = {
-    0: (calle) => `Continúa {dist} por ${calle}`,
-    1: (calle) => `Gira a la derecha y sigue {dist} por ${calle}`,
-    2: (calle) => `Gira a la izquierda y sigue {dist} por ${calle}`,
-    3: (calle) => `Gira fuertemente a la derecha y sigue {dist} por ${calle}`,
-    4: (calle) => `Gira fuertemente a la izquierda y sigue {dist} por ${calle}`,
-    5: (calle) => `Gira ligeramente a la derecha y sigue {dist} por ${calle}`,
-    6: (calle) => `Gira ligeramente a la izquierda y sigue {dist} por ${calle}`,
-    7: (calle) => `Continúa {dist} por ${calle}`,
-    10: (calle) => `Toma la rotonda y sigue {dist} por ${calle}`,
-    11: (calle) => `Dirígete {dist} por ${calle}`,
-    12: (calle) => `Llegas a ${calle}`,
-  };
-  const generador =
-    tiposInstruccion[tipo] || ((calle) => `Continúa {dist} por ${calle}`);
-  return generador(nombreCalle || "esta calle");
+// OpenRouteService devuelve cada paso con un "type" numérico que indica la maniobra.
+// Lo traducimos a una clave de i18n para mostrar la instrucción en el idioma del usuario.
+const TIPO_A_CLAVE_I18N = {
+  0: "routing.continue",
+  1: "routing.turnRight",
+  2: "routing.turnLeft",
+  3: "routing.turnSharpRight",
+  4: "routing.turnSharpLeft",
+  5: "routing.turnSlightRight",
+  6: "routing.turnSlightLeft",
+  7: "routing.continue",
+  10: "routing.roundabout",
+  11: "routing.head",
+  12: "routing.arrive",
+};
+
+export function obtenerClaveInstruccion(tipo) {
+  return TIPO_A_CLAVE_I18N[tipo] || "routing.continue";
 }
 
-export async function obtenerRutaPasoAPaso(origen, destino) {
-  const url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${ORS_API_KEY}&start=${origen.lng},${origen.lat}&end=${destino.lng},${destino.lat}&language=es&instructions=true&instructions_format=text`;
+export async function obtenerRutaPasoAPaso(origen, destino, idioma = "es") {
+  if (!ORS_API_KEY) {
+    console.error("Falta NEXT_PUBLIC_ORS_API_KEY en .env.local");
+    return null;
+  }
+
+  const url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${ORS_API_KEY}&start=${origen.lng},${origen.lat}&end=${destino.lng},${destino.lat}&language=${idioma}&instructions=true&instructions_format=text`;
 
   try {
     const response = await fetch(url);
@@ -35,7 +39,6 @@ export async function obtenerRutaPasoAPaso(origen, destino) {
     return {
       coordenadas: geometry.map(([lng, lat]) => ({ lat, lng })),
       pasos: steps.map((step, index) => ({
-        instruccion: generarInstruccionEspanol(step.type, step.name),
         instruccionOriginal: step.instruction,
         distancia: step.distance,
         duracion: step.duration,
@@ -51,18 +54,3 @@ export async function obtenerRutaPasoAPaso(origen, destino) {
     return null;
   }
 }
-
-// Tipos de maniobra para iconos
-export const TIPOS_MANIOBRA = {
-  0: { texto: "Continúa recto", icono: "straight" },
-  1: { texto: "gira a la derecha", icono: "turn-right" },
-  2: { texto: "gira a la izquierda", icono: "turn-left" },
-  3: { texto: "gira fuertemente a la derecha", icono: "turn-sharp-right" },
-  4: { texto: "gira fuertemente a la izquierda", icono: "turn-sharp-left" },
-  5: { texto: "gira ligeramente a la derecha", icono: "turn-slight-right" },
-  6: { texto: "gira ligeramente a la izquierda", icono: "turn-slight-left" },
-  7: { texto: "continúa", icono: "straight" },
-  10: { texto: "toma la rotonda", icono: "roundabout" },
-  11: { texto: "dirígete por", icono: "straight" },
-  12: { texto: "llegas a", icono: "arrival" },
-};

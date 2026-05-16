@@ -1,48 +1,19 @@
-// Vista de Realidad Aumentada - tarjetas informativas sobre cámara
-
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { Box, IconButton, Typography, Paper, Chip } from "@mui/material";
+import React, { useEffect, useRef, useState, useContext } from "react";
+import { Box, IconButton, Typography, Paper } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import PlaceIcon from "@mui/icons-material/Place";
 import HistoryIcon from "@mui/icons-material/History";
 import PaletteIcon from "@mui/icons-material/Palette";
+import { LanguageContext } from "@/context/LanguageContext";
 
-export default function ARView({ poi, userLocation, demoMode, onClose }) {
+export default function ARView({ poi, onClose }) {
+  const { t } = useContext(LanguageContext);
   const videoRef = useRef(null);
   const [error, setError] = useState(null);
-  const [distancia, setDistancia] = useState(null);
   const [motion, setMotion] = useState({ x: 0, y: 0 });
   const [orientationPermission, setOrientationPermission] = useState(true);
 
-  const calcularDistancia = (lat1, lon1, lat2, lon2) => {
-    const R = 6371;
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
-
-  useEffect(() => {
-    if (!poi || !userLocation) return;
-
-    const dist = calcularDistancia(
-      userLocation.latitude,
-      userLocation.longitude,
-      poi.latitud,
-      poi.longitud,
-    );
-    setDistancia(dist);
-  }, [poi, userLocation]);
-
-  // Init cámara
   useEffect(() => {
     let stream = null;
     const video = videoRef.current;
@@ -66,8 +37,8 @@ export default function ARView({ poi, userLocation, demoMode, onClose }) {
         console.error("Error al inicializar cámara:", err);
         setError(
           err.name === "NotAllowedError"
-            ? "Debes permitir el acceso a la cámara para usar AR."
-            : "No se pudo inicializar la cámara.",
+            ? t("ar.cameraPermissionError")
+            : t("ar.cameraError"),
         );
       }
     };
@@ -82,36 +53,30 @@ export default function ARView({ poi, userLocation, demoMode, onClose }) {
         video.srcObject = null;
       }
     };
-  }, []); // Solo inicializar cámara una vez
+  }, [t]);
 
-  // Sensor de orientación separado
   useEffect(() => {
     const requestPermission = async () => {
-      // Para iOS 13+ necesitas pedir permiso
-      if (
+      // iOS 13+ requiere permiso explícito para el sensor de orientación.
+      const necesitaPermiso =
         typeof DeviceOrientationEvent !== "undefined" &&
-        typeof DeviceOrientationEvent.requestPermission === "function"
-      ) {
-        try {
-          const permission = await DeviceOrientationEvent.requestPermission();
-          if (permission === "granted") {
-            setOrientationPermission(true);
-          } else {
-            setOrientationPermission(false);
-          }
-        } catch (error) {
-          console.error("Error solicitando permiso:", error);
-          setOrientationPermission(false);
-        }
-      } else {
+        typeof DeviceOrientationEvent.requestPermission === "function";
+
+      if (!necesitaPermiso) {
         setOrientationPermission(true);
+        return;
+      }
+
+      try {
+        const permission = await DeviceOrientationEvent.requestPermission();
+        setOrientationPermission(permission === "granted");
+      } catch (error) {
+        console.error("Error solicitando permiso:", error);
+        setOrientationPermission(false);
       }
     };
 
     const handleOrientation = (event) => {
-      // beta: inclinación adelante/atrás (-180 a 180)
-      // gamma: inclinación izquierda/derecha (-90 a 90)
-
       const beta = event.beta || 0;
       const gamma = event.gamma || 0;
 
@@ -234,7 +199,7 @@ export default function ARView({ poi, userLocation, demoMode, onClose }) {
           }}
         >
           <Typography variant="h6" sx={{ mb: 2 }}>
-            Activar sensor de movimiento
+            {t("ar.activateMotion")}
           </Typography>
           <button
             onClick={async () => {
@@ -256,7 +221,7 @@ export default function ARView({ poi, userLocation, demoMode, onClose }) {
               borderRadius: "4px",
             }}
           >
-            Activar
+            {t("ar.activate")}
           </button>
         </Paper>
       )}
@@ -286,7 +251,7 @@ export default function ARView({ poi, userLocation, demoMode, onClose }) {
             mb: 0.5,
           }}
         >
-          {poi?.nombre || "Punto de Interés"}
+          {poi?.nombre || t("ar.poi")}
         </Typography>
       </Paper>
 
@@ -366,7 +331,7 @@ export default function ARView({ poi, userLocation, demoMode, onClose }) {
                 color: "#424242",
               }}
             >
-              {poi.dato_historico || "Información Cultural"}
+              {poi.dato_historico || t("ar.culturalInfo")}
             </Typography>
           </Box>
           {poi?.informacion_cultural && (

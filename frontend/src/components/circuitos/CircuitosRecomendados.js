@@ -1,15 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useContext } from "react";
 import { Box, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import WbSunnyIcon from "@mui/icons-material/WbSunny";
 import CloudIcon from "@mui/icons-material/Cloud";
 import UmbrellaIcon from "@mui/icons-material/Umbrella";
 import CardCircuitos from "./CardCircuitos";
+import { LanguageContext } from "@/context/LanguageContext";
 
 export default function CircuitosRecomendados({ circuitos }) {
   const router = useRouter();
+  const { t } = useContext(LanguageContext);
 
   if (!circuitos || circuitos.length === 0) {
     return null;
@@ -29,11 +31,11 @@ export default function CircuitosRecomendados({ circuitos }) {
   const getClimaTexto = (clima) => {
     switch (clima) {
       case "soleado":
-        return "Hoy es un día soleado";
+        return t("recommended.sunny");
       case "lluvioso":
-        return "Hoy es un día lluvioso";
+        return t("recommended.rainy");
       default:
-        return "Hoy es un día nublado";
+        return t("recommended.cloudy");
     }
   };
 
@@ -52,7 +54,7 @@ export default function CircuitosRecomendados({ circuitos }) {
           mb: 1.5,
         }}
       >
-        RECOMENDADOS
+        {t("recommended.title")}
       </Typography>
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
@@ -71,6 +73,8 @@ export default function CircuitosRecomendados({ circuitos }) {
             duracion_estimada_minutos: item.duracion_estimada,
             distancia_total_metros: item.distancia_total,
             url_imagen_portada: item.imagen_url,
+            modo_transporte_id: item.modo_transporte_id,
+            accesible_auto: item.accesible_auto,
             progreso_porcentaje: item.progreso_porcentaje || 0,
           };
 

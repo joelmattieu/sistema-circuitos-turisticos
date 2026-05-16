@@ -3,9 +3,9 @@ import { circuitosService } from "../../services/circuitos";
 
 export const fetchCircuitos = createAsyncThunk(
   "circuitos/fetchCircuitos",
-  async (usuarioId = null, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await circuitosService.getAll({ usuarioId });
+      const response = await circuitosService.getAll();
       return response;
     } catch (error) {
       return rejectWithValue(error);
@@ -15,9 +15,9 @@ export const fetchCircuitos = createAsyncThunk(
 
 export const fetchCircuitoById = createAsyncThunk(
   "circuitos/fetchCircuitoById",
-  async ({ id, usuarioId = null }, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
-      const response = await circuitosService.getById(id, usuarioId);
+      const response = await circuitosService.getById(id);
       return response;
     } catch (error) {
       return rejectWithValue(error);

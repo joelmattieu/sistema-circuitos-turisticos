@@ -28,7 +28,7 @@ import { fetchIdiomas } from "@/store/idiomas/idiomasSlice";
 import { fetchModosTransporte } from "@/store/modosTransporte/modosTransporteSlice";
 import { fetchUnidadesMedicion } from "@/store/unidadesMedicion/unidadesMedicionSlice";
 import {
-  fetchPreferenciasByUsuario,
+  fetchPreferencias,
   updatePreferencias,
 } from "@/store/preferencias/preferenciasSlice";
 
@@ -64,10 +64,10 @@ export default function PreferenciasView() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (user?.usuario_id) {
-      dispatch(fetchPreferenciasByUsuario(user.usuario_id));
+    if (user) {
+      dispatch(fetchPreferencias());
     }
-  }, [user?.usuario_id, dispatch]);
+  }, [user, dispatch]);
 
   useEffect(() => {
     if (preferencias && !isInitialized) {
@@ -92,13 +92,12 @@ export default function PreferenciasView() {
     }
 
     dispatch(
-      updatePreferencias({
-        usuario_id: user.usuario_id,
-        ...nuevasPreferencias,
-      }),
+      updatePreferencias({ ...nuevasPreferencias }),
     )
       .unwrap()
-      .then(() => {})
+      .then(() => {
+        toast.success(t("preferences.success"));
+      })
       .catch((error) => {
         toast.error(t("preferences.error"));
         console.error(error);
@@ -298,12 +297,12 @@ export default function PreferenciasView() {
 
             if (modo.nombre_modo_transporte?.toLowerCase().includes("pie")) {
               icon = <DirectionsWalk sx={{ fontSize: "20px" }} />;
-              shortLabel = "A pie";
+              shortLabel = t("transport.walkShort");
             } else if (
               modo.nombre_modo_transporte?.toLowerCase().includes("bicicleta")
             ) {
               icon = <DirectionsBike sx={{ fontSize: "20px" }} />;
-              shortLabel = "Bici";
+              shortLabel = t("transport.bikeShort");
             } else if (
               modo.nombre_modo_transporte
                 ?.toLowerCase()
@@ -311,7 +310,7 @@ export default function PreferenciasView() {
               modo.nombre_modo_transporte?.toLowerCase().includes("auto")
             ) {
               icon = <DirectionsCar sx={{ fontSize: "20px" }} />;
-              shortLabel = "Auto";
+              shortLabel = t("transport.carShort");
             }
 
             return (

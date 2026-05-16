@@ -1,11 +1,33 @@
 "use client";
 import React from "react";
 import { Card, CardContent, Typography, Box, Avatar } from "@mui/material";
+import DirectionsWalkIcon from "@mui/icons-material/DirectionsWalk";
+import DirectionsBikeIcon from "@mui/icons-material/DirectionsBike";
+import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
+import { useSelector } from "react-redux";
 import CircularProgressIndicator from "./CircularProgressIndicator";
 import { useDistanceFormatter } from "@/hooks/useDistance";
+import { estimarDuracion } from "@/utils/geo";
+
+// modo_transporte_id: 1 = a pie, 2 = auto, 3 = bicicleta
+const ICONO_POR_MODO = {
+  1: DirectionsWalkIcon,
+  2: DirectionsCarIcon,
+  3: DirectionsBikeIcon,
+};
 
 const CardCircuitos = ({ circuito, onClick }) => {
   const { formatDistance } = useDistanceFormatter();
+  const { preferencias } = useSelector((state) => state.preferencias);
+
+  // Si el usuario eligió auto pero el circuito no es accesible en auto,
+  // forzamos cálculo a pie (id=1) y resaltamos visualmente el cambio.
+  const modoUsuario = preferencias?.modo_transporte_id;
+  const autoEnCircuitoPeatonal = modoUsuario === 2 && circuito.accesible_auto === false;
+  const modoEfectivo = autoEnCircuitoPeatonal ? 1 : (modoUsuario || circuito.modo_transporte_id || 1);
+
+  const IconoModo = ICONO_POR_MODO[modoEfectivo] || DirectionsWalkIcon;
+  const colorFallback = autoEnCircuitoPeatonal ? "#FF9800" : "inherit";
 
   const handleClick = () => {
     if (onClick) {
@@ -99,7 +121,18 @@ const CardCircuitos = ({ circuito, onClick }) => {
                   color: "#000",
                 }}
               >
-                {distanciaDisplay} • {circuito.duracion_estimada_minutos} min
+                {distanciaDisplay} •{" "}
+                <Box
+                  component="span"
+                  sx={{
+                    color: colorFallback,
+                    fontWeight: autoEnCircuitoPeatonal ? 600 : 400,
+                  }}
+                >
+                  {estimarDuracion(circuito.distancia_total_metros, modoEfectivo)} min
+                </Box>
+                {" • "}
+                <IconoModo sx={{ fontSize: 13, verticalAlign: "middle", color: colorFallback }} />
               </Typography>
             </Box>
           </Box>
