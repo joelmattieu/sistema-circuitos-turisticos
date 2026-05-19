@@ -17,6 +17,8 @@ def get_password_hash(password):
 
 
 def create_user(db, user):
+    user.email = user.email.strip().lower()
+
     if db.query(UsuarioModel).filter(UsuarioModel.email == user.email).first():
         raise HTTPException(status_code=400, detail="El email ya está registrado")
 
@@ -40,6 +42,7 @@ def create_user(db, user):
 
 
 def authenticate_user(db, email, password):
+    email = email.strip().lower()
     user = db.query(UsuarioModel).filter(UsuarioModel.email == email).first()
     if not user or not verify_password(password, user.contrasena):
         return False

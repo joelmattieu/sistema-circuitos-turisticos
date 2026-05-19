@@ -64,15 +64,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (userData) => {
-    try {
-      const response = await postRegister(userData);
-      router.push("/login/");
-      toast.success("¡Usuario creado exitosamente!");
-      return response;
-    } catch (error) {
-      toast.error("Error al crear usuario");
-      throw error;
-    }
+    const response = await postRegister(userData);
+    router.push("/login/");
+    toast.success("¡Usuario creado exitosamente!");
+    return response;
   };
 
   return (
