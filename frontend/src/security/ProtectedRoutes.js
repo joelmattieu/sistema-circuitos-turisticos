@@ -3,12 +3,12 @@ import { useContext, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AuthContext from "@/context/AuthContext";
 
-const ProtectedRoutes = ({ children, redirectIfLoggedIn = false }) => {
+const ProtectedRoutes = ({ children, guestOnly = false }) => {
   const router = useRouter();
   const { isLoggedIn, isLoading } = useContext(AuthContext);
 
-  const goHome = !isLoading && redirectIfLoggedIn && isLoggedIn;
-  const goLogin = !isLoading && !redirectIfLoggedIn && !isLoggedIn;
+  const goHome = !isLoading && guestOnly && isLoggedIn;
+  const goLogin = !isLoading && !guestOnly && !isLoggedIn;
 
   useEffect(() => {
     if (goHome) {

@@ -5,7 +5,7 @@ import React from 'react'
 
 const LoginPage = () => {
   return (
-    <ProtectedRoutes redirectIfLoggedIn>
+    <ProtectedRoutes guestOnly>
     <Login />
     </ProtectedRoutes>
   )

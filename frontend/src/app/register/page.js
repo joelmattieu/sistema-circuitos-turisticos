@@ -5,7 +5,7 @@ import React from 'react'
 
 const RegisterPage = () => {
   return (
-    <ProtectedRoutes redirectIfLoggedIn>
+    <ProtectedRoutes guestOnly>
       <Register />
     </ProtectedRoutes>
   )
