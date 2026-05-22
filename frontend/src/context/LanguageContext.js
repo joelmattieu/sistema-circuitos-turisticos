@@ -484,9 +484,9 @@ export const LanguageProvider = ({ children }) => {
   const t = (key, params = {}) => {
     let text = translations[language]?.[key] || key;
 
-    // reemplaza los parámetros {name} con valores
-    Object.keys(params).forEach((param) => {
-      text = text.replace(`{${param}}`, params[param]);
+    Object.entries(params).forEach(([paramName, paramValue]) => {
+      const placeholder = `{${paramName}}`;
+      text = text.replace(placeholder, paramValue);
     });
 
     return text;
