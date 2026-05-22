@@ -1,10 +1,10 @@
+import re
 from pydantic import BaseModel, EmailStr, Field, validator
-from typing import Optional
-from datetime import date, datetime
+from datetime import date
 
 class UsuarioLogin(BaseModel):
     email: EmailStr
-    contrasena: str = Field(..., min_length=6, max_length=50)
+    contrasena: str = Field(..., min_length=1, max_length=50)
 
 class UsuarioRegister(BaseModel):
     nombre: str = Field(..., min_length=2, max_length=50)
@@ -13,8 +13,8 @@ class UsuarioRegister(BaseModel):
     provincia_id: int
     ciudad: str = Field(..., min_length=2, max_length=100)
     fecha_nacimiento: date
-    contrasena: str = Field(..., min_length=6, max_length=50)
-    
+    contrasena: str = Field(..., min_length=8, max_length=50)
+
     @validator('fecha_nacimiento')
     def validate_edad(cls, v):
         today = date.today()
@@ -25,26 +25,15 @@ class UsuarioRegister(BaseModel):
             raise ValueError('Fecha de nacimiento inválida')
         return v
 
-class Usuario(BaseModel):
-    """Schema para respuestas (sin contraseña)"""
-    usuario_id: int
-    nombre: str
-    apellido: str
-    email: EmailStr
-    provincia_id: int
-    ciudad: str
-    fecha_nacimiento: date 
-    fecha_registro: datetime
-    
-    class Config:
-        from_attributes = True
+    @validator('contrasena')
+    def validate_contrasena(cls, v):
+        if not re.search(r'[A-Z]', v):
+            raise ValueError('La contraseña debe tener al menos una letra mayúscula')
+        if not re.search(r'[a-z]', v):
+            raise ValueError('La contraseña debe tener al menos una letra minúscula')
+        if not re.search(r'[0-9]', v):
+            raise ValueError('La contraseña debe tener al menos un número')
+        if not re.search(r'[^A-Za-z0-9]', v):
+            raise ValueError('La contraseña debe tener al menos un carácter especial')
+        return v
 
-class UsuarioCreate(BaseModel):
-    """Schema interno para crear usuario"""
-    nombre: str
-    apellido: str
-    email: EmailStr
-    provincia_id: int
-    ciudad: str
-    fecha_nacimiento: date
-    contrasena: str
