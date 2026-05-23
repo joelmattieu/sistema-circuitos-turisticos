@@ -15,6 +15,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
+const MODO_NOMBRE_POR_ID = { 1: "A pie", 2: "Automóvil", 3: "Bicicleta" };
+
 const CircuitosView = () => {
   const dispatch = useDispatch();
   const router = useRouter();
@@ -41,7 +43,7 @@ const CircuitosView = () => {
     const cargarRecomendaciones = async () => {
       try {
         setLoadingRecomendaciones(true);
-        const modoTransporte = preferencias?.modo_transporte?.nombre;
+        const modoTransporte = MODO_NOMBRE_POR_ID[preferencias?.modo_transporte_id];
         const recomendaciones = await obtenerCircuitosRecomendados(location, modoTransporte);
         setCircuitosRecomendados(recomendaciones);
       } catch (error) {
@@ -55,7 +57,7 @@ const CircuitosView = () => {
     if (circuitos.length > 0) {
       cargarRecomendaciones();
     }
-  }, [circuitos.length, location, preferencias?.modo_transporte?.nombre, user?.usuario_id, t]);
+  }, [circuitos.length, location, preferencias?.modo_transporte_id, user?.usuario_id, t]);
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) {
