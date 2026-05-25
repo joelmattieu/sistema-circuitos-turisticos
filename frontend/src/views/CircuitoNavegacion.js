@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { calcularDistanciaMetros } from "@/utils/geo";
 import { useAuth } from "@/hooks/useAuth";
-import { fetchCircuitoById } from "@/store/circuitos/circuitosSlice";
+import { fetchCircuitoById, finalizarCircuito } from "@/store/circuitos/circuitosSlice";
 import { fetchPreferencias } from "@/store/preferencias/preferenciasSlice";
 import NavigationPanel from "@/components/circuitos/NavigationPanel";
 import { toast } from "react-toastify";
@@ -52,6 +52,15 @@ export default function CircuitoNavegacion({ circuitoId }) {
   const { t, language } = useContext(LanguageContext);
   const [mostrarModalExito, setMostrarModalExito] = useState(false);
   const [circuitoCompletable, setCircuitoCompletable] = useState(false);
+  const [yaFinalizado, setYaFinalizado] = useState(false);
+
+  const handleFinalizarCircuito = () => {
+    if (!yaFinalizado) {
+      dispatch(finalizarCircuito(circuitoId));
+      setYaFinalizado(true);
+    }
+    setMostrarModalExito(true);
+  };
   const {
     location: realLocation,
     error: geoError,
@@ -131,7 +140,6 @@ export default function CircuitoNavegacion({ circuitoId }) {
             });
         }
 
-        // Diferir setState para no actualizar estado sincrónicamente dentro del efecto
         queueMicrotask(() => {
           setPoiVisitados((prev) => {
             const newSet = new Set(prev);
@@ -498,7 +506,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
               </Typography>
             </Box>
             <Button
-              onClick={() => setMostrarModalExito(true)}
+              onClick={handleFinalizarCircuito}
               variant="outlined"
               size="small"
               sx={{

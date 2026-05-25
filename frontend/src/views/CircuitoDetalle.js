@@ -22,10 +22,7 @@ import {
   Park as ParkIcon,
   Castle as MonumentIcon,
 } from "@mui/icons-material";
-import {
-  fetchCircuitoById,
-  finalizarCircuito,
-} from "../store/circuitos/circuitosSlice";
+import { fetchCircuitoById } from "../store/circuitos/circuitosSlice";
 import { fetchPreferencias } from "../store/preferencias/preferenciasSlice";
 import { LanguageContext } from "@/context/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -75,7 +72,6 @@ const CircuitoDetalle = ({ circuitoId }) => {
   }, [dispatch, user, preferencias]);
 
   const handleComenzarCircuito = () => {
-    dispatch(finalizarCircuito(circuitoId));
     router.push(`/circuito/${circuitoId}/navegar`);
   };
 
@@ -102,7 +98,6 @@ const CircuitoDetalle = ({ circuitoId }) => {
     currentCircuito.unidad_medicion,
   );
 
-  // Si el usuario eligió auto pero el circuito no es accesible en auto, forzar a pie
   const modoUsuario = preferencias?.modo_transporte_id;
   const autoEnCircuitoPeatonal = modoUsuario === 2 && currentCircuito.accesible_auto === false;
   const modoParaDuracion = autoEnCircuitoPeatonal ? 1 : (modoUsuario || currentCircuito.modo_transporte_id);
