@@ -189,7 +189,6 @@ def load_categorias_circuitos(db: Session):
         db.commit()
         return
 
-    # Completar traducciones faltantes.
     traducciones = {cat_id: (en, pt) for cat_id, _, en, pt in CATEGORIAS_SEED}
     for categoria in categorias_existentes:
         en, pt = traducciones.get(categoria.categoria_id, (None, None))
@@ -270,7 +269,6 @@ def load_puntos_interes(db: Session):
         db.commit()
         return
 
-    # Completar traducciones y corregir coordenadas obsoletas.
     seed_por_id = {data["poi_id"]: data for data in POIS_SEED}
     for poi in puntos_existentes:
         seed = seed_por_id.get(poi.poi_id)

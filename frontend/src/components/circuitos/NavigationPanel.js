@@ -16,8 +16,6 @@ import { obtenerClaveInstruccion } from "@/utils/routing";
 const ICONO_NAVEGACION = { fontSize: 28, color: "#1976d2" };
 const DISTANCIA_LLEGADA_METROS = 50;
 
-// Mapea códigos de instrucción de OpenRouteService al ícono visual.
-// Los códigos (0=recto, 1=derecha, 2=izquierda, etc.) vienen de la API.
 const ICONOS_POR_TIPO_INSTRUCCION = {
   0: StraightIcon,
   1: TurnRightIcon,
@@ -73,7 +71,6 @@ export default function NavigationPanel({
 
   const { estaProximo, distanciaDisplay, minutos } = infoProximoPOI;
 
-  // Estado: Llegaste al punto de interés
   if (estaProximo) {
     return (
       <Box
@@ -138,7 +135,6 @@ export default function NavigationPanel({
     );
   }
 
-  // Estado: Navegando hacia el punto de interés
   return (
     <Box
       sx={{

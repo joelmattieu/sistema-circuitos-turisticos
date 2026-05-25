@@ -57,7 +57,6 @@ export default function ARView({ poi, onClose }) {
 
   useEffect(() => {
     const requestPermission = async () => {
-      // iOS 13+ requiere permiso explícito para el sensor de orientación.
       const necesitaPermiso =
         typeof DeviceOrientationEvent !== "undefined" &&
         typeof DeviceOrientationEvent.requestPermission === "function";

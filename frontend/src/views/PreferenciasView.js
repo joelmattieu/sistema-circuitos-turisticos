@@ -113,7 +113,6 @@ export default function PreferenciasView() {
 
     setPreferenciasState(nuevasPreferencias);
 
-    // Cambia idioma inmediatamente en la UI
     const idioma = idiomas.find((i) => i.idioma_id === idiomaId);
     if (idioma) {
       changeLanguage(idioma.codigo_iso);

@@ -1,8 +1,5 @@
-/**
- * Calcula la distancia en metros entre dos puntos GPS usando la fórmula Haversine.
- */
 export function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
-  const R = 6371000; // Radio de la Tierra en metros
+  const R = 6371000;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -15,10 +12,8 @@ export function calcularDistanciaMetros(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-// Mapeo de ID de modo de transporte a nombre interno
 const MODOS_POR_ID = { 1: "a_pie", 2: "auto", 3: "bicicleta" };
 
-// Normaliza el modo de transporte: acepta ID (1,2,3) o nombre ("a_pie","auto","bicicleta","A pie","Automóvil","Bicicleta")
 export function normalizarModoTransporte(modo) {
   if (!modo) return "a_pie";
   if (typeof modo === "number") return MODOS_POR_ID[modo] || "a_pie";
@@ -29,9 +24,8 @@ export function normalizarModoTransporte(modo) {
   return modo;
 }
 
-// Estima duración en minutos según distancia y modo de transporte
 export function estimarDuracion(distanciaMetros, modoTransporte = "a_pie") {
-  const velocidades = { a_pie: 5, bicicleta: 15, auto: 40 }; // km/h
+  const velocidades = { a_pie: 5, bicicleta: 15, auto: 40 };
   const modo = normalizarModoTransporte(modoTransporte);
   const velocidad = velocidades[modo] || 5;
   const distanciaKm = distanciaMetros / 1000;

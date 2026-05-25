@@ -35,7 +35,6 @@ def create_or_update_preferencia(
     db: Session = Depends(get_db),
     usuario_actual: UsuarioModel = Depends(obtener_usuario_actual),
 ):
-    # No confiamos en el usuario_id del body: forzamos el del token firmado
     preferencia_data.usuario_id = usuario_actual.usuario_id
     return create_preferencia(db, preferencia_data)
 

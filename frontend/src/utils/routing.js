@@ -1,7 +1,5 @@
 const ORS_API_KEY = process.env.NEXT_PUBLIC_ORS_API_KEY;
 
-// OpenRouteService devuelve cada paso con un "type" numérico que indica la maniobra.
-// Lo traducimos a una clave de i18n para mostrar la instrucción en el idioma del usuario.
 const TIPO_A_CLAVE_I18N = {
   0: "routing.continue",
   1: "routing.turnRight",

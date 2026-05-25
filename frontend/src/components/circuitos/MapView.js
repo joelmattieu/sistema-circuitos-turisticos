@@ -135,7 +135,6 @@ export default function MapView({
         />
 
         {rutaCompleta.length > 0 ? (
-          // Ruta real por calles
           <Polyline
             positions={rutaCompleta.map((coord) => [coord.lat, coord.lng])}
             color="#1976d2"

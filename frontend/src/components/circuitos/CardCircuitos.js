@@ -9,7 +9,6 @@ import CircularProgressIndicator from "./CircularProgressIndicator";
 import { useDistanceFormatter } from "@/hooks/useDistance";
 import { estimarDuracion } from "@/utils/geo";
 
-// modo_transporte_id: 1 = a pie, 2 = auto, 3 = bicicleta
 const ICONO_POR_MODO = {
   1: DirectionsWalkIcon,
   2: DirectionsCarIcon,
@@ -20,8 +19,6 @@ const CardCircuitos = ({ circuito, onClick }) => {
   const { formatDistance } = useDistanceFormatter();
   const { preferencias } = useSelector((state) => state.preferencias);
 
-  // Si el usuario eligió auto pero el circuito no es accesible en auto,
-  // forzamos cálculo a pie (id=1) y resaltamos visualmente el cambio.
   const modoUsuario = preferencias?.modo_transporte_id;
   const autoEnCircuitoPeatonal = modoUsuario === 2 && circuito.accesible_auto === false;
   const modoEfectivo = autoEnCircuitoPeatonal ? 1 : (modoUsuario || circuito.modo_transporte_id || 1);

@@ -14,7 +14,6 @@ async def login(user: UsuarioLogin, db: db_dependency):
     if not authenticated_user:
         raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
 
-    # Generamos un token JWT que el frontend deberá mandar en cada request protegido.
     token = crear_token(authenticated_user.usuario_id)
 
     return {

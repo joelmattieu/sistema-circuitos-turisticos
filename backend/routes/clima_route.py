@@ -8,10 +8,6 @@ def obtener_clima_actual(
     lat: float = Query(-31.4201, description="Latitud"),
     lon: float = Query(-64.1888, description="Longitud")
 ):
-    """
-    Endpoint de prueba para verificar el servicio de clima.
-    Por defecto usa coordenadas de Córdoba, Argentina.
-    """
     clima = obtener_clima(lat, lon)
     
     return {

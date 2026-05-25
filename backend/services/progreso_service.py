@@ -5,10 +5,6 @@ from models.circuito import CircuitoModel
 from typing import Dict
 
 def calcular_progreso_circuito(db: Session, usuario_id: int, circuito_id: int) -> float:
-    """
-    Calcula el porcentaje de progreso de un usuario en un circuito.
-    Retorna un valor entre 0 y 100.
-    """
     circuito = db.query(CircuitoModel).filter(
         CircuitoModel.circuito_id == circuito_id
     ).first()
@@ -35,10 +31,6 @@ def calcular_progreso_circuito(db: Session, usuario_id: int, circuito_id: int) -
 
 
 def obtener_progresos_usuario(db: Session, usuario_id: int) -> Dict[int, float]:
-    """
-    Obtiene todos los progresos del usuario en todos los circuitos.
-    Retorna un diccionario {circuito_id: porcentaje}
-    """
     progresos = {}
     
     recorridos = db.query(RecorridoUsuarioModel).filter(
