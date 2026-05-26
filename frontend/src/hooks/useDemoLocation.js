@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { obtenerRutaPasoAPaso } from "@/utils/routing";
 
-const COORDENADA_POR_DEFECTO = { lat: -31.418359, lng: -64.184643 };
+const INICIO_DEMO = { lat: -31.418359, lng: -64.184643 };
 
 function obtenerPuntoInicio(demoEnabled, demoStartLocation, realLocation) {
   if (demoEnabled && demoStartLocation) {
@@ -12,11 +12,11 @@ function obtenerPuntoInicio(demoEnabled, demoStartLocation, realLocation) {
       lng: demoStartLocation.longitude || demoStartLocation.lng,
     };
   }
-  if (demoEnabled) return COORDENADA_POR_DEFECTO;
+  if (demoEnabled) return INICIO_DEMO;
   if (realLocation) {
     return { lat: realLocation.latitude, lng: realLocation.longitude };
   }
-  return COORDENADA_POR_DEFECTO;
+  return INICIO_DEMO;
 }
 
 export function useDemoLocation(
@@ -84,7 +84,6 @@ export function useDemoLocation(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pois, demoEnabled, rutaCompleta.length]);
 
-  // Actualiza el paso de navegación actual según el avance del usuario en la ruta
   useEffect(() => {
     if (pasosNavegacion.length === 0 || rutaCompleta.length === 0) return;
 
@@ -105,12 +104,11 @@ export function useDemoLocation(
     setPasoActual(pasosNavegacion[pasoEncontrado]);
   }, [currentWaypointIndex, pasosNavegacion, rutaCompleta]);
 
-  // Devuelve la ubicación simulada según el índice actual en la ruta
   const getCurrentLocation = useCallback(() => {
     if (!demoEnabled) return null;
 
     if (rutaCompleta.length === 0) {
-      const inicio = demoStartLocation || COORDENADA_POR_DEFECTO;
+      const inicio = demoStartLocation || INICIO_DEMO;
       return {
         latitude: inicio.latitude || inicio.lat,
         longitude: inicio.longitude || inicio.lng,
