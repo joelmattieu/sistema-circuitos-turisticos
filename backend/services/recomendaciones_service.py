@@ -22,12 +22,12 @@ def calcular_distancia_km(lat1: float, lon1: float, lat2: float, lon2: float) ->
 
 def puntaje_clima(circuito, condicion):
     if condicion == "lluvioso":
-        base = 20 if (circuito.duracion_estimada_minutos or 0) <= 120 else 10
-        bonus = 10 if circuito.tiene_tramos_techados else 0
+        base = 25 if (circuito.duracion_estimada_minutos or 0) <= 120 else 15
+        bonus = 15 if circuito.tiene_tramos_techados else 0
         return base + bonus
     if condicion == "soleado":
-        return 30 if (circuito.duracion_estimada_minutos or 0) > 120 else 20
-    return 15
+        return 40 if (circuito.duracion_estimada_minutos or 0) > 120 else 25
+    return 20
 
 
 def puntaje_ubicacion(circuito, ubicacion_usuario):
@@ -39,11 +39,11 @@ def puntaje_ubicacion(circuito, ubicacion_usuario):
         primer_poi.latitud, primer_poi.longitud,
     )
     if distancia < 1:
-        return 20
+        return 30
     if distancia < 5:
-        return 15
+        return 20
     if distancia < 10:
-        return 10
+        return 12
     if distancia < 20:
         return 5
     return 0
@@ -53,13 +53,13 @@ def puntaje_transporte(circuito, modo_usuario):
     if not modo_usuario:
         return 0
     if not circuito.modo_transporte:
-        return 7.5
+        return 10
     modo_circuito = circuito.modo_transporte.nombre_modo_transporte.strip().lower()
     modo_usuario = modo_usuario.strip().lower()
     if modo_usuario == modo_circuito:
-        return 15
+        return 20
     if modo_usuario == "bicicleta" and modo_circuito == "a pie":
-        return 10
+        return 13
     return 0
 
 
