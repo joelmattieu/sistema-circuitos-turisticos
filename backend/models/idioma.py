@@ -2,7 +2,7 @@ from db import Base
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-class IdiomaModel(Base):  # ← Cambiar de PaisModel a IdiomaModel
+class IdiomaModel(Base):
   __tablename__ = 'idiomas'
   
   idioma_id = Column(Integer, primary_key=True, index=True)
