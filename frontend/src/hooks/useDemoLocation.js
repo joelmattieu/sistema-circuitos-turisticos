@@ -38,6 +38,7 @@ export function useDemoLocation(
     setCurrentWaypointIndex(0);
   }, [demoEnabled, idioma]);
 
+  // Cuando hay POIs y todavía no calculé la ruta, llamo a OpenRouteService por cada tramo entre POIs y voy juntando todas las coordenadas y todas las instrucciones en dos listas grandes.
   useEffect(() => {
     if (!pois || pois.length === 0) return;
     if (rutaCompleta.length > 0) return;
@@ -45,12 +46,17 @@ export function useDemoLocation(
     async function generarRuta() {
       const todosLosPasos = [];
       const todasLasCoordenadas = [];
-      const puntoInicio = obtenerPuntoInicio(demoEnabled, demoStartLocation, realLocation);
+      const puntoInicio = obtenerPuntoInicio(
+        demoEnabled,
+        demoStartLocation,
+        realLocation,
+      );
 
       for (let i = 0; i < pois.length; i++) {
-        const origen = i === 0
-          ? puntoInicio
-          : { lat: pois[i - 1].latitud, lng: pois[i - 1].longitud };
+        const origen =
+          i === 0
+            ? puntoInicio
+            : { lat: pois[i - 1].latitud, lng: pois[i - 1].longitud };
         const destino = { lat: pois[i].latitud, lng: pois[i].longitud };
 
         try {
@@ -84,11 +90,18 @@ export function useDemoLocation(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pois, demoEnabled, rutaCompleta.length]);
 
+  // según en qué índice estoy, decido qué paso de navegación corresponde
+  //si tengo 200 coordenadas y 10 instrucciones, ¿qué instrucción toca en la coord 47? Calcula proporcionalmente cuál es la activa.
+  // Tengo más coordenadas que instrucciones, así que convierto mi posición a metros caminados y busco qué instrucción cubre ese tramo. Es una regla de tres: si voy por el 23% de la ruta, busco la instrucción que corresponde al 23% de la distancia
   useEffect(() => {
     if (pasosNavegacion.length === 0 || rutaCompleta.length === 0) return;
 
-    const distanciaTotal = pasosNavegacion.reduce((sum, p) => sum + p.distancia, 0);
-    const progresoEnMetros = (currentWaypointIndex / rutaCompleta.length) * distanciaTotal;
+    const distanciaTotal = pasosNavegacion.reduce(
+      (sum, p) => sum + p.distancia,
+      0,
+    );
+    const progresoEnMetros =
+      (currentWaypointIndex / rutaCompleta.length) * distanciaTotal;
 
     let distanciaAcumulada = 0;
     let pasoEncontrado = 0;
@@ -125,7 +138,9 @@ export function useDemoLocation(
   }, [demoEnabled, rutaCompleta, currentWaypointIndex, demoStartLocation]);
 
   const avanzar = useCallback(() => {
-    setCurrentWaypointIndex((prev) => Math.min(prev + 1, rutaCompleta.length - 1));
+    setCurrentWaypointIndex((prev) =>
+      Math.min(prev + 1, rutaCompleta.length - 1),
+    );
   }, [rutaCompleta]);
 
   const retroceder = useCallback(() => {

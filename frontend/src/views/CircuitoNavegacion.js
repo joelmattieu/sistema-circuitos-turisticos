@@ -171,6 +171,7 @@ export default function CircuitoNavegacion({ circuitoId }) {
     proximoPOI,
     circuitoId,
     user?.usuario_id,
+    user
   ]);
 
   useEffect(() => {
