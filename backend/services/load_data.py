@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from datetime import date
 from models.pais import PaisModel
 from models.provincia import ProvinciaModel
 from models.idioma import IdiomaModel
@@ -188,6 +189,13 @@ def load_puntos_interes(db: Session):
             descripcion="Principal iglesia de la ciudad.",
             descripcion_en="The city's main church.",
             descripcion_pt="Principal igreja da cidade.",
+            fecha_inauguracion=date(1758, 5, 25),
+            dato_historico="Inaugurada en 1758.",
+            dato_historico_en="Inaugurated in 1758.",
+            dato_historico_pt="Inaugurada em 1758.",
+            informacion_cultural="Pinturas interiores de Emilio Caraffa, artista.",
+            informacion_cultural_en="Interior paintings by Emilio Caraffa, artist.",
+            informacion_cultural_pt="Pinturas interiores de Emilio Caraffa, artista.",
             activo=True,
         ),
         PuntoInteresModel(
@@ -202,6 +210,13 @@ def load_puntos_interes(db: Session):
             descripcion="Antiguo edificio colonial, hoy museo.",
             descripcion_en="Former colonial building, today a museum.",
             descripcion_pt="Antigo edifício colonial, hoje um museu.",
+            fecha_inauguracion=date(1786, 1, 1),
+            dato_historico="Remodelado y completado en 1786.",
+            dato_historico_en="Remodeled and completed in 1786.",
+            dato_historico_pt="Remodelado e completado em 1786.",
+            informacion_cultural="Monumento Histórico Nacional desde 1941.",
+            informacion_cultural_en="National Historic Monument since 1941.",
+            informacion_cultural_pt="Monumento Histórico Nacional desde 1941.",
             activo=True,
         ),
         PuntoInteresModel(
@@ -216,20 +231,13 @@ def load_puntos_interes(db: Session):
             descripcion="Conexión arquitectónica con la Plazoleta del Fundador.",
             descripcion_en="Architectural link with the Plazoleta del Fundador.",
             descripcion_pt="Conexão arquitetônica com a Plazoleta del Fundador.",
-            activo=True,
-        ),
-        PuntoInteresModel(
-            poi_id=4,
-            tipo_poi=TipoPuntoInteresEnum.HISTORICO,
-            latitud=-31.4198,
-            longitud=-64.1880,
-            tiene_audioguia=True,
-            nombre="Manzana Jesuítica",
-            nombre_en="Jesuit Block",
-            nombre_pt="Quarteirão Jesuíta",
-            descripcion="Conjunto arquitectónico declarado Patrimonio de la Humanidad por la UNESCO.",
-            descripcion_en="Architectural complex declared a UNESCO World Heritage Site.",
-            descripcion_pt="Conjunto arquitetônico declarado Patrimônio da Humanidade pela UNESCO.",
+            fecha_inauguracion=date(1600, 1, 1),
+            dato_historico="Construido en el siglo XVII, originalmente Pasaje Cuzco.",
+            dato_historico_en="Built in the 17th century, originally Pasaje Cuzco.",
+            dato_historico_pt="Construído no século XVII, originalmente Pasaje Cuzco.",
+            informacion_cultural="Casa del Archivo Provincial de la Memoria.",
+            informacion_cultural_en="Home of the Provincial Archive of Memory.",
+            informacion_cultural_pt="Casa do Arquivo Provincial da Memória.",
             activo=True,
         ),
     ]
@@ -321,7 +329,6 @@ def load_circuitos_puntos_interes(db: Session):
         CircuitoPuntoInteresModel(circuito_poi_id=1, circuito_id=1, poi_id=1, orden_en_circuito=1),
         CircuitoPuntoInteresModel(circuito_poi_id=2, circuito_id=1, poi_id=2, orden_en_circuito=2),
         CircuitoPuntoInteresModel(circuito_poi_id=3, circuito_id=1, poi_id=3, orden_en_circuito=3),
-        CircuitoPuntoInteresModel(circuito_poi_id=4, circuito_id=3, poi_id=4, orden_en_circuito=1),
     ]
     for vinculo in vinculos:
         db.add(vinculo)
