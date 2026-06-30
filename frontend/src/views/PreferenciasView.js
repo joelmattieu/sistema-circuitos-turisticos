@@ -365,7 +365,9 @@ export default function PreferenciasView() {
               }
               label={
                 <Typography sx={{ fontSize: "14px", fontWeight: 500 }}>
-                  {unidad.nombre_unidad_medicion}
+                  {unidad.nombre_unidad_medicion?.toLowerCase().includes("milla")
+                    ? t("unit.miles")
+                    : t("unit.km")}
                 </Typography>
               }
             />
