@@ -4,10 +4,9 @@ export const getBackendURL = () => {
   }
 
   if (typeof window !== "undefined") {
-    const protocol = window.location.protocol;
     const hostname = window.location.hostname;
-    return `${protocol}//${hostname}:8000`;
+    return `https://${hostname}:8000`;
   }
 
-  return "http://localhost:8000";
+  return "https://localhost:8000";
 };
