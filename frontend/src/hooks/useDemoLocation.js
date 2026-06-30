@@ -63,11 +63,14 @@ export function useDemoLocation(
           const ruta = await obtenerRutaPasoAPaso(origen, destino, idioma);
 
           if (ruta) {
+            const offset = todasLasCoordenadas.length;
             const pasosConPOI = ruta.pasos.map((paso) => ({
               ...paso,
               poiDestino: i,
               nombrePOI: pois[i].nombre,
               poiCompleto: pois[i],
+              coordInicio: offset + (paso.waypointInicio ?? 0),
+              coordFin: offset + (paso.waypointFin ?? 0),
             }));
             todosLosPasos.push(...pasosConPOI);
             todasLasCoordenadas.push(...ruta.coordenadas);
@@ -78,44 +81,32 @@ export function useDemoLocation(
         }
       }
 
-      setPasosNavegacion(todosLosPasos);
+      const pasosFiltrados = todosLosPasos.filter((paso) => paso.distancia > 0);
+
+      setPasosNavegacion(pasosFiltrados);
       setRutaCompleta(todasLasCoordenadas);
 
-      if (todosLosPasos.length > 0) {
-        setPasoActual(todosLosPasos[0]);
+      if (pasosFiltrados.length > 0) {
+        setPasoActual(pasosFiltrados[0]);
       }
     }
 
     generarRuta();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pois, demoEnabled, rutaCompleta.length]);
-
-  // según en qué índice estoy, decido qué paso de navegación corresponde
-  //si tengo 200 coordenadas y 10 instrucciones, ¿qué instrucción toca en la coord 47? Calcula proporcionalmente cuál es la activa.
-  // Tengo más coordenadas que instrucciones, así que convierto mi posición a metros caminados y busco qué instrucción cubre ese tramo. Es una regla de tres: si voy por el 23% de la ruta, busco la instrucción que corresponde al 23% de la distancia
+  
   useEffect(() => {
-    if (pasosNavegacion.length === 0 || rutaCompleta.length === 0) return;
+    if (pasosNavegacion.length === 0) return;
 
-    const distanciaTotal = pasosNavegacion.reduce(
-      (sum, p) => sum + p.distancia,
-      0,
-    );
-    const progresoEnMetros =
-      (currentWaypointIndex / rutaCompleta.length) * distanciaTotal;
+    const paso =
+      pasosNavegacion.find(
+        (p) =>
+          currentWaypointIndex >= p.coordInicio &&
+          currentWaypointIndex <= p.coordFin,
+      ) || pasosNavegacion[pasosNavegacion.length - 1];
 
-    let distanciaAcumulada = 0;
-    let pasoEncontrado = 0;
-
-    for (let i = 0; i < pasosNavegacion.length; i++) {
-      distanciaAcumulada += pasosNavegacion[i].distancia;
-      if (progresoEnMetros <= distanciaAcumulada) {
-        pasoEncontrado = i;
-        break;
-      }
-    }
-
-    setPasoActual(pasosNavegacion[pasoEncontrado]);
-  }, [currentWaypointIndex, pasosNavegacion, rutaCompleta]);
+    setPasoActual(paso);
+  }, [currentWaypointIndex, pasosNavegacion]);
 
   const getCurrentLocation = useCallback(() => {
     if (!demoEnabled) return null;

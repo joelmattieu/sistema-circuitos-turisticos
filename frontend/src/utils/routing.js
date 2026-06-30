@@ -34,15 +34,24 @@ export async function obtenerRutaPasoAPaso(origen, destino, idioma = "es") {
     const geometry = route.geometry.coordinates;
     const steps = route.properties.segments[0].steps;
 
+    const coordenadas = geometry.map(([lng, lat]) => ({ lat, lng }));
+
     return {
-      coordenadas: geometry.map(([lng, lat]) => ({ lat, lng })),
+      coordenadas,
       pasos: steps.map((step, index) => ({
         instruccionOriginal: step.instruction,
         distancia: step.distance,
         duracion: step.duration,
         tipo: step.type,
-        nombreCalle: step.name,
+        // La API devuelve "-" cuando el tramo no tiene nombre (plazas, peatonales).
+        // Lo paso a null para que se use el texto por defecto en su lugar.
+        nombreCalle: step.name && step.name !== "-" ? step.name : null,
         indice: index,
+        waypointInicio: step.way_points ? step.way_points[0] : null,
+        waypointFin: step.way_points ? step.way_points[1] : null,
+        coordenadas: step.way_points
+          ? coordenadas.slice(step.way_points[0], step.way_points[1] + 1)
+          : [],
       })),
       distanciaTotal: route.properties.segments[0].distance,
       duracionTotal: route.properties.segments[0].duration,
