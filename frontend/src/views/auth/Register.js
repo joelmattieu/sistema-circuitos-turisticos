@@ -14,7 +14,9 @@ import {
   Alert,
   IconButton,
   Menu,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { useForm, Controller } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
@@ -122,6 +124,8 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [selectedPaisId, setSelectedPaisId] = useState(null);
   const [registerError, setRegisterError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     control,
@@ -480,9 +484,27 @@ const Register = () => {
                 <StyledTextField
                   {...field}
                   fullWidth
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   error={!!errors.contrasena}
                   helperText={errors.contrasena?.message}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          size="small"
+                          tabIndex={-1}
+                        >
+                          {showPassword ? (
+                            <Visibility fontSize="small" />
+                          ) : (
+                            <VisibilityOff fontSize="small" />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             />
@@ -505,9 +527,29 @@ const Register = () => {
                 <StyledTextField
                   {...field}
                   fullWidth
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   error={!!errors.confirmPassword}
                   helperText={errors.confirmPassword?.message}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          edge="end"
+                          size="small"
+                          tabIndex={-1}
+                        >
+                          {showConfirmPassword ? (
+                            <VisibilityOff fontSize="small" />
+                          ) : (
+                            <Visibility fontSize="small" />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             />
