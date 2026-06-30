@@ -5,6 +5,7 @@ from db import get_db
 from models.usuario import UsuarioModel
 from services.auth.dependencies import obtener_usuario_actual
 from services.cruds.crud_recorridos import (
+    iniciar_recorrido,
     registrar_visita,
     obtener_recorrido_usuario,
     obtener_pois_visitados
@@ -13,9 +14,31 @@ from services.cruds.crud_recorridos import (
 route_recorridos = APIRouter(prefix="/recorridos", tags=["Recorridos"])
 
 
+class IniciarRecorridoRequest(BaseModel):
+    circuito_id: int
+
+
 class RegistrarVisitaRequest(BaseModel):
     circuito_id: int
     poi_id: int
+
+
+@route_recorridos.post("/iniciar")
+def iniciar_recorrido_route(
+    request: IniciarRecorridoRequest,
+    db: Session = Depends(get_db),
+    usuario_actual: UsuarioModel = Depends(obtener_usuario_actual),
+):
+    recorrido = iniciar_recorrido(
+        db,
+        usuario_actual.usuario_id,
+        request.circuito_id,
+    )
+    return {
+        "recorrido_id": recorrido.recorrido_id,
+        "estado": recorrido.estado,
+        "progreso": recorrido.avance_porcentaje,
+    }
 
 
 @route_recorridos.post("/visita")

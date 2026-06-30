@@ -28,6 +28,7 @@ import { LanguageContext } from "@/context/LanguageContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useDistanceFormatter } from "@/hooks/useDistance";
 import { estimarDuracion } from "@/utils/geo";
+import { iniciarRecorrido } from "@/services/recorridos";
 
 const getIconByTipo = (tipo) => {
   switch (tipo?.toLowerCase()) {
@@ -71,7 +72,14 @@ const CircuitoDetalle = ({ circuitoId }) => {
     }
   }, [dispatch, user, preferencias]);
 
-  const handleComenzarCircuito = () => {
+  const handleComenzarCircuito = async () => {
+    if (user) {
+      try {
+        await iniciarRecorrido(circuitoId);
+      } catch (error) {
+        console.error("Error iniciando recorrido:", error);
+      }
+    }
     router.push(`/circuito/${circuitoId}/navegar`);
   };
 
