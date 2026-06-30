@@ -57,7 +57,7 @@ const CircuitosView = () => {
     if (circuitos.length > 0) {
       cargarRecomendaciones();
     }
-  }, [circuitos.length, location, preferencias?.modo_transporte_id, user?.usuario_id, t]);
+  }, [circuitos.length, location?.latitude, location?.longitude, preferencias?.modo_transporte_id, user?.usuario_id, t]);
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) {
