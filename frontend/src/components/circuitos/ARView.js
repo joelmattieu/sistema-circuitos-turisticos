@@ -254,7 +254,7 @@ export default function ARView({ poi, onClose }) {
         </Typography>
       </Paper>
 
-      {poi?.fecha_inauguracion && (
+      {poi?.dato_historico && (
         <Paper
           elevation={6}
           sx={{
@@ -267,7 +267,7 @@ export default function ARView({ poi, onClose }) {
             px: 2.5,
             py: 1.8,
             borderRadius: 2.5,
-            minWidth: 200,
+            minWidth: 220,
             maxWidth: "45%",
             textAlign: "center",
           }}
@@ -282,20 +282,21 @@ export default function ARView({ poi, onClose }) {
             }}
           >
             <HistoryIcon sx={{ color: "#FF6B6B", fontSize: 20 }} />
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 600,
-                color: "#424242",
-              }}
-            >
-              {poi.fecha_inauguracion}
-            </Typography>
           </Box>
+          <Typography
+            variant="body2"
+            sx={{
+              fontWeight: 500,
+              color: "#424242",
+              lineHeight: 1.4,
+            }}
+          >
+            {poi.dato_historico}
+          </Typography>
         </Paper>
       )}
 
-      {(poi?.dato_historico || poi?.informacion_cultural) && (
+      {poi?.informacion_cultural && (
         <Paper
           elevation={6}
           sx={{
@@ -317,33 +318,31 @@ export default function ARView({ poi, onClose }) {
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "flex-start",
               gap: 1,
-              mb: 0.5,
+              mb: 1,
             }}
           >
             <PaletteIcon sx={{ color: "#4CAF50", fontSize: 22 }} />
             <Typography
-              variant="subtitle1"
+              variant="subtitle2"
               sx={{
                 fontWeight: 600,
                 color: "#424242",
               }}
             >
-              {poi.dato_historico || t("ar.culturalInfo")}
+              {t("ar.culturalInfo")}
             </Typography>
           </Box>
-          {poi?.informacion_cultural && (
-            <Typography
-              variant="body2"
-              sx={{
-                color: "#616161",
-                mt: 0.5,
-              }}
-            >
-              {poi.informacion_cultural}
-            </Typography>
-          )}
+          <Typography
+            variant="body2"
+            sx={{
+              color: "#616161",
+              lineHeight: 1.5,
+            }}
+          >
+            {poi.informacion_cultural}
+          </Typography>
         </Paper>
       )}
     </Box>
