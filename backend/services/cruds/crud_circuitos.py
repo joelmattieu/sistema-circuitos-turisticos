@@ -4,6 +4,7 @@ from models.categoria_circuito import CategoriaCircuitoModel
 from models.preferencia_usuario import PreferenciaUsuarioModel
 from schemas.circuito_schema import CircuitoCreate, CircuitoUpdate, CircuitoResponse
 from services.progreso_service import obtener_progresos_usuario
+from services.cruds.crud_recorridos import obtener_recorrido_usuario
 from services.recomendaciones_service import calcular_distancia_km
 from services.i18n import localizar_circuito
 from fastapi import HTTPException
@@ -122,6 +123,9 @@ def get_circuito(db: Session, circuito_id: int, usuario_id: int = None, idioma: 
 
     progresos = obtener_progresos_usuario(db, usuario_id)
     circuito_dict['progreso_porcentaje'] = progresos.get(circuito_id, 0.0)
+
+    recorrido = obtener_recorrido_usuario(db, usuario_id, circuito_id)
+    circuito_dict['estado_recorrido'] = recorrido.estado.value if recorrido else None
 
     preferencias = db.query(PreferenciaUsuarioModel).filter(
         PreferenciaUsuarioModel.usuario_id == usuario_id

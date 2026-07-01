@@ -200,7 +200,7 @@ const CircuitoDetalle = ({ circuitoId }) => {
             },
           }}
         >
-          {currentCircuito.progreso_porcentaje > 0 && currentCircuito.progreso_porcentaje < 100
+          {currentCircuito.estado_recorrido === "en_progreso"
             ? t("circuit.continue")
             : t("circuit.start")}
         </Button>
