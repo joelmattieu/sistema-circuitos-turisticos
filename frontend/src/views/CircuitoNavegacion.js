@@ -77,6 +77,11 @@ export default function CircuitoNavegacion({ circuitoId }) {
   );
   const { preferencias } = useSelector((state) => state.preferencias);
 
+  const modoRuteo =
+    currentCircuito?.accesible_auto === false
+      ? 1
+      : preferencias?.modo_transporte_id || 1;
+
   const {
     demoEnabled,
     currentLocation: demoLocation,
@@ -86,7 +91,13 @@ export default function CircuitoNavegacion({ circuitoId }) {
     retroceder,
     toggleDemo,
     rutaCompleta,
-  } = useDemoLocation(currentCircuito?.puntos_interes, realLocation, null, language);
+  } = useDemoLocation(
+    currentCircuito?.puntos_interes,
+    realLocation,
+    null,
+    language,
+    modoRuteo,
+  );
 
   const userLocation = demoEnabled ? demoLocation : realLocation;
   const isLoading = demoEnabled ? false : geoLoading;

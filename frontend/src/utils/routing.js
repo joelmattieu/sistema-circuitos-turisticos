@@ -1,5 +1,11 @@
 const ORS_API_KEY = process.env.NEXT_PUBLIC_ORS_API_KEY;
 
+const PERFIL_POR_MODO = {
+  1: "foot-walking", // a pie
+  2: "driving-car", // automóvil
+  3: "cycling-regular", // bicicleta
+};
+
 const TIPO_A_CLAVE_I18N = {
   0: "routing.continue",
   1: "routing.turnRight",
@@ -18,13 +24,14 @@ export function obtenerClaveInstruccion(tipo) {
   return TIPO_A_CLAVE_I18N[tipo] || "routing.continue";
 }
 
-export async function obtenerRutaPasoAPaso(origen, destino, idioma = "es") {
+export async function obtenerRutaPasoAPaso(origen, destino, idioma = "es", modoTransporteId = 1) {
   if (!ORS_API_KEY) {
     console.error("Falta NEXT_PUBLIC_ORS_API_KEY en .env.local");
     return null;
   }
 
-  const url = `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${ORS_API_KEY}&start=${origen.lng},${origen.lat}&end=${destino.lng},${destino.lat}&language=${idioma}&instructions=true&instructions_format=text`;
+  const perfil = PERFIL_POR_MODO[modoTransporteId] || "foot-walking";
+  const url = `https://api.openrouteservice.org/v2/directions/${perfil}?api_key=${ORS_API_KEY}&start=${origen.lng},${origen.lat}&end=${destino.lng},${destino.lat}&language=${idioma}&instructions=true&instructions_format=text`;
 
   try {
     const response = await fetch(url);
@@ -43,8 +50,6 @@ export async function obtenerRutaPasoAPaso(origen, destino, idioma = "es") {
         distancia: step.distance,
         duracion: step.duration,
         tipo: step.type,
-        // La API devuelve "-" cuando el tramo no tiene nombre (plazas, peatonales).
-        // Lo paso a null para que se use el texto por defecto en su lugar.
         nombreCalle: step.name && step.name !== "-" ? step.name : null,
         indice: index,
         waypointInicio: step.way_points ? step.way_points[0] : null,

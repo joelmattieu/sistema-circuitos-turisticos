@@ -24,6 +24,7 @@ export function useDemoLocation(
   realLocation = null,
   demoStartLocation = null,
   idioma = "es",
+  modoTransporteId = 1,
 ) {
   const [demoEnabled, setDemoEnabled] = useState(false);
   const [currentWaypointIndex, setCurrentWaypointIndex] = useState(0);
@@ -36,7 +37,7 @@ export function useDemoLocation(
     setPasosNavegacion([]);
     setPasoActual(null);
     setCurrentWaypointIndex(0);
-  }, [demoEnabled, idioma]);
+  }, [demoEnabled, idioma, modoTransporteId]);
 
   // Cuando hay POIs y todavía no calculé la ruta, llamo a OpenRouteService por cada tramo entre POIs y voy juntando todas las coordenadas y todas las instrucciones en dos listas grandes.
   useEffect(() => {
@@ -60,7 +61,12 @@ export function useDemoLocation(
         const destino = { lat: pois[i].latitud, lng: pois[i].longitud };
 
         try {
-          const ruta = await obtenerRutaPasoAPaso(origen, destino, idioma);
+          const ruta = await obtenerRutaPasoAPaso(
+            origen,
+            destino,
+            idioma,
+            modoTransporteId,
+          );
 
           if (ruta) {
             const offset = todasLasCoordenadas.length;
