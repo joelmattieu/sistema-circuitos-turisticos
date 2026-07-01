@@ -23,6 +23,8 @@ const CircuitosView = () => {
   const { t } = useContext(LanguageContext);
   const { user } = useAuth();
   const { location } = useGeolocation();
+  const latAprox = location?.latitude?.toFixed(3);
+  const lonAprox = location?.longitude?.toFixed(3);
   const { circuitos, loading, error } = useSelector((state) => state.circuitos);
   const { preferencias } = useSelector((state) => state.preferencias);
   const [circuitosRecomendados, setCircuitosRecomendados] = useState([]);
@@ -57,7 +59,8 @@ const CircuitosView = () => {
     if (circuitos.length > 0) {
       cargarRecomendaciones();
     }
-  }, [circuitos.length, location?.latitude, location?.longitude, preferencias?.modo_transporte_id, user?.usuario_id, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [circuitos.length, latAprox, lonAprox, preferencias?.modo_transporte_id, user?.usuario_id, t]);
 
   useEffect(() => {
     if (!location?.latitude || !location?.longitude) {
@@ -81,7 +84,8 @@ const CircuitosView = () => {
     };
 
     cargarCircuitosCercanos();
-  }, [location?.latitude, location?.longitude, user?.usuario_id, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [latAprox, lonAprox, user?.usuario_id, t]);
 
   const circuitosPorCategoria = React.useMemo(() => {
     const grupos = {};
@@ -123,7 +127,8 @@ const CircuitosView = () => {
     return (
       <Box mt={4}>
         <Typography color="error">
-          {t("circuits.error")}: {error}
+          {t("circuits.error")}
+          {typeof error === "string" ? `: ${error}` : ""}
         </Typography>
       </Box>
     );

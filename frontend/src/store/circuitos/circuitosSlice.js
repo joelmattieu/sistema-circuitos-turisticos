@@ -8,7 +8,7 @@ export const fetchCircuitos = createAsyncThunk(
       const response = await circuitosService.getAll();
       return response;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.detail || error.message);
     }
   }
 );
@@ -20,7 +20,7 @@ export const fetchCircuitoById = createAsyncThunk(
       const response = await circuitosService.getById(id);
       return response;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.detail || error.message);
     }
   }
 );
@@ -32,7 +32,7 @@ export const finalizarCircuito = createAsyncThunk(
       const response = await circuitosService.finalizar(id);
       return response;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data?.detail || error.message);
     }
   }
 );
