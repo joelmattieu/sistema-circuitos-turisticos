@@ -445,11 +445,11 @@ export default function CircuitoNavegacion({ circuitoId }) {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {currentCircuito.nombre}
+            {t("nav.circuitTitle", { name: currentCircuito.nombre })}
           </Typography>
           <Typography variant="caption" sx={{ color: "#999" }}>
             {t("nav.poiCounter", {
-              current: poiActualIndice + 1,
+              current: poiVisitados.size,
               total: currentCircuito.puntos_interes.length,
             })}
           </Typography>

@@ -26,7 +26,9 @@ def puntaje_clima(circuito, condicion):
         bonus = 15 if circuito.tiene_tramos_techados else 0
         return base + bonus
     if condicion == "soleado":
-        return 40 if (circuito.duracion_estimada_minutos or 0) > 120 else 25
+        base = 30 if (circuito.duracion_estimada_minutos or 0) > 120 else 20
+        bonus = 10 if not circuito.tiene_tramos_techados else 0
+        return base + bonus
     return 20
 
 

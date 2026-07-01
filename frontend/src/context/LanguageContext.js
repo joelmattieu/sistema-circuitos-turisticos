@@ -70,7 +70,7 @@ const translations = {
     "nav.notFound": "Circuito no encontrado",
     "nav.gettingLocation": "Obteniendo ubicación...",
     "nav.youAreHere": "Estás aquí",
-    "nav.noLocation": "No se pueden generar indicaciones sin acceso a la ubicación. Verificá los permisos del navegador.",
+    "nav.noLocation": "No se pueden generar indicaciones sin acceso a la ubicación. Verifica los permisos del navegador.",
     "nav.poiUnavailable": "POI no disponible",
     "nav.arrivedAt": "Llegaste a: {name}",
     "nav.exploreInAR": "Explora en Realidad Aumentada",
@@ -79,6 +79,7 @@ const translations = {
     "nav.demoStart": "Iniciar Demo",
     "nav.demoStop": "Pausar Demo",
     "nav.poiCounter": "({current} de {total})",
+    "nav.circuitTitle": "Circuito {name}",
     "nav.readyToFinish": "Recorrido completado",
     "nav.finishCircuit": "Finalizar",
 
@@ -230,6 +231,7 @@ const translations = {
     "nav.demoStart": "Start Demo",
     "nav.demoStop": "Pause Demo",
     "nav.poiCounter": "({current} of {total})",
+    "nav.circuitTitle": "Circuit {name}",
     "nav.readyToFinish": "Tour completed",
     "nav.finishCircuit": "Finish",
     "circuit.error": "Error loading circuit",
@@ -383,6 +385,7 @@ const translations = {
     "nav.demoStart": "Iniciar Demo",
     "nav.demoStop": "Pausar Demo",
     "nav.poiCounter": "({current} de {total})",
+    "nav.circuitTitle": "Circuito {name}",
     "nav.readyToFinish": "Percurso concluído",
     "nav.finishCircuit": "Finalizar",
 
