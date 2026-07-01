@@ -7,6 +7,14 @@ const CircularProgressIndicator = ({ percentage = 0 }) => {
 
   return (
     <Box sx={{ position: "relative", display: "inline-flex" }}>
+      {/* Aro de fondo: siempre visible, incluso con 0% de progreso */}
+      <CircularProgress
+        variant="determinate"
+        value={100}
+        size={48}
+        thickness={4}
+        sx={{ color: "#E0E0E0", position: "absolute" }}
+      />
       <CircularProgress
         variant="determinate"
         value={progresoRedondeado}
