@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,8 +32,13 @@ app = FastAPI(lifespan=lifespan)
 
 CORS_ORIGIN_REGEX = r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.20\.10\.\d+):3000$"
 
+# Dominio del frontend en producción (Vercel), configurable por variable de entorno.
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+allowed_origins = [FRONTEND_URL] if FRONTEND_URL else []
+
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=allowed_origins,
     allow_origin_regex=CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
