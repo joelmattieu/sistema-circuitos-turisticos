@@ -30,7 +30,10 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-CORS_ORIGIN_REGEX = r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.20\.10\.\d+):3000$"
+CORS_ORIGIN_REGEX = (
+    r"^https?://(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|172\.20\.10\.\d+):3000$"
+    r"|^https://sistema-circuitos-turisticos[a-z0-9-]*\.vercel\.app$"
+)
 
 # Dominio del frontend en producción (Vercel), configurable por variable de entorno.
 FRONTEND_URL = os.getenv("FRONTEND_URL")
