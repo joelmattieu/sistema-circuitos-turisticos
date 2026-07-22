@@ -5,7 +5,6 @@ const nextConfig = {
     styledComponents: true,
   },
   trailingSlash: true,
-  distDir: "dist",
   images: {
     unoptimized: true,
   },
