@@ -542,9 +542,9 @@ const Register = () => {
                           tabIndex={-1}
                         >
                           {showConfirmPassword ? (
-                            <VisibilityOff fontSize="small" />
-                          ) : (
                             <Visibility fontSize="small" />
+                          ) : (
+                            <VisibilityOff fontSize="small" />
                           )}
                         </IconButton>
                       </InputAdornment>
