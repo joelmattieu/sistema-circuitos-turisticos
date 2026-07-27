@@ -7,7 +7,7 @@ import {
   Marker,
   Popup,
   Polyline,
-  CircleMarker,
+  Circle,
 } from "react-leaflet";
 import L from "leaflet";
 import { Box, CircularProgress, Typography } from "@mui/material";
@@ -166,7 +166,7 @@ export default function MapView({
                     {poi.nombre}
                   </Typography>
                   <Typography variant="caption">
-                    {poi.descripcion?.substring(0, 50)}...
+                    {poi.descripcion}
                   </Typography>
                 </Box>
               </Popup>
@@ -186,9 +186,9 @@ export default function MapView({
         )}
 
         {userLocation && userLocation.accuracy && (
-          <CircleMarker
+          <Circle
             center={[userLocation.latitude, userLocation.longitude]}
-            radius={userLocation.accuracy / 111.3}
+            radius={userLocation.accuracy}
             fill={true}
             fillColor="#4caf50"
             fillOpacity={0.1}
