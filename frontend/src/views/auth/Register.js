@@ -279,17 +279,21 @@ const Register = () => {
               rules={{
                 required: t("validation.birthdateRequired"),
                 validate: (value) => {
-                  const today = new Date();
-                  const birthDate = new Date(value);
-                  const age =
-                    today.getFullYear() -
-                    birthDate.getFullYear() -
-                    (today.getMonth() < birthDate.getMonth() ||
-                      (today.getMonth() === birthDate.getMonth() &&
-                        today.getDate() < birthDate.getDate()));
+                  // Agrego "T00:00:00" para leer la fecha en hora local
+                  // (sin esto, JS la interpreta en UTC y se corre un día).
+                  const nacimiento = new Date(value + "T00:00:00");
+                  const hoy = new Date();
 
-                  if (age < 13) return t("validation.ageMin");
-                  if (age > 120) return t("validation.ageMax");
+                  // Edad = diferencia de años; si todavía no cumplió este año, resto uno.
+                  let edad = hoy.getFullYear() - nacimiento.getFullYear();
+                  const yaCumplioEsteAnio =
+                    hoy.getMonth() > nacimiento.getMonth() ||
+                    (hoy.getMonth() === nacimiento.getMonth() &&
+                      hoy.getDate() >= nacimiento.getDate());
+                  if (!yaCumplioEsteAnio) edad--;
+
+                  if (edad < 13) return t("validation.ageMin");
+                  if (edad > 120) return t("validation.ageMax");
                   return true;
                 },
               }}
