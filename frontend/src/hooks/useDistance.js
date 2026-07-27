@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 
 const ID_UNIDAD_MILLAS = 2;
 const METROS_A_PIES = 3.28084;
-const METROS_A_MILLAS = 0.621371;
+const KM_A_MILLAS = 0.621371;
 
 export const useDistanceFormatter = () => {
   const { preferencias } = useSelector((state) => state.preferencias);
@@ -23,7 +23,7 @@ export const useDistanceFormatter = () => {
       if (modoCorto && pies < 1000) {
         return `${Math.round(pies)} ft`;
       }
-      const millas = (distanciaMetros / 1000) * METROS_A_MILLAS;
+      const millas = (distanciaMetros / 1000) * KM_A_MILLAS;
       return `${millas.toFixed(1)} mi`;
     }
 
