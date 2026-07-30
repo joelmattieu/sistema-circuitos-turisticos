@@ -16,11 +16,12 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 const MODO_NOMBRE_POR_ID = { 1: "A pie", 2: "Automóvil", 3: "Bicicleta" };
+const CODIGO_ISO_POR_IDIOMA_ID = { 1: "es", 2: "en", 3: "pt" };
 
 const CircuitosView = () => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { t } = useContext(LanguageContext);
+  const { t, changeLanguage } = useContext(LanguageContext);
   const { user } = useAuth();
   const { location } = useGeolocation();
   const latAprox = location?.latitude?.toFixed(3);
@@ -40,6 +41,12 @@ const CircuitosView = () => {
       dispatch(fetchPreferencias());
     }
   }, [dispatch, user, preferencias]);
+
+  useEffect(() => {
+    const codigo = CODIGO_ISO_POR_IDIOMA_ID[preferencias?.idioma_id];
+    if (codigo) changeLanguage(codigo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferencias?.idioma_id]);
 
   useEffect(() => {
     const cargarRecomendaciones = async () => {
